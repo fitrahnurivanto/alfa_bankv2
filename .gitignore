@@ -1,0 +1,41 @@
+# Laravel & PHP
+/node_modules
+/vendor
+.env
+.env.local
+.env.*.local
+.DS_Store
+Thumbs.db
+
+# Storage & Logs
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+!/storage/logs/.gitkeep
+!/storage/framework/.gitkeep
+!/storage/app/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.env.backup
+
+# Build
+/public/hot
+/public/storage
+
+# Local files
+download*.jpg
+download*.png
+create_dummy_data.php
+run_artisan.php
+dummy_data.sql
+INVENTARIS_MIGRATION.sql
+Praktek-Kerja-Lapangan-*.txt

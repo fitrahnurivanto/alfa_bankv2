@@ -1,0 +1,476 @@
+/**
+ * Responsive Fix untuk Management Project
+ * Mengatasi masalah tampilan terpotong di berbagai ukuran layar
+ * Khusus untuk laptop dengan layar besar (Thinkpad dan sejenisnya)
+ */
+
+/* ===== BASE RESET ===== */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+}
+
+/* ===== RESPONSIVE FONT SCALING ===== */
+/* Ultra wide screens (2560px+) */
+@media (min-width: 2560px) {
+    html {
+        font-size: 18px;
+    }
+    .container, .container-fluid {
+        max-width: 2560px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Extra large screens (1920px - 2559px) */
+@media (min-width: 1920px) and (max-width: 2559px) {
+    html {
+        font-size: 16px;
+    }
+    .container, .container-fluid {
+        max-width: 1920px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Large screens (1600px - 1919px) - Kebanyakan Thinkpad */
+@media (min-width: 1600px) and (max-width: 1919px) {
+    html {
+        font-size: 15px;
+    }
+    .text-2xl {
+        font-size: 1.4rem !important;
+    }
+    .text-xl {
+        font-size: 1.2rem !important;
+    }
+    .p-6 {
+        padding: 1.25rem !important;
+    }
+    .p-8 {
+        padding: 1.5rem !important;
+    }
+}
+
+/* Standard laptop (1366px - 1599px) */
+@media (min-width: 1366px) and (max-width: 1599px) {
+    html {
+        font-size: 14px;
+    }
+    .text-2xl {
+        font-size: 1.3rem !important;
+    }
+    .text-xl {
+        font-size: 1.1rem !important;
+    }
+    .p-6 {
+        padding: 1rem !important;
+    }
+    .p-8 {
+        padding: 1.25rem !important;
+    }
+}
+
+/* Small laptop (1280px - 1365px) */
+@media (min-width: 1280px) and (max-width: 1365px) {
+    html {
+        font-size: 13.5px;
+    }
+    .text-2xl {
+        font-size: 1.25rem !important;
+    }
+    .text-xl {
+        font-size: 1.05rem !important;
+    }
+    .px-6 {
+        padding-left: 0.875rem !important;
+        padding-right: 0.875rem !important;
+    }
+    .p-6 {
+        padding: 0.875rem !important;
+    }
+    .p-8 {
+        padding: 1rem !important;
+    }
+}
+
+/* Compact laptop (1024px - 1279px) */
+@media (min-width: 1024px) and (max-width: 1279px) {
+    html {
+        font-size: 13px;
+    }
+    .text-2xl {
+        font-size: 1.2rem !important;
+    }
+    .text-xl {
+        font-size: 1rem !important;
+    }
+    .px-6 {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    .p-6 {
+        padding: 0.75rem !important;
+    }
+    .p-8 {
+        padding: 1rem !important;
+    }
+}
+
+/* Tablet landscape (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    html {
+        font-size: 14px;
+    }
+    .px-6 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    .p-6 {
+        padding: 1rem !important;
+    }
+}
+
+/* ===== LAYOUT FIXES ===== */
+.lg\:ml-64 {
+    max-width: 100%;
+}
+
+/* Sidebar responsive width */
+@media (min-width: 1024px) {
+    .sidebar-fixed {
+        width: 256px;
+    }
+    .lg\:ml-64 {
+        margin-left: 256px;
+    }
+}
+
+/* ===== GRID RESPONSIVE ===== */
+.grid-responsive {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+    .grid-responsive {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-responsive {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1536px) {
+    .grid-responsive {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ===== CARD RESPONSIVE ===== */
+.card-stats {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.card-stats h4 {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.card-stats p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Card optimizations for all screen sizes */
+@media (max-width: 1279px) {
+    .card-stats {
+        padding: 0.875rem !important;
+    }
+}
+
+/* ===== CONTAINER RESPONSIVE ===== */
+.container-responsive {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 1280px) {
+    .container-responsive {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1600px) {
+    .container-responsive {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+@media (min-width: 1920px) {
+    .container-responsive {
+        max-width: 1920px;
+    }
+}
+
+/* ===== TABLE RESPONSIVE ===== */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+}
+
+.table-responsive table {
+    min-width: 100%;
+    width: max-content;
+}
+
+/* Ensure table fits well on all laptop sizes */
+@media (min-width: 1024px) and (max-width: 1279px) {
+    .table-responsive table {
+        font-size: 0.875rem;
+    }
+    .table-responsive th,
+    .table-responsive td {
+        padding: 0.625rem !important;
+    }
+}
+
+@media (min-width: 1280px) and (max-width: 1599px) {
+    .table-responsive th,
+    .table-responsive td {
+        padding: 0.75rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-responsive table {
+        min-width: 600px;
+        font-size: 0.875rem;
+    }
+    .table-responsive th,
+    .table-responsive td {
+        padding: 0.5rem !important;
+    }
+}
+
+/* Sticky table header */
+.table-responsive thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #F9FAFB;
+}
+
+/* ===== FORM RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .form-inline {
+        flex-direction: column;
+        width: 100%;
+    }
+    .form-inline select,
+    .form-inline input {
+        width: 100%;
+    }
+}
+
+/* ===== BUTTON RESPONSIVE ===== */
+@media (max-width: 640px) {
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    .btn-group button,
+    .btn-group a {
+        width: 100%;
+    }
+}
+
+/* ===== CHART CONTAINER ===== */
+.chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+@media (min-width: 1600px) {
+    .chart-container {
+        height: 350px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .chart-container {
+        height: 250px !important;
+    }
+}
+
+/* ===== TEXT TRUNCATE UTILITIES ===== */
+.truncate-2-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== MODAL RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+    }
+}
+
+/* ===== NOTIFICATION DROPDOWN ===== */
+.notification-dropdown {
+    max-width: calc(100vw - 2rem);
+}
+
+/* ===== PREVENT ZOOM ON INPUT FOCUS (Mobile) ===== */
+@media (max-width: 768px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* ===== HEADER FIXES ===== */
+.page-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+@media (min-width: 1024px) {
+    .page-header {
+        flex-wrap: nowrap;
+    }
+}
+
+/* ===== FILTER FORM ===== */
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.filter-form select {
+    flex: 1 1 auto;
+    min-width: 150px;
+}
+
+@media (min-width: 1024px) {
+    .filter-form select {
+        flex: 0 1 auto;
+    }
+}
+
+/* ===== SPACING ADJUSTMENTS ===== */
+@media (min-width: 1600px) {
+    .container-spacing {
+        padding-left: 2.5rem !important;
+        padding-right: 2.5rem !important;
+    }
+}
+
+/* ===== FLEX UTILITIES ===== */
+.flex-responsive {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+    .flex-responsive {
+        flex-wrap: nowrap;
+        gap: 1rem;
+    }
+}
+
+@media (min-width: 1600px) {
+    .flex-responsive {
+        gap: 1.5rem;
+    }
+}
+
+/* ===== RESPONSIVE TEXT ===== */
+.text-responsive-lg {
+    font-size: 1rem;
+}
+
+@media (min-width: 1280px) {
+    .text-responsive-lg {
+        font-size: 1.125rem;
+    }
+}
+
+@media (min-width: 1600px) {
+    .text-responsive-lg {
+        font-size: 1.25rem;
+    }
+}
+
+.text-responsive-base {
+    font-size: 0.875rem;
+}
+
+@media (min-width: 1280px) {
+    .text-responsive-base {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 1600px) {
+    .text-responsive-base {
+        font-size: 1.125rem;
+    }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .sidebar,
+    .page-header,
+    .filter-form,
+    button,
+    .no-print {
+        display: none !important;
+    }
+    .lg\:ml-64 {
+        margin-left: 0 !important;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
