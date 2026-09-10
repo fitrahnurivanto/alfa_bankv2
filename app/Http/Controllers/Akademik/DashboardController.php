@@ -138,9 +138,10 @@ class DashboardController extends Controller
         };
 
         $regularParticipants = (int) Clas::query()
-            ->join('kategoris', 'kategoris.id', '=', 'clas.kategori_id')
-            ->whereRaw('LOWER(kategoris.nama_kategori) LIKE ?', ['%regular%'])
             ->whereIn('clas.status', ['approved', 'done'])
+            ->whereHas('training', function ($query) {
+                $query->where('type', 'reguler');
+            })
             ->tap($applyClasDateFilter)
             ->sum('clas.amount');
 
@@ -162,9 +163,10 @@ class DashboardController extends Controller
 
         // 3c) Lulus / Tidak Lulus per kategori
         $regularPassFail = Clas::query()
-            ->join('kategoris', 'kategoris.id', '=', 'clas.kategori_id')
             ->where('clas.status', 'done')
-            ->whereRaw('LOWER(kategoris.nama_kategori) LIKE ?', ['%regular%'])
+            ->whereHas('training', function ($query) {
+                $query->where('type', 'reguler');
+            })
             ->selectRaw("SUM(COALESCE(clas.passed_students, CASE WHEN clas.grade_file_status = 'approved' THEN COALESCE(clas.amount, 0) ELSE 0 END)) as passed_total")
             ->selectRaw('SUM(COALESCE(clas.failed_students, 0)) as failed_total')
             ->tap($applyClasDateFilter)
