@@ -49,14 +49,29 @@ class DashboardController extends Controller
             Clas::query()->whereIn('status', ['approved', 'done'])
         )->count();
 
-        $runningClassByCategory = Clas::query()
-            ->join('kategoris', 'kategoris.id', '=', 'clas.kategori_id')
-            ->whereIn('clas.status', ['approved', 'done'])
-            ->selectRaw('kategoris.nama_kategori as category_name, COUNT(*) as total_classes')
-            ->tap($applyClasDateFilter)
-            ->groupBy('kategoris.id', 'kategoris.nama_kategori')
-            ->orderByDesc('total_classes')
-            ->get();
+        $runningRegularClasses = $applyClasDateFilter(
+            Clas::query()
+                ->whereIn('status', ['approved', 'done'])
+                ->whereHas('training', function ($query) {
+                    $query->where('type', 'reguler');
+                })
+        )->count();
+
+        $runningCorporateClasses = $applyClasDateFilter(
+            Clas::query()
+                ->whereIn('status', ['approved', 'done'])
+                ->whereHas('training', function ($query) {
+                    $query->where('type', 'corporate');
+                })
+        )->count();
+
+        $runningPrivateClasses = $applyClasDateFilter(
+            Clas::query()
+                ->whereIn('status', ['approved', 'done'])
+                ->whereHas('training', function ($query) {
+                    $query->where('type', 'private');
+                })
+        )->count();
 
         // 2) Jumlah peserta tiap kelas (sumber saat ini: clas.amount)
         $totalParticipants = (int) $applyClasDateFilter(Clas::query())->sum('amount');
@@ -321,39 +336,43 @@ class DashboardController extends Controller
         ]);
         $currentMonthLabel = Carbon::create($chartYear, $chartMonth, 1)->translatedFormat('F Y');
 
-        // NEW: Chart per training di setiap kategori (3 mini charts)
-        $regularTrainingsPassData = Clas::query()
-            ->join('kategoris', 'kategoris.id', '=', 'clas.kategori_id')
-            ->join('trainings', 'trainings.id', '=', 'clas.training_id')
-            ->where('clas.status', 'done')
-            ->whereRaw('LOWER(kategoris.nama_kategori) LIKE ?', ['%regular%'])
-            ->selectRaw("trainings.name as training_name, SUM(COALESCE(clas.passed_students, CASE WHEN clas.grade_file_status = 'approved' THEN COALESCE(clas.amount, 0) ELSE 0 END)) as passed_total")
-            ->tap($applyClasDateFilter)
-            ->groupBy('trainings.id', 'trainings.name')
-            ->orderBy('trainings.name')
-            ->get();
+        // NEW: Chart peserta lulus per training per bulan Jan-Des
+        // Hasil: tiap training jadi dataset terpisah di grafik, sumbu X = Jan-Des
+        // Use completion date (done_at or end_date) first so "passed" counts are
+        // attributed to the month the class finished, not when it started.
+       // CODE BARU (SUDAH DIPERBAIKI)
+$dateExpr = "COALESCE(clas.done_at, clas.end_date, clas.start_date, clas.created_at)";
 
-        $corporateTrainingsPassData = Clas::query()
-            ->join('kategoris', 'kategoris.id', '=', 'clas.kategori_id')
-            ->join('trainings', 'trainings.id', '=', 'clas.training_id')
-            ->where('clas.status', 'done')
-            ->whereRaw('LOWER(kategoris.nama_kategori) LIKE ?', ['%corporate%'])
-            ->selectRaw("trainings.name as training_name, SUM(COALESCE(clas.passed_students, CASE WHEN clas.grade_file_status = 'approved' THEN COALESCE(clas.amount, 0) ELSE 0 END)) as passed_total")
-            ->tap($applyClasDateFilter)
-            ->groupBy('trainings.id', 'trainings.name')
-            ->orderBy('trainings.name')
-            ->get();
+$passedByTrainingMonthRaw = Clas::query()
+    ->join('kategoris', 'kategoris.id', '=', 'clas.kategori_id')
+    ->join('trainings', 'trainings.id', '=', 'clas.training_id')
+    ->where('clas.status', 'done')
+    ->whereRaw("YEAR({$dateExpr}) = ?", [$selectedYear]) // Menggunakan whereRaw + bindings
+    ->selectRaw("trainings.id as training_id, trainings.name as training_name, LOWER(kategoris.nama_kategori) as category_name, MONTH({$dateExpr}) as month_num, SUM(COALESCE(clas.passed_students, CASE WHEN clas.grade_file_status = 'approved' THEN COALESCE(clas.amount, 0) ELSE 0 END)) as passed_total")
+    ->groupBy('trainings.id', 'trainings.name', 'category_name', 'month_num')
+    ->orderBy('trainings.name')
+    ->get();
 
-        $privateTrainingsPassData = Clas::query()
-            ->join('kategoris', 'kategoris.id', '=', 'clas.kategori_id')
-            ->join('trainings', 'trainings.id', '=', 'clas.training_id')
-            ->where('clas.status', 'done')
-            ->whereRaw('LOWER(kategoris.nama_kategori) LIKE ?', ['%private%'])
-            ->selectRaw("trainings.name as training_name, SUM(COALESCE(clas.passed_students, CASE WHEN clas.grade_file_status = 'approved' THEN COALESCE(clas.amount, 0) ELSE 0 END)) as passed_total")
-            ->tap($applyClasDateFilter)
-            ->groupBy('trainings.id', 'trainings.name')
-            ->orderBy('trainings.name')
-            ->get();
+        // Struktur hasil: [ ['training_name'=>'...', 'monthly'=>[0,0,...12 values]] ]
+        $buildTrainingMonthly = function (string $categoryKeyword) use ($passedByTrainingMonthRaw): array {
+            $trainings = []; // keyed by training_id
+            foreach ($passedByTrainingMonthRaw as $row) {
+                if (!str_contains((string) $row->category_name, $categoryKeyword)) continue;
+                $tid = (int) $row->training_id;
+                if (!isset($trainings[$tid])) {
+                    $trainings[$tid] = ['training_name' => $row->training_name, 'monthly' => array_fill(0, 12, 0)];
+                }
+                $idx = max(((int) $row->month_num) - 1, 0);
+                if ($idx <= 11) {
+                    $trainings[$tid]['monthly'][$idx] += (int) ($row->passed_total ?? 0);
+                }
+            }
+            return array_values($trainings);
+        };
+
+        $regularTrainingsPassData   = $buildTrainingMonthly('regular');
+        $corporateTrainingsPassData = $buildTrainingMonthly('corporate');
+        $privateTrainingsPassData   = $buildTrainingMonthly('private');
 
         // Tabel: peserta lulus / tidak lulus per kelas
         $graduationClassesQuery = Clas::query()
@@ -422,7 +441,9 @@ class DashboardController extends Controller
             'years',
             'selectedYear',
             'runningClassesCount',
-            'runningClassByCategory',
+            'runningRegularClasses',
+            'runningCorporateClasses',
+            'runningPrivateClasses',
             'totalParticipants',
             'totalParticipantsRunning',
             'avgParticipantsPerClass',

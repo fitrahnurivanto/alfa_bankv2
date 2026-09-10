@@ -52,20 +52,6 @@
 </div>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 mb-8">
-    @php
-        $runningRegularClasses = (int) $runningClassByCategory->filter(function ($item) {
-            return stripos((string) $item->category_name, 'regular') !== false;
-        })->sum('total_classes');
-
-        $runningCorporateClasses = (int) $runningClassByCategory->filter(function ($item) {
-            return stripos((string) $item->category_name, 'corporate') !== false;
-        })->sum('total_classes');
-
-        $runningPrivateClasses = (int) $runningClassByCategory->filter(function ($item) {
-            return stripos((string) $item->category_name, 'private') !== false;
-        })->sum('total_classes');
-    @endphp
-
     <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 hover:shadow-md">
         <div class="p-4 md:p-6">
             <div class="flex justify-between items-start gap-3">
@@ -251,40 +237,50 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 mb-6">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">
-            <i class="fas fa-chart-bar mr-2 text-emerald-600"></i>Peserta Lulus per Training (Per Kategori)
-        </h3>
-        <p class="text-xs text-gray-500 mb-4">Periode: {{ $currentMonthLabel ?? now()->translatedFormat('F Y') }}</p>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-            <!-- Regular Training Chart -->
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 md:p-5">
-                <h4 class="font-semibold text-blue-900 mb-3 text-sm md:text-base">
-                    <i class="fas fa-book-open text-blue-600 mr-2"></i>Regular
-                </h4>
-                <div class="w-full overflow-x-auto">
-                    <canvas id="regularTrainingChart" style="min-height: 280px; max-height: 320px;"></canvas>
-                </div>
+        <div class="mb-4 md:mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div class="flex-1">
+                <h3 class="text-base md:text-lg font-bold text-gray-900 mb-1">
+                    <i class="fas fa-chart-bar mr-2 text-emerald-600"></i>Peserta Lulus per Kategori ({{ $selectedYear }})
+                </h3>
+                <p class="text-xs md:text-sm text-gray-600">Jan–Des, 3 kategori per bulan: Regular, Corporate, Private</p>
             </div>
-
-            <!-- Corporate Training Chart -->
-            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 md:p-5">
-                <h4 class="font-semibold text-indigo-900 mb-3 text-sm md:text-base">
-                    <i class="fas fa-building text-indigo-600 mr-2"></i>Corporate
-                </h4>
-                <div class="w-full overflow-x-auto">
-                    <canvas id="corporateTrainingChart" style="min-height: 280px; max-height: 320px;"></canvas>
-                </div>
+            <div class="flex gap-2 shrink-0">
+                <button id="passedByCategoryChartTypeBar" onclick="switchPassedCategoryChartType('bar')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-emerald-100 text-emerald-700 border-emerald-400 hover:bg-emerald-200">
+                    <i class="fas fa-chart-bar"></i> Bar
+                </button>
+                <button id="passedByCategoryChartTypeLine" onclick="switchPassedCategoryChartType('line')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200">
+                    <i class="fas fa-chart-line"></i> Line
+                </button>
             </div>
+        </div>
 
-            <!-- Private Training Chart -->
-            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-4 md:p-5">
-                <h4 class="font-semibold text-amber-900 mb-3 text-sm md:text-base">
-                    <i class="fas fa-user text-amber-600 mr-2"></i>Private
-                </h4>
-                <div class="w-full overflow-x-auto">
-                    <canvas id="privateTrainingChart" style="min-height: 280px; max-height: 320px;"></canvas>
-                </div>
+        <!-- Regular -->
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 md:p-5 mb-4">
+            <h4 class="font-semibold text-blue-900 mb-3 text-sm md:text-base">
+                <i class="fas fa-book-open text-blue-600 mr-2"></i>Regular
+            </h4>
+            <div class="w-full overflow-x-auto">
+                <canvas id="regularTrainingChart" style="min-height: 260px; max-height: 320px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Corporate -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 md:p-5 mb-4">
+            <h4 class="font-semibold text-indigo-900 mb-3 text-sm md:text-base">
+                <i class="fas fa-building text-indigo-600 mr-2"></i>Corporate
+            </h4>
+            <div class="w-full overflow-x-auto">
+                <canvas id="corporateTrainingChart" style="min-height: 260px; max-height: 320px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Private -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-4 md:p-5">
+            <h4 class="font-semibold text-amber-900 mb-3 text-sm md:text-base">
+                <i class="fas fa-user text-amber-600 mr-2"></i>Private
+            </h4>
+            <div class="w-full overflow-x-auto">
+                <canvas id="privateTrainingChart" style="min-height: 260px; max-height: 320px;"></canvas>
             </div>
         </div>
     </div>
@@ -605,9 +601,8 @@
         const regularMonthlyClasses = @json($regularMonthlyClasses);
         const corporateMonthlyClasses = @json($corporateMonthlyClasses);
         const privateMonthlyClasses = @json($privateMonthlyClasses);
-        const regularTrainingsData = @json($regularTrainingsPassData);
-        const corporateTrainingsData = @json($corporateTrainingsPassData);
-        const privateTrainingsData = @json($privateTrainingsPassData);
+        // regularTrainingsData / corporateTrainingsData / privateTrainingsData
+        // digantikan oleh regularPassedMonthly, dst. yang dideklarasi di bawah (createPassedCategoryChart)
 
         const isMobile = () => window.innerWidth < 768;
 
@@ -724,6 +719,122 @@
             };
         }
 
+        // ── Peserta Lulus per Kategori (Jan–Des) ──────────────────────────────
+        // ── Peserta Lulus per Training per Bulan (Jan–Des) ───────────────────
+        // Struktur data dari controller: array of { training_name, monthly: [12 values] }
+        const regularTrainingsData   = @json($regularTrainingsPassData);
+        const corporateTrainingsData = @json($corporateTrainingsPassData);
+        const privateTrainingsData   = @json($privateTrainingsPassData);
+
+        // Palet warna multi-dataset (cukup untuk ~15 training)
+        const multiPalette = [
+            { bg: 'rgba(59,130,246,0.75)',  border: 'rgba(37,99,235,1)'    },
+            { bg: 'rgba(16,185,129,0.75)',  border: 'rgba(5,150,105,1)'    },
+            { bg: 'rgba(245,158,11,0.80)',  border: 'rgba(217,119,6,1)'    },
+            { bg: 'rgba(239,68,68,0.75)',   border: 'rgba(220,38,38,1)'    },
+            { bg: 'rgba(168,85,247,0.75)',  border: 'rgba(139,92,246,1)'   },
+            { bg: 'rgba(236,72,153,0.75)',  border: 'rgba(219,39,119,1)'   },
+            { bg: 'rgba(20,184,166,0.75)',  border: 'rgba(13,148,136,1)'   },
+            { bg: 'rgba(251,146,60,0.80)',  border: 'rgba(234,88,12,1)'    },
+            { bg: 'rgba(99,102,241,0.75)',  border: 'rgba(79,70,229,1)'    },
+            { bg: 'rgba(132,204,22,0.75)',  border: 'rgba(101,163,13,1)'   },
+        ];
+
+        const categoryCanvasMap = {
+            regular:   'regularTrainingChart',
+            corporate: 'corporateTrainingChart',
+            private:   'privateTrainingChart',
+        };
+
+        let passedCategoryChartType = 'bar';
+
+        function buildTrainingDatasets(trainingsData, type) {
+            return trainingsData.map(function(item, idx) {
+                const color = multiPalette[idx % multiPalette.length];
+                const monthly = Array.isArray(item.monthly) ? item.monthly : Object.values(item.monthly);
+                return {
+                    label: item.training_name || ('Training ' + (idx + 1)),
+                    data: monthly,
+                    backgroundColor: type === 'bar' ? color.bg : color.bg.replace('0.75', '0.15').replace('0.80', '0.15'),
+                    borderColor: color.border,
+                    borderWidth: type === 'bar' ? 1 : 2,
+                    borderRadius: type === 'bar' ? 5 : 0,
+                    maxBarThickness: 22,
+                    fill: type === 'line',
+                    tension: type === 'line' ? 0.35 : 0,
+                    pointRadius: type === 'line' ? 4 : 0,
+                    pointHoverRadius: type === 'line' ? 6 : 0,
+                };
+            });
+        }
+
+        function createPassedCategoryChart(key, type) {
+            const canvasId = categoryCanvasMap[key];
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            if (akademikCharts[canvasId]) { akademikCharts[canvasId].destroy(); }
+            setCanvasHeight(canvas);
+
+            const trainingsData = key === 'regular' ? regularTrainingsData
+                                : key === 'corporate' ? corporateTrainingsData
+                                : privateTrainingsData;
+
+            const datasets = buildTrainingDatasets(trainingsData, type);
+
+            akademikCharts[canvasId] = new Chart(canvas.getContext('2d'), {
+                type: type,
+                data: {
+                    labels: monthLabels,
+                    datasets: datasets
+                },
+                options: {
+                    ...getChartBaseOptions(),
+                    plugins: {
+                        ...getChartBaseOptions().plugins,
+                        legend: {
+                            display: true,
+                            position: isMobile() ? 'bottom' : 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: isMobile() ? 8 : 12,
+                                font: { size: isMobile() ? 9 : 11 }
+                            }
+                        },
+                        tooltip: {
+                            ...getChartBaseOptions().plugins.tooltip,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' +
+                                        Number(context.parsed.y || 0).toLocaleString('id-ID') + ' peserta lulus';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function switchPassedCategoryChartType(newType) {
+            if (passedCategoryChartType === newType) return;
+            passedCategoryChartType = newType;
+            ['regular', 'corporate', 'private'].forEach(key => createPassedCategoryChart(key, newType));
+
+            const activeClasses   = ['bg-emerald-100', 'text-emerald-700', 'border-emerald-400'];
+            const inactiveClasses = ['bg-gray-100', 'text-gray-600', 'border-gray-200'];
+            const barBtn  = document.getElementById('passedByCategoryChartTypeBar');
+            const lineBtn = document.getElementById('passedByCategoryChartTypeLine');
+            if (newType === 'bar') {
+                barBtn.classList.remove(...inactiveClasses); barBtn.classList.add(...activeClasses);
+                lineBtn.classList.remove(...activeClasses);  lineBtn.classList.add(...inactiveClasses);
+            } else {
+                lineBtn.classList.remove(...inactiveClasses); lineBtn.classList.add(...activeClasses);
+                barBtn.classList.remove(...activeClasses);    barBtn.classList.add(...inactiveClasses);
+            }
+        }
+
+        window.switchPassedCategoryChartType = switchPassedCategoryChartType;
+
+        // Legacy stub – agar tidak error jika ada pemanggilan lama
         function createMiniTrainingChart(canvasId, trainingData, categoryColor, categoryLabel) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
@@ -839,10 +950,8 @@
         createAkademikChart('classByCategoryChart', 'bar');
         updateAkademikButtons('classByCategoryChart', 'bar');
         
-        // Create 3 mini training charts
-        createMiniTrainingChart('regularTrainingChart', regularTrainingsData, 'regular', 'Regular');
-        createMiniTrainingChart('corporateTrainingChart', corporateTrainingsData, 'corporate', 'Corporate');
-        createMiniTrainingChart('privateTrainingChart', privateTrainingsData, 'private', 'Private');
+        // Inisialisasi 3 grafik Peserta Lulus per Kategori (Jan–Des)
+        ['regular', 'corporate', 'private'].forEach(key => createPassedCategoryChart(key, 'bar'));
 
         let resizeTimer;
         window.addEventListener('resize', function() {
