@@ -144,6 +144,5 @@
 
     <!-- Actions -->
     <td class="px-6 py-4 whitespace-nowrap text-sm">
-        <x-order-actions :order="$order" :presenter="$presenter" />
     </td>
 </tr>
