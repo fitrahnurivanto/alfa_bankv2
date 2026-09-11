@@ -149,7 +149,7 @@ $classValueRevenue = $totalRevenue;
         $regularClassesCount = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
             ->whereHas('kategori', function ($query) {
-                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regul%']);
             })
             ->count();
 
@@ -170,7 +170,7 @@ $classValueRevenue = $totalRevenue;
        $regularRevenue = (clone $classQuery)
     ->whereIn('status', ['approved', 'done'])
         ->whereHas('kategori', function ($query) {
-            $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
+            $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regul%']);
     })
     ->sum('price');
 
@@ -192,7 +192,7 @@ $privateRevenue = (clone $classQuery)
         $runningRegularClasses = (clone $classQueryByPeriodYear)
             ->where('status', 'approved')
             ->whereHas('kategori', function ($query) {
-                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regul%']);
             })
             ->count();
 
@@ -213,7 +213,7 @@ $privateRevenue = (clone $classQuery)
         $regularParticipants = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
             ->whereHas('kategori', function ($query) {
-                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regul%']);
             })
             ->sum('amount');
 
@@ -235,7 +235,7 @@ $privateRevenue = (clone $classQuery)
         $regularPassFail = (clone $classQueryByPeriodYear)
             ->where('status', 'done')
             ->whereHas('kategori', function ($query) {
-                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regul%']);
             })
             ->selectRaw("SUM(COALESCE(passed_students, CASE WHEN grade_file_status = 'approved' THEN COALESCE(amount, 0) ELSE 0 END)) as passed_total")
             ->selectRaw('SUM(COALESCE(failed_students, 0)) as failed_total')
@@ -284,7 +284,7 @@ $privateRevenue = (clone $classQuery)
 
         $regularHonorPayment = (clone $honorExpenseBaseQuery)
             ->whereHas('clas.kategori', function ($query) {
-                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regul%']);
             })
             ->sum('amount');
 

@@ -52,24 +52,24 @@ class DashboardController extends Controller
         $runningRegularClasses = $applyClasDateFilter(
             Clas::query()
                 ->whereIn('status', ['approved', 'done'])
-                ->whereHas('training', function ($query) {
-                    $query->where('type', 'reguler');
+                ->whereHas('kategori', function ($query) {
+                    $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regul%']);
                 })
         )->count();
 
         $runningCorporateClasses = $applyClasDateFilter(
             Clas::query()
                 ->whereIn('status', ['approved', 'done'])
-                ->whereHas('training', function ($query) {
-                    $query->where('type', 'corporate');
+                ->whereHas('kategori', function ($query) {
+                    $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
                 })
         )->count();
 
         $runningPrivateClasses = $applyClasDateFilter(
             Clas::query()
                 ->whereIn('status', ['approved', 'done'])
-                ->whereHas('training', function ($query) {
-                    $query->where('type', 'private');
+                ->whereHas('kategori', function ($query) {
+                    $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%private%']);
                 })
         )->count();
 
@@ -138,10 +138,9 @@ class DashboardController extends Controller
         };
 
         $regularParticipants = (int) Clas::query()
+            ->join('kategoris', 'kategoris.id', '=', 'clas.kategori_id')
+            ->whereRaw('LOWER(kategoris.nama_kategori) LIKE ?', ['%regul%'])
             ->whereIn('clas.status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
-            })
             ->tap($applyClasDateFilter)
             ->sum('clas.amount');
 
@@ -163,10 +162,9 @@ class DashboardController extends Controller
 
         // 3c) Lulus / Tidak Lulus per kategori
         $regularPassFail = Clas::query()
+            ->join('kategoris', 'kategoris.id', '=', 'clas.kategori_id')
             ->where('clas.status', 'done')
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
-            })
+            ->whereRaw('LOWER(kategoris.nama_kategori) LIKE ?', ['%regul%'])
             ->selectRaw("SUM(COALESCE(clas.passed_students, CASE WHEN clas.grade_file_status = 'approved' THEN COALESCE(clas.amount, 0) ELSE 0 END)) as passed_total")
             ->selectRaw('SUM(COALESCE(clas.failed_students, 0)) as failed_total')
             ->tap($applyClasDateFilter)
@@ -284,7 +282,7 @@ class DashboardController extends Controller
             $categoryName = (string) $row->category_name;
             $total = (int) $row->total;
 
-            if (str_contains($categoryName, 'regular')) {
+            if (str_contains($categoryName, 'regul')) {
                 $regularMonthlyClasses[$monthIndex] += $total;
             } elseif (str_contains($categoryName, 'corporate')) {
                 $corporateMonthlyClasses[$monthIndex] += $total;
@@ -372,7 +370,7 @@ $passedByTrainingMonthRaw = Clas::query()
             return array_values($trainings);
         };
 
-        $regularTrainingsPassData   = $buildTrainingMonthly('regular');
+        $regularTrainingsPassData   = $buildTrainingMonthly('regul');
         $corporateTrainingsPassData = $buildTrainingMonthly('corporate');
         $privateTrainingsPassData   = $buildTrainingMonthly('private');
 
