@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Clas;
 use App\Models\Client;
-use App\Models\Invoice;
 use App\Models\PaymentRequest;
 use App\Models\ClassExpense;
 use App\Models\Setting;
@@ -84,22 +83,8 @@ $totalPaid = (clone $classQuery)->whereIn('status', ['approved', 'done'])
 $classRevenue = $totalRevenue;
 $classValueRevenue = $totalRevenue;
 
-        $remainingInvoiceQuery = Invoice::withSum('payments as paid_total', 'amount');
-        if ($period !== 'all') {
-            $actualYear = ($year !== 'all') ? (int) $year : (int) date('Y');
-            $dateFilter = $this->getDateFilter($period, $actualYear);
-            $remainingInvoiceQuery->whereBetween('created_at', $dateFilter);
-        } elseif ($year !== 'all') {
-            $remainingInvoiceQuery->whereYear('created_at', $year);
-        }
-
-        $totalRemainingPayment = (float) $remainingInvoiceQuery
-            ->get()
-            ->sum(function ($invoice) {
-                $paidTotal = (float) ($invoice->paid_total ?? 0);
-                $remaining = (float) $invoice->amount - $paidTotal;
-                return $remaining > 0 ? $remaining : 0;
-            });
+        // Invoice belum digunakan pada deployment ini karena tabel invoices belum tersedia.
+        $totalRemainingPayment = 0;
 
         // Certification (BNSP) stats
         $hasBnspFinancialColumns = Schema::hasColumns('clas', [
