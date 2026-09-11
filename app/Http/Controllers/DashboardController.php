@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Clas;
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\PaymentRequest;
 use App\Models\ClassExpense;
 use App\Models\Setting;
@@ -66,46 +67,39 @@ class DashboardController extends Controller
         $activeClassesList = (clone $classQueryBase)->where('status', 'approved')->with('trainers:id,name')->orderBy('start_date')->get();
         $pendingClassesList = (clone $classQueryBase)->where('status', 'pending')->with('trainers:id,name')->orderByDesc('created_at')->get();
 
-        // Revenue calculation (gross income from all approved & done classes)
-        // Price is now total revenue for all categories (includes all students with discounts)
-        // Hanya hitung kelas yang APPROVED & DONE (exclude pending/rejected/cancelled)
+        // Revenue calculation now follows cash basis from confirmed payments.
+        // Class counts still follow operational class status, but omzet comes from payment confirmation date.
         $classes = (clone $classQuery)->whereIn('status', ['approved', 'done'])
             ->with('kategori')
             ->get();
-        
+
         $totalRevenue = 0;
-        foreach ($classes as $class) {
-            // Price is now total class revenue for all categories
-            $totalRevenue += $class->price;
-        }
-        
-        $totalPaid = (clone $classQuery)->whereIn('status', ['approved', 'done'])
-            ->sum('paid_amount');
-        
-        // Class Revenue (filtered) - same as totalRevenue for compatibility
-        $classRevenue = $totalRevenue;
-        
-        // Total Remaining Payment must match chart logic:
-        // - approved/done classes: remaining = price - paid_amount
-        // - pending/unapproved classes: full price is still remaining
-        $classesForRemaining = (clone $classQuery)
-            ->whereNotIn('status', ['cancelled', 'rejected'])
-            ->get(['status', 'price', 'paid_amount']);
+foreach ($classes as $class) {
+    $totalRevenue += (float) ($class->price ?? 0);
+}
 
-        $totalRemainingPayment = 0;
-        foreach ($classesForRemaining as $classForRemaining) {
-            $price = (float) ($classForRemaining->price ?? 0);
-            $paidAmount = (float) ($classForRemaining->paid_amount ?? 0);
+$totalPaid = (clone $classQuery)->whereIn('status', ['approved', 'done'])
+    ->sum('paid_amount');
 
-            if (in_array($classForRemaining->status, ['approved', 'done'], true)) {
-                $remaining = $price - $paidAmount;
-                if ($remaining > 0) {
-                    $totalRemainingPayment += $remaining;
-                }
-            } else {
-                $totalRemainingPayment += $price;
-            }
+$classRevenue = $totalRevenue;
+$classValueRevenue = $totalRevenue;
+
+        $remainingInvoiceQuery = Invoice::withSum('payments as paid_total', 'amount');
+        if ($period !== 'all') {
+            $actualYear = ($year !== 'all') ? (int) $year : (int) date('Y');
+            $dateFilter = $this->getDateFilter($period, $actualYear);
+            $remainingInvoiceQuery->whereBetween('created_at', $dateFilter);
+        } elseif ($year !== 'all') {
+            $remainingInvoiceQuery->whereYear('created_at', $year);
         }
+
+        $totalRemainingPayment = (float) $remainingInvoiceQuery
+            ->get()
+            ->sum(function ($invoice) {
+                $paidTotal = (float) ($invoice->paid_total ?? 0);
+                $remaining = (float) $invoice->amount - $paidTotal;
+                return $remaining > 0 ? $remaining : 0;
+            });
 
         // Certification (BNSP) stats
         $hasBnspFinancialColumns = Schema::hasColumns('clas', [
@@ -150,113 +144,113 @@ class DashboardController extends Controller
         $profitMargin = $totalPaid > 0 ? ($totalProfit / $totalPaid) * 100 : 0;
 
         // Training type stats (berdasarkan type: corporate, reguler, private)
-        $trainingStats = DB::table('trainings')
-            ->leftJoin('clas', 'trainings.id', '=', 'clas.training_id')
-            ->select(
-                DB::raw("CASE 
-                    WHEN trainings.type = 'corporate' THEN 'Corporate Training'
-                    WHEN trainings.type = 'reguler' THEN 'Regular Training'
-                    WHEN trainings.type = 'private' THEN 'Private Training'
-                    ELSE 'Unknown'
-                END as name"),
-                DB::raw('COUNT(DISTINCT clas.id) as total_classes'),
-                DB::raw('SUM(clas.price) as total_revenue')
-            )
-            ->whereNotNull('clas.id')
-            ->groupBy('trainings.type')
-            ->orderByDesc('total_classes')
-            ->get();
+       $trainingStats = DB::table('trainings')
+    ->leftJoin('clas', 'trainings.id', '=', 'clas.training_id')
+    ->select(
+        DB::raw("CASE 
+            WHEN trainings.type = 'corporate' THEN 'Corporate Training'
+            WHEN trainings.type = 'reguler' THEN 'Regular Training'
+            WHEN trainings.type = 'private' THEN 'Private Training'
+            ELSE 'Unknown'
+        END as name"),
+        DB::raw('COUNT(DISTINCT clas.id) as total_classes'),
+        DB::raw('SUM(clas.price) as total_revenue')
+    )
+    ->whereNotNull('clas.id')
+    ->groupBy('trainings.type')
+    ->orderByDesc('total_classes')
+    ->get();
 
         $regularClassesCount = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
             })
             ->count();
 
         $corporateClassesCount = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'corporate');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
             })
             ->count();
 
         $privateClassesCount = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'private');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%private%']);
             })
             ->count();
 
-        $regularRevenue = (clone $classQuery)
-            ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
-            })
-            ->sum('price');
+       $regularRevenue = (clone $classQuery)
+    ->whereIn('status', ['approved', 'done'])
+        ->whereHas('kategori', function ($query) {
+            $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
+    })
+    ->sum('price');
 
-        $corporateRevenue = (clone $classQuery)
-            ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'corporate');
-            })
-            ->sum('price');
+$corporateRevenue = (clone $classQuery)
+    ->whereIn('status', ['approved', 'done'])
+    ->whereHas('kategori', function ($query) {
+        $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
+    })
+    ->sum('price');
 
-        $privateRevenue = (clone $classQuery)
-            ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'private');
-            })
-            ->sum('price');
+$privateRevenue = (clone $classQuery)
+    ->whereIn('status', ['approved', 'done'])
+    ->whereHas('kategori', function ($query) {
+        $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%private%']);
+    })
+    ->sum('price');
 
         // Rekap Kelas section (period/year-aware, independent from status filter dropdown)
         $runningRegularClasses = (clone $classQueryByPeriodYear)
             ->where('status', 'approved')
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
             })
             ->count();
 
         $runningCorporateClasses = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'corporate');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
             })
             ->count();
 
         $runningPrivateClasses = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'private');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%private%']);
             })
             ->count();
 
         $regularParticipants = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
             })
             ->sum('amount');
 
         $corporateParticipants = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'corporate');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
             })
             ->sum('amount');
 
         // For Private training: 1 class = 1 student (count classes, not amount)
         $privateParticipants = (clone $classQueryByPeriodYear)
             ->whereIn('status', ['approved', 'done'])
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'private');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%private%']);
             })
             ->count();
 
         $regularPassFail = (clone $classQueryByPeriodYear)
             ->where('status', 'done')
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
             })
             ->selectRaw("SUM(COALESCE(passed_students, CASE WHEN grade_file_status = 'approved' THEN COALESCE(amount, 0) ELSE 0 END)) as passed_total")
             ->selectRaw('SUM(COALESCE(failed_students, 0)) as failed_total')
@@ -264,8 +258,8 @@ class DashboardController extends Controller
 
         $corporatePassFail = (clone $classQueryByPeriodYear)
             ->where('status', 'done')
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'corporate');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
             })
             ->selectRaw("SUM(COALESCE(passed_students, CASE WHEN grade_file_status = 'approved' THEN COALESCE(amount, 0) ELSE 0 END)) as passed_total")
             ->selectRaw('SUM(COALESCE(failed_students, 0)) as failed_total')
@@ -273,8 +267,8 @@ class DashboardController extends Controller
 
         $privatePassFail = (clone $classQueryByPeriodYear)
             ->where('status', 'done')
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'private');
+            ->whereHas('kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%private%']);
             })
             ->selectRaw("SUM(COALESCE(passed_students, CASE WHEN grade_file_status = 'approved' THEN COALESCE(amount, 0) ELSE 0 END)) as passed_total")
             ->selectRaw('SUM(COALESCE(failed_students, 0)) as failed_total')
@@ -304,20 +298,20 @@ class DashboardController extends Controller
         }
 
         $regularHonorPayment = (clone $honorExpenseBaseQuery)
-            ->whereHas('clas.training', function ($query) {
-                $query->where('type', 'reguler');
+            ->whereHas('clas.kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%regular%']);
             })
             ->sum('amount');
 
         $trainingHonorPayment = (clone $honorExpenseBaseQuery)
-            ->whereHas('clas.training', function ($query) {
-                $query->where('type', 'corporate');
+            ->whereHas('clas.kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
             })
             ->sum('amount');
 
         $privateHonorPayment = (clone $honorExpenseBaseQuery)
-            ->whereHas('clas.training', function ($query) {
-                $query->where('type', 'private');
+            ->whereHas('clas.kategori', function ($query) {
+                $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%private%']);
             })
             ->sum('amount');
 
@@ -356,29 +350,6 @@ class DashboardController extends Controller
                 ->whereBetween('clas.start_date', [$currentMonthStart, $currentMonthEnd]);
         };
 
-        // Sinkronkan card peserta dengan dataset grafik siswa per pelatihan bulan berjalan.
-        $currentMonthParticipantsBaseQuery = Clas::query();
-        $applyCurrentMonthActiveStartScope($currentMonthParticipantsBaseQuery);
-
-        $regularParticipants = (clone $currentMonthParticipantsBaseQuery)
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
-            })
-            ->sum('amount');
-
-        $corporateParticipants = (clone $currentMonthParticipantsBaseQuery)
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'corporate');
-            })
-            ->sum('amount');
-
-        // For Private training: 1 class = 1 student (count classes, not amount)
-        $privateParticipants = (clone $currentMonthParticipantsBaseQuery)
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'private');
-            })
-            ->count();
-
         $currentMonthStudentsByTrainingQuery = DB::table('clas')
             ->leftJoin('trainings', 'clas.training_id', '=', 'trainings.id')
             ->select(
@@ -402,28 +373,33 @@ class DashboardController extends Controller
             });
 
         $currentMonthClassRevenueByClassQuery = DB::table('clas')
-            ->leftJoin('trainings', 'clas.training_id', '=', 'trainings.id')
-            ->select(
-                'clas.id as class_id',
-                'clas.name as class_name',
-                DB::raw("COALESCE(trainings.name, 'Tanpa Pelatihan') as training_name"),
-                DB::raw('SUM(COALESCE(clas.price, 0)) as total_revenue')
-            );
+    ->leftJoin('trainings', 'clas.training_id', '=', 'trainings.id')
+    ->select(
+        'clas.id as class_id',
+        'clas.name as class_name',
+        DB::raw("COALESCE(trainings.name, 'Tanpa Pelatihan') as training_name"),
+        DB::raw('SUM(COALESCE(clas.price, 0)) as total_revenue')
+    );
 
-        $applyCurrentMonthClassScope($currentMonthClassRevenueByClassQuery);
+$currentMonthClassRevenueByClassQuery->whereIn('clas.status', ['approved', 'done'])
+    ->whereDate('clas.start_date', '<=', $currentMonthEnd)
+    ->where(function ($query) use ($currentMonthStart) {
+        $query->whereNull('clas.end_date')
+            ->orWhereDate('clas.end_date', '>=', $currentMonthStart);
+    });
 
-        $currentMonthClassRevenueByClass = $currentMonthClassRevenueByClassQuery
-            ->groupBy('clas.id', 'clas.name', 'trainings.name')
-            ->havingRaw('SUM(COALESCE(clas.price, 0)) > 0')
-            ->orderByDesc('total_revenue')
-            ->get()
-            ->map(function ($item) {
-                return (object) [
-                    'class_name' => $item->class_name,
-                    'training_name' => $item->training_name,
-                    'total_revenue' => (float) $item->total_revenue,
-                ];
-            });
+$currentMonthClassRevenueByClass = $currentMonthClassRevenueByClassQuery
+    ->groupBy('clas.id', 'clas.name', 'trainings.name')
+    ->havingRaw('SUM(COALESCE(clas.price, 0)) > 0')
+    ->orderByDesc('total_revenue')
+    ->get()
+    ->map(function ($item) {
+        return (object) [
+            'class_name' => $item->class_name,
+            'training_name' => $item->training_name,
+            'total_revenue' => (float) $item->total_revenue,
+        ];
+    });
 
         $currentMonthLabel = Carbon::now()->translatedFormat('F Y');
 
@@ -443,9 +419,15 @@ class DashboardController extends Controller
             if ($period !== 'all') {
                 $actualYear = ($year !== 'all') ? (int) $year : (int) date('Y');
                 $dateFilter = $this->getDateFilter($period, $actualYear);
-                $certificationByTrainingQuery->whereBetween('clas.start_date', $dateFilter);
+                $certificationByTrainingQuery->whereBetween(
+                    DB::raw('COALESCE(clas.bnsp_tanggal_sertifikasi, clas.start_date)'),
+                    $dateFilter
+                );
             } elseif ($year !== 'all') {
-                $certificationByTrainingQuery->whereYear('clas.start_date', $year);
+                $certificationByTrainingQuery->whereYear(
+                    DB::raw('COALESCE(clas.bnsp_tanggal_sertifikasi, clas.start_date)'),
+                    $year
+                );
             }
 
             if ($status === 'completed') {
@@ -488,49 +470,44 @@ class DashboardController extends Controller
             ->get();
 
         // Monthly revenue chart (for selected year)
-        $chartYear = $year !== 'all' ? $year : date('Y');
-        $monthlyClasses = Clas::query()
-            ->whereYear('start_date', $chartYear)
-            ->whereNotIn('status', ['cancelled', 'rejected'])
-            ->get()
-            ->groupBy(function ($item) {
-                return date('Y-m', strtotime($item->start_date));
-            });
+       $chartYear = $year !== 'all' ? $year : date('Y');
+$monthlyClasses = Clas::query()
+    ->whereYear('start_date', $chartYear)
+    ->whereNotIn('status', ['cancelled', 'rejected'])
+    ->get()
+    ->groupBy(function ($item) {
+        return date('Y-m', strtotime($item->start_date));
+    });
 
-        $monthlyData = collect();
-        foreach ($monthlyClasses as $month => $classes) {
-            $grossRevenue = 0;
-            $remainingFromApproved = 0;
-            $remainingFromUnapproved = 0;
+$monthlyData = collect();
+foreach ($monthlyClasses as $month => $classesInMonth) {
+    $grossRevenue = 0;
+    $remainingFromApproved = 0;
+    $remainingFromUnapproved = 0;
 
-            foreach ($classes as $class) {
-                $price = (float) ($class->price ?? 0);
-                $paidAmount = (float) ($class->paid_amount ?? 0);
+    foreach ($classesInMonth as $class) {
+        $price = (float) ($class->price ?? 0);
+        $paidAmount = (float) ($class->paid_amount ?? 0);
 
-                if (in_array($class->status, ['approved', 'done'], true)) {
-                    // Gross revenue line must follow approved/done classes only.
-                    $grossRevenue += $price;
-
-                    // Remaining for approved classes = unpaid amount.
-                    $remaining = $price - $paidAmount;
-                    if ($remaining > 0) {
-                        $remainingFromApproved += $remaining;
-                    }
-                } else {
-                    // Pending/unapproved classes are not counted as gross yet,
-                    // but still shown as remaining payment potential.
-                    $remainingFromUnapproved += $price;
-                }
+        if (in_array($class->status, ['approved', 'done'], true)) {
+            $grossRevenue += $price;
+            $remaining = $price - $paidAmount;
+            if ($remaining > 0) {
+                $remainingFromApproved += $remaining;
             }
-
-            $monthlyData->push((object) [
-                'month' => $month,
-                'total_classes' => $classes->count(),
-                'total_price' => $grossRevenue,
-                'total_paid' => $grossRevenue,
-                'total_remaining' => $remainingFromApproved + $remainingFromUnapproved,
-            ]);
+        } else {
+            $remainingFromUnapproved += $price;
         }
+    }
+
+    $monthlyData->push((object) [
+        'month' => $month,
+        'total_classes' => $classesInMonth->count(),
+        'total_price' => $grossRevenue,
+        'total_paid' => $grossRevenue,
+        'total_remaining' => $remainingFromApproved + $remainingFromUnapproved,
+    ]);
+}
 
         $monthlyData = $monthlyData->sortBy('month')->values();
 
@@ -633,6 +610,7 @@ class DashboardController extends Controller
         // Certification monthly data (for selected chart year)
         $monthlyCertificationRevenue = array_fill(0, 12, 0);
         $monthlyCertificationCount = array_fill(0, 12, 0);
+        $monthlyCertificationClassCount = array_fill(0, 12, 0);
 
         $certificationChartQuery = Clas::query()
             ->where('sertifikasi_bnsp', true)
@@ -664,7 +642,8 @@ class DashboardController extends Controller
                 continue;
             }
 
-            $monthIndex = ((int) $referenceDate->format('n')) - 1;
+            $monthIndex = Carbon::parse($referenceDate)->month - 1;
+            $monthlyCertificationClassCount[$monthIndex]++;
             $monthlyCertificationCount[$monthIndex] += (int) ($certClass->bnsp_student_count ?? 0);
             $monthlyCertificationRevenue[$monthIndex] += ((int) ($certClass->bnsp_student_count ?? 0)) * ((float) ($certClass->bnsp_fee_per_student ?? 0));
         }
@@ -719,6 +698,7 @@ class DashboardController extends Controller
             'targetRevenue',
             'revenueChartYear',
             'classRevenue',
+            'classValueRevenue',
             'totalPaid',
             'totalClassIncome',
             'totalRemainingPayment',
@@ -751,6 +731,7 @@ class DashboardController extends Controller
             'certificationRevenue',
             'monthlyCertificationRevenue',
             'monthlyCertificationCount',
+            'monthlyCertificationClassCount',
             'topProjects',
             'pendingPayments',
             'topTrainers',

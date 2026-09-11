@@ -33,7 +33,8 @@ class PaymentRequestController extends Controller
             ->where('type', 'payment_request_pending')
             ->update(['read_at' => now()]);
 
-        $period = $request->get('period', 'month_' . date('m'));
+        // Payment request tetap perlu terlihat sampai diproses, meskipun dibuat pada bulan sebelumnya.
+        $period = $request->get('period', 'all');
         $year = (int) $request->get('year', date('Y'));
 
         $query = PaymentRequest::with(['user', 'project', 'clas', 'approver', 'financeApprover']);

@@ -203,7 +203,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Omset Reguler</p>
                             <h4 class="recap-card-value font-bold text-blue-600 break-words">Rp {{ number_format($regularRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor kategori reguler</p>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori reguler</p>
                         </div>
                         <div class="recap-card-icon bg-blue-100 shrink-0 flex items-center justify-center">
                             <i class="fas fa-sack-dollar text-3xl text-blue-500"></i>
@@ -218,7 +218,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Omset Corporate</p>
                             <h4 class="recap-card-value font-bold text-indigo-600 break-words">Rp {{ number_format($corporateRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor kategori corporate</p>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori corporate</p>
                         </div>
                         <div class="recap-card-icon bg-indigo-100 shrink-0 flex items-center justify-center">
                             <i class="fas fa-building text-3xl text-indigo-600"></i>
@@ -233,7 +233,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Omset Private</p>
                             <h4 class="recap-card-value font-bold text-amber-600 break-words">Rp {{ number_format($privateRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor kategori private</p>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori private</p>
                         </div>
                         <div class="recap-card-icon bg-amber-100 shrink-0 flex items-center justify-center">
                             <i class="fas fa-user text-3xl text-amber-600"></i>
@@ -246,12 +246,27 @@
                 <div class="recap-card-body h-full flex flex-col">
                     <div class="flex justify-between items-center">
                         <div class="flex-1 min-w-0">
-                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Pendapatan Kotor (Bruto)</p>
+                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Omzet Masuk</p>
                             <h4 class="recap-card-value font-bold text-gray-800 break-words">Rp {{ number_format($classRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor semua kategori</p>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk semua kategori</p>
                         </div>
                         <div class="recap-card-icon bg-gray-200 shrink-0 flex items-center justify-center">
                             <i class="fas fa-money-bill-wave text-3xl text-gray-700"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 h-full recap-card">
+                <div class="recap-card-body h-full flex flex-col">
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1 min-w-0">
+                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Nilai Kelas</p>
+                            <h4 class="recap-card-value font-bold text-slate-700 break-words">Rp {{ number_format($classValueRevenue, 0, ',', '.') }}</h4>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total nilai harga kelas periode ini</p>
+                        </div>
+                        <div class="recap-card-icon bg-slate-100 shrink-0 flex items-center justify-center">
+                            <i class="fas fa-tags text-3xl text-slate-600"></i>
                         </div>
                     </div>
                 </div>
@@ -526,7 +541,7 @@
                 </h5>
                 <p class="text-xs text-gray-500 mt-1">
             <span class="inline-block mr-3">
-                <span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span>Pendapatan Kotor (Bruto)
+                <span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span>Omzet Masuk
             </span>
             <span class="inline-block mr-3">
                 <span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-1"></span>Sisa Pembayaran (Unpaid)
@@ -665,7 +680,7 @@
         </div>
     </div>
     <div class="p-6">
-        @if(is_array($monthlyClassCount) && (array_sum($monthlyClassCount) > 0 || array_sum($monthlyCertificationCount) > 0))
+        @if(is_array($monthlyCertificationClassCount) && (array_sum($monthlyCertificationClassCount) > 0 || array_sum($monthlyCertificationCount) > 0))
             <div class="chart-container">
                 <canvas id="classCountChart"></canvas>
             </div>
@@ -792,7 +807,7 @@
             <!-- Revenue Stats -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <p class="text-xs text-gray-500 mb-1">Pendapatan Kotor</p>
+                    <p class="text-xs text-gray-500 mb-1">Omzet Masuk</p>
                     <p class="text-xl font-bold text-gray-900">Rp {{ number_format($targetRevenue, 0, ',', '.') }}</p>
                 </div>
                 <div class="border border-gray-200 rounded-lg p-4">
@@ -1439,7 +1454,7 @@
                 labels: months,
                 datasets: [
                     {
-                        label: 'Pendapatan Kotor (Bruto)',
+                        label: 'Omzet Masuk',
                         data: monthlyClassRevenue,
                         backgroundColor: type === 'bar' ? 'rgba(34, 197, 94, 0.8)' : 'rgba(34, 197, 94, 0.2)',
                         borderColor: 'rgba(34, 197, 94, 1)',
@@ -1480,7 +1495,7 @@
             options.plugins.tooltip = { callbacks: { label: c => 'Rp ' + c.parsed.y.toLocaleString('id-ID') } };
             options.scales.y.ticks = { callback: v => 'Rp ' + (v / 1000000).toFixed(1) + 'jt' };
         } else if (chartName === 'classCountChart') {
-            const monthlyClassCount = {!! json_encode($monthlyClassCount) !!};
+            const monthlyClassCount = {!! json_encode($monthlyCertificationClassCount) !!};
             const monthlyCert = {!! json_encode($monthlyCertificationCount) !!};
             
             data = {
