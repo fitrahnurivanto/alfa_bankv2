@@ -51,6 +51,7 @@ class TrainingController extends Controller
             'type' => 'required|in:reguler,private,corporate',
             'name' => 'required|string|max:255|unique:trainings,name',
             'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
             'status' => 'required|in:active,inactive',
         ], [
             'name.unique' => 'Program pelatihan dengan nama ini sudah ada. Gunakan nama yang berbeda.'
@@ -61,6 +62,7 @@ class TrainingController extends Controller
             'type' => $validated['type'],
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
+            'price' => (float) $validated['price'],
             'is_active' => $validated['status'] === 'active',
             'slug' => \Illuminate\Support\Str::slug($validated['name']),
         ];
@@ -77,6 +79,7 @@ class TrainingController extends Controller
     public function show(Training $training)
     {
         $training->load('classes');
+
         return view('admin.academy.trainings.show', compact('training'));
     }
 
@@ -97,6 +100,7 @@ class TrainingController extends Controller
             'type' => 'required|in:reguler,private,corporate',
             'name' => 'required|string|max:255|unique:trainings,name,' . $training->id,
             'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
             'status' => 'required|in:active,inactive',
         ], [
             'name.unique' => 'Program pelatihan dengan nama ini sudah ada. Gunakan nama yang berbeda.'
@@ -107,6 +111,7 @@ class TrainingController extends Controller
             'type' => $validated['type'],
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
+            'price' => (float) $validated['price'],
             'is_active' => $validated['status'] === 'active',
             'slug' => \Illuminate\Support\Str::slug($validated['name']),
         ];

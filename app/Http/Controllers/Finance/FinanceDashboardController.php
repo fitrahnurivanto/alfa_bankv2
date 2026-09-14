@@ -48,29 +48,16 @@ class FinanceDashboardController extends Controller
             ->whereBetween('confirmed_at', [$startDate, $endDate])
             ->sum('paid_amount');
 
-        // ========== TRAINING REVENUE (from Classes) ==========
-        // Revenue dari kelas yang sudah selesai (done) dan ada pembayaran
-        $trainingRevenue = Clas::where('status', 'done')
-            ->where('paid_amount', '>', 0)
-            ->whereBetween('updated_at', [$startDate, $endDate])
-            ->sum('paid_amount');
+        // ========== TRAINING REVENUE (from confirmed payments) ==========
+        $trainingRevenue = (float) Clas::where('status', 'done')
+    ->where('paid_amount', '>', 0)
+    ->whereBetween('updated_at', [$startDate, $endDate])
+    ->sum('paid_amount');
 
         // Total Revenue (Agency + Training)
         $totalRevenue = $agencyRevenue + $trainingRevenue;
 
-        // Pending Revenue - Sisa pembayaran dari kelas dengan pembayaran 2x termin
-        $classWith2xTermin = Clas::where('payment_type', 'like', '%2x%')
-            ->where('price', '>', 0)
-            ->whereBetween('start_date', [$startDate, $endDate])
-            ->get();
-        
-        $pendingRevenue = 0;
-        foreach ($classWith2xTermin as $class) {
-            $remaining = $class->price - ($class->paid_amount ?? 0);
-            if ($remaining > 0) {
-                $pendingRevenue += $remaining;
-            }
-        }
+        $pendingRevenue = 0.0;
 
         // ========== AGENCY EXPENSES (Project Expenses) ==========
         // Alfa Bank hanya menggunakan Training/Pelatihan, tidak ada Agency/Project
@@ -177,10 +164,14 @@ class FinanceDashboardController extends Controller
 
         $adminTotalClasses = (clone $adminClassQuery)->count();
 
-        $adminRevenueQuery = (clone $adminClassQuery)
-            ->whereIn('status', ['approved', 'done']);
+       $adminRevenueQuery = (clone $adminClassQuery)
+    ->whereIn('status', ['approved', 'done']);
 
-        $adminTotalRevenue = (float) (clone $adminRevenueQuery)->sum('price');
+$adminTotalRevenue = (float) (clone $adminRevenueQuery)->sum('price');
+
+        $adminClassValueRevenue = (float) (clone $adminClassQuery)
+            ->whereIn('status', ['approved', 'done'])
+            ->sum('price');
 
         $adminRegularClasses = (clone $adminClassQuery)
             ->whereHas('training', function ($query) {
@@ -201,22 +192,22 @@ class FinanceDashboardController extends Controller
             ->count();
 
         $adminRegularRevenue = (float) (clone $adminRevenueQuery)
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
-            })
-            ->sum('price');
+    ->whereHas('training', function ($query) {
+        $query->where('type', 'reguler');
+    })
+    ->sum('price');
 
-        $adminCorporateRevenue = (float) (clone $adminRevenueQuery)
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'corporate');
-            })
-            ->sum('price');
+$adminCorporateRevenue = (float) (clone $adminRevenueQuery)
+    ->whereHas('training', function ($query) {
+        $query->where('type', 'corporate');
+    })
+    ->sum('price');
 
-        $adminPrivateRevenue = (float) (clone $adminRevenueQuery)
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'private');
-            })
-            ->sum('price');
+$adminPrivateRevenue = (float) (clone $adminRevenueQuery)
+    ->whereHas('training', function ($query) {
+        $query->where('type', 'private');
+    })
+    ->sum('price');
 
         // ========== PARTICIPANT COUNTS BY CATEGORY (untuk card dashboard) ==========
         $regularParticipants = (clone $adminClassQuery)
@@ -279,8 +270,8 @@ class FinanceDashboardController extends Controller
             ->take(5)
             ->get();
 
-        // ========== MONTHLY CLASS VALUE BY CATEGORY CHART (12 months for selected year) ==========
-        // Nilai kelas menggunakan price (omset kotor) dengan status approved & done
+        // ========== MONTHLY CASH-BASIS REVENUE BY CATEGORY CHART (12 months for selected year) ==========
+        // Grafik ini mengikuti pembayaran yang sudah dikonfirmasi, dikelompokkan per tipe training.
         $monthlyRegularRevenueArray = array_fill(0, 12, 0);
         $monthlyCorporateRevenueArray = array_fill(0, 12, 0);
         $monthlyPrivateRevenueArray = array_fill(0, 12, 0);
@@ -289,44 +280,46 @@ class FinanceDashboardController extends Controller
         $monthlyExpensesArray = array_fill(0, 12, 0);
         $monthlyPaymentRequestsArray = array_fill(0, 12, 0);
 
-        $monthlyRegularData = Clas::whereIn('status', ['approved', 'done'])
-            ->whereYear('start_date', $chartYear)
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'reguler');
-            })
-            ->selectRaw('MONTH(start_date) as month, SUM(price) as total')
-            ->groupBy('month')
-            ->get()
-            ->keyBy('month');
+       $monthlyRegularData = Clas::whereIn('status', ['approved', 'done'])
+    ->whereYear('start_date', $chartYear)
+    ->whereHas('training', function ($query) {
+        $query->where('type', 'reguler');
+    })
+    ->selectRaw('MONTH(start_date) as month, SUM(price) as total')
+    ->groupBy('month')
+    ->get()
+    ->keyBy('month');
 
         foreach ($monthlyRegularData as $month => $data) {
             $monthIndex = (int) $month - 1;
             $monthlyRegularRevenueArray[$monthIndex] = (float) $data->total;
         }
 
-        $monthlyCorporateData = Clas::whereIn('status', ['approved', 'done'])
-            ->whereYear('start_date', $chartYear)
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'corporate');
-            })
-            ->selectRaw('MONTH(start_date) as month, SUM(price) as total')
-            ->groupBy('month')
-            ->get()
-            ->keyBy('month');
+       $monthlyCorporateData = Clas::whereIn('status', ['approved', 'done']) 
+       ->whereYear('start_date', $chartYear) 
+       ->whereHas('training', function ($query){
+         $query->where('type', 'corporate');
+
+        }) 
+         ->selectRaw('MONTH(start_date) as month, SUM(price) as total') 
+         ->groupBy('month') 
+         ->get() 
+         ->keyBy('month');
 
         foreach ($monthlyCorporateData as $month => $data) {
             $monthIndex = (int) $month - 1;
             $monthlyCorporateRevenueArray[$monthIndex] = (float) $data->total;
         }
 
-        $monthlyPrivateData = Clas::whereIn('status', ['approved', 'done'])
-            ->whereYear('start_date', $chartYear)
-            ->whereHas('training', function ($query) {
-                $query->where('type', 'private');
-            })
-            ->selectRaw('MONTH(start_date) as month, SUM(price) as total')
-            ->groupBy('month')
-            ->get()
+        $monthlyPrivateData = Clas::whereIn('status', ['approved', 'done']) 
+        ->whereYear('start_date', $chartYear) 
+        ->whereHas('training', function ($query) { 
+            $query->where('type', 'private'); 
+            }) 
+            
+            ->selectRaw('MONTH(start_date) as month, SUM(price) as total') 
+            ->groupBy('month') 
+            ->get() 
             ->keyBy('month');
 
         foreach ($monthlyPrivateData as $month => $data) {
@@ -335,13 +328,13 @@ class FinanceDashboardController extends Controller
         }
         
         // Get Training Revenue data for the chart year
-        $monthlyRevenueData = Clas::where('status', 'done')
-            ->where('paid_amount', '>', 0)
-            ->whereYear('updated_at', $chartYear)
-            ->selectRaw('MONTH(updated_at) as month, SUM(paid_amount) as total')
-            ->groupBy('month')
-            ->get()
-            ->keyBy('month');
+       $monthlyRevenueData = Clas::where('status', 'done')
+    ->where('paid_amount', '>', 0)
+    ->whereYear('updated_at', $chartYear)
+    ->selectRaw('MONTH(updated_at) as month, SUM(paid_amount) as total')
+    ->groupBy('month')
+    ->get()
+    ->keyBy('month');
         
         // Populate monthly revenue array (index 0-11 for Jan-Dec)
         foreach ($monthlyRevenueData as $month => $data) {
@@ -405,6 +398,7 @@ class FinanceDashboardController extends Controller
             'selectedYear',
             'adminTotalClasses',
             'adminTotalRevenue',
+            'adminClassValueRevenue',
             'adminRegularClasses',
             'adminCorporateClasses',
             'adminPrivateClasses',

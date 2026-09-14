@@ -1,5 +1,5 @@
 <!-- Sidebar with Mobile Responsive -->
-<div x-data="{ sidebarOpen: false }" @keydown.escape="sidebarOpen = false">
+<div x-data="{ sidebarOpen: false, settingsOpen: false }" @keydown.escape="sidebarOpen = false; settingsOpen = false">
     <!-- Mobile Menu Button -->
     <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-lg border border-gray-200 hover:bg-gray-50 transition">
         <i class="fas fa-bars text-xl text-gray-700" x-show="!sidebarOpen"></i>
@@ -152,16 +152,16 @@
                 </a>
             </li>
             
-                <button @click="open = !open" class="w-full flex items-center justify-between px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 {{ request()->routeIs('admin.settings.*') || request()->routeIs('admin.positions.*') || request()->routeIs('admin.trainings.*') || request()->routeIs('admin.users.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <button @click="settingsOpen = !settingsOpen" class="w-full flex items-center justify-between px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 {{ request()->routeIs('admin.settings.*') || request()->routeIs('admin.positions.*') || request()->routeIs('admin.trainings.*') || request()->routeIs('admin.users.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
                     <div class="flex items-center">
                         <i class="fas fa-cog w-6 text-lg"></i>
                         <span class="ml-2.5">Pengaturan</span>
                     </div>
-                    <i class="fas fa-chevron-down text-xs transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                    <i class="fas fa-chevron-down text-xs transition-transform" :class="settingsOpen ? 'rotate-180' : ''"></i>
                 </button>
                 
                 <!-- Submenu -->
-                <div x-show="open" x-collapse class="mt-1 ml-4 space-y-1">
+                <div x-show="settingsOpen" x-cloak x-collapse class="mt-1 ml-4 space-y-1">
                     <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-600 no-underline rounded-lg transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.settings.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
                         <i class="fas fa-building w-5 text-sm"></i>
                         <span class="ml-2">Info Perusahaan</span>
@@ -218,6 +218,14 @@
                     <span class="ml-2.5">Laporan</span>
                 </a>
             </li>
+
+            <li class="mx-2.5 my-1">
+                <a href="{{ route('admin.students.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-emerald-50 hover:text-emerald-600 hover:translate-x-1 {{ request()->routeIs('admin.students.*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
+                    <i class="fas fa-user-graduate w-6 text-lg"></i>
+                    <span class="ml-2.5">Data Siswa</span>
+                </a>
+            </li>
+
             <li class="mx-2.5 my-1 pt-2 border-t border-gray-200">
                 <a href="{{ route('admin.trainings.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.trainings.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
                     <i class="fas fa-graduation-cap w-6 text-lg"></i>

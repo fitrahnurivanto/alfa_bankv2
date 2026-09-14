@@ -13,18 +13,18 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::middleware(['web', 'nocache'])->get('/csrf-token', function (\Illuminate\Http\Request $request) {
+    $request->session()->regenerateToken();
+
+    return response()->json([
+        'token' => csrf_token(),
+    ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+})->name('csrf.token');
+
 // Authentication routes
 Route::middleware(['guest', \App\Http\Middleware\NoCacheHeaders::class])->group(function () {
-    Route::get('/csrf-token', function (\Illuminate\Http\Request $request) {
-        $request->session()->regenerateToken();
-
-        return response()->json([
-            'token' => csrf_token(),
-        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-            ->header('Pragma', 'no-cache')
-            ->header('Expires', '0');
-    })->name('csrf.token');
-
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
     
@@ -40,7 +40,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth', \
 Route::get('/logout', [AuthController::class, 'logout'])->middleware(['auth', \App\Http\Middleware\NoCacheHeaders::class]);
 
 // Authenticated routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\NoCacheHeaders::class])->group(function () {
     
     // Dashboard routes - role based
     Route::get('/dashboard', function() {

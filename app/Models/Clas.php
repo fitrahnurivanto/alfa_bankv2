@@ -37,6 +37,7 @@ class Clas extends Model
         'alamat',
         'no_pic',
         'no_kontak',
+        'price_per_student',
         'payment_type',
         'paid_amount',
         'payment_notes',
@@ -49,6 +50,7 @@ class Clas extends Model
         'jenis_reguler',
         'slug',
         'price',
+        'target_revenue', 
         'amount',
         'cost',
         'trainer_honor',
@@ -85,6 +87,7 @@ class Clas extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'cost' => 'decimal:2',
+        'price_per_student' => 'decimal:2',
         'paid_amount' => 'decimal:2',
         'trainer_honor' => 'decimal:2',
         'income' => 'decimal:2',
@@ -168,6 +171,11 @@ class Clas extends Model
     public function sessions()
     {
         return $this->hasMany(\App\Models\ClassSession::class, 'class_id');
+    }
+
+    public function registrants()
+    {
+        return $this->hasMany(ClassRegistrant::class, 'class_id');
     }
 
     /**

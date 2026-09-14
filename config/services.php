@@ -43,7 +43,11 @@ return [
 
     'fonnte' => [
         'api_url' => env('FONNTE_API_URL', 'https://api.fonnte.com'),
-        'api_token' => env('FONNTE_API_TOKEN'),
+        'token' => env('FONNTE_API_TOKEN'),
+    ],
+
+    'api' => [
+        'key' => env('ALFABANK_API_KEY'),
     ],
 
 ];
