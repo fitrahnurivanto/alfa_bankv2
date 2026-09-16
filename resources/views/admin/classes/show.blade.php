@@ -653,7 +653,7 @@
             <!-- Finansial -->
             <div id="finansial-kelas" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 h-full">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-sack-dollar mr-2 text-green-600"></i>Finansial</h2>
-                @if($clas->status === 'approved' && \Illuminate\Support\Facades\Auth::user()->canManageClass())
+                @if($isCorporate && $clas->status === 'approved' && \Illuminate\Support\Facades\Auth::user()->canManageClass())
                 <form action="{{ route('admin.classes.update-revenue', $clas) }}" method="POST" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     @csrf
                     @method('PATCH')
@@ -681,8 +681,12 @@
                     @else
                         <!-- Reguler/Private: Pendapatan kelas -->
                         <div class="flex justify-between items-center pb-3 border-b bg-blue-50 px-3 py-2 rounded-lg">
-                            <span class="text-sm font-medium text-blue-900">Pendapatan Kelas</span>
+                            <span class="text-sm font-medium text-blue-900">Pendapatan Kelas (Otomatis)</span>
                             <span class="font-semibold text-blue-600">Rp {{ number_format($clas->price, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b">
+                            <span class="text-sm text-gray-600">Harga per Siswa</span>
+                            <span class="font-medium text-gray-900">Rp {{ number_format($clas->price_per_student, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-3 border-b">
                             <span class="text-sm text-gray-600">Jumlah Siswa</span>
@@ -709,9 +713,8 @@
                             })
                             ->sum('amount');
                         
-                        // Hitung revenue
-                        // Price is now total revenue for all categories (includes all students with discounts)
-                        $totalRevenue = $clas->price;
+                        // Hitung revenue berbasis kas yang sudah masuk
+                        $totalRevenue = $clas->paid_amount ?? 0;
                         
                         // Income Bersih = Revenue - Biaya Operasional (Approved) - Honor Trainer (Approved)
                         $incomeBersih = $totalRevenue - $approvedOperationalCost - $approvedTrainerHonor;
@@ -1120,7 +1123,6 @@
 <!-- Payment Modal for Pelunasan (Termin 2) -->
 @php
     // Calculate total payment based on category
-    // Price is now total payment for all categories
     $totalPayment = $clas->price;
     $remainingPayment = max(0, $totalPayment - ($clas->paid_amount ?? 0));
 @endphp

@@ -22,7 +22,7 @@
 @endif
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <form action="{{ route('admin.trainers.store') }}" method="POST">
+    <form action="{{ route('admin.trainers.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- Name -->
@@ -73,6 +73,35 @@
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
                       rows="3"
                       placeholder="Masukkan alamat lengkap">{{ old('address') }}</textarea>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Spesialisasi</label>
+            <input type="text" name="specialization" value="{{ old('specialization') }}"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                   placeholder="Contoh: Laravel, UI/UX, Digital Marketing">
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Bio</label>
+            <textarea name="bio" rows="4"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Profil dan pengalaman trainer">{{ old('bio') }}</textarea>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Foto</label>
+                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <p class="text-xs text-gray-500 mt-1">JPG, PNG, atau WEBP, maksimal 5 MB.</p>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">CV</label>
+                <input type="file" name="cv" accept="application/pdf,.doc,.docx"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <p class="text-xs text-gray-500 mt-1">PDF, DOC, atau DOCX, maksimal 10 MB.</p>
+            </div>
         </div>
 
         <!-- Password -->

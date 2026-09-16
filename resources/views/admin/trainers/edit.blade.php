@@ -22,7 +22,7 @@
 @endif
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <form action="{{ route('admin.trainers.update', $trainer) }}" method="POST">
+    <form action="{{ route('admin.trainers.update', $trainer) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -74,6 +74,50 @@
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
                       rows="3"
                       placeholder="Masukkan alamat lengkap">{{ old('address', $trainer->address) }}</textarea>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Spesialisasi</label>
+            <input type="text" name="specialization" value="{{ old('specialization', $trainer->specialization) }}"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                   placeholder="Contoh: Laravel, UI/UX, Digital Marketing">
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Bio</label>
+            <textarea name="bio" rows="4"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Profil dan pengalaman trainer">{{ old('bio', $trainer->bio) }}</textarea>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+            <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="active" {{ old('status', $trainer->status) === 'active' ? 'selected' : '' }}>Active</option>
+                <option value="inactive" {{ old('status', $trainer->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
+            </select>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Ganti Foto</label>
+                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                @if($trainer->photo_path)
+                    <p class="text-xs text-gray-500 mt-1">Foto saat ini tersedia. Upload baru untuk mengganti.</p>
+                @endif
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Ganti CV</label>
+                <input type="file" name="cv" accept="application/pdf,.doc,.docx"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                @if($trainer->cv_path)
+                    <p class="text-xs text-gray-500 mt-1">CV saat ini tersedia. Upload baru untuk mengganti.</p>
+                    <a href="{{ route('admin.trainers.cv', $trainer) }}" class="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800 mt-2">
+                        <i class="fas fa-download"></i> Download CV saat ini
+                    </a>
+                @endif
+            </div>
         </div>
 
         <!-- Password (Optional) -->

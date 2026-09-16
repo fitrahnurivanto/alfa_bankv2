@@ -116,6 +116,8 @@ Route::middleware(['auth', \App\Http\Middleware\NoCacheHeaders::class])->group(f
         Route::get('/tracking', [ClasController::class, 'track'])->name('tracking.index');
         
         // Trainer Management (Pengajar)
+        Route::get('/trainers/{trainer}/cv', [\App\Http\Controllers\Admin\TrainerController::class, 'downloadCv'])
+            ->name('trainers.cv');
         Route::resource('trainers', \App\Http\Controllers\Admin\TrainerController::class);
 
         // Trainings (Program Pelatihan)

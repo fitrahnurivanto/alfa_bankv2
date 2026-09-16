@@ -14,11 +14,18 @@
     <div class="lg:col-span-1">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="text-center mb-6">
-                <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-user text-green-600 text-4xl"></i>
-                </div>
+                @if($trainer->photo_path)
+                    <img src="{{ asset('storage/' . $trainer->photo_path) }}"
+                         alt="Foto {{ $trainer->name }}"
+                         class="w-24 h-24 object-cover rounded-full mx-auto mb-4 border-4 border-green-100">
+                @else
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user text-green-600 text-4xl"></i>
+                    </div>
+                @endif
                 <h3 class="text-xl font-bold text-gray-900">{{ $trainer->name }}</h3>
                 <p class="text-sm text-gray-500 mt-1">Trainer Alfa Bank</p>
+                <p class="text-sm text-green-700 mt-2">{{ $trainer->specialization ?: 'Spesialisasi belum diisi' }}</p>
             </div>
 
             <div class="space-y-3 border-t border-gray-100 pt-4">
@@ -57,6 +64,29 @@
                         <p class="text-sm text-gray-900">{{ $trainer->created_at->format('d F Y') }}</p>
                     </div>
                 </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-gray-100 space-y-3">
+                <div>
+                    <p class="text-xs text-gray-500">Status</p>
+                    <span class="inline-flex mt-1 px-3 py-1 rounded-full text-xs font-semibold {{ $trainer->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ ucfirst($trainer->status ?: 'active') }}
+                    </span>
+                </div>
+                @if($trainer->bio)
+                    <div>
+                        <p class="text-xs text-gray-500">Bio</p>
+                        <p class="text-sm text-gray-700 whitespace-pre-line">{{ $trainer->bio }}</p>
+                    </div>
+                @endif
+                @if($trainer->cv_path)
+                    <a href="{{ route('admin.trainers.cv', $trainer) }}"
+                       class="inline-flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                        <i class="fas fa-file-pdf"></i> Lihat / Download CV
+                    </a>
+                @else
+                    <p class="text-sm text-gray-500">CV belum diupload.</p>
+                @endif
             </div>
 
             <div class="mt-6 pt-4 border-t border-gray-100">
