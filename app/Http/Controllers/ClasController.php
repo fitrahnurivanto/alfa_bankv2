@@ -807,6 +807,14 @@ class ClasController extends Controller
         if (!($user->isAdmin() || $user->role === 'marketing')) {
             abort(403, 'Hanya Admin dan Marketing yang dapat menghapus kelas.');
         }
+
+        if (in_array($clas->status, ['approved', 'done'], true)) {
+            return redirect()->back()->with('error', 'Kelas yang sudah approved atau selesai tidak boleh dihapus. Gunakan pembatalan atau ubah statusnya.');
+        }
+
+        if ($clas->registrants()->active()->exists()) {
+            return redirect()->back()->with('error', 'Kelas yang sudah memiliki siswa aktif tidak boleh dihapus. Gunakan penolakan atau pembatalan.');
+        }
         
         $clas->delete();
 
