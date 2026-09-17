@@ -154,6 +154,7 @@ class ClasController extends Controller
                 },
             ],
             'price' => 'nullable|numeric|min:0',
+            'target_revenue' => 'nullable|numeric|min:0',
             'amount' => 'nullable|integer|min:0',
             'meet' => 'required|integer|min:1',
             'duration' => 'required|integer|min:1',
@@ -232,6 +233,10 @@ class ClasController extends Controller
 
         if (!isset($validated['price']) || $validated['price'] === '' || $validated['price'] === null) {
             $validated['price'] = 0;
+        }
+
+        if (!isset($validated['target_revenue']) || $validated['target_revenue'] === '' || $validated['target_revenue'] === null) {
+            $validated['target_revenue'] = 0;
         }
         
         // Ensure paid_amount is never null - set to 0 if empty
@@ -522,6 +527,7 @@ class ClasController extends Controller
                 },
             ],
             'price' => 'nullable|numeric|min:0',
+            'target_revenue' => 'nullable|numeric|min:0',
             'amount' => 'nullable|integer|min:0',
             'meet' => 'required|integer|min:1',
             'duration' => 'required|integer|min:1',
@@ -601,6 +607,10 @@ class ClasController extends Controller
 
         if (!isset($validated['price']) || $validated['price'] === '' || $validated['price'] === null) {
             $validated['price'] = 0;
+        }
+
+        if (!isset($validated['target_revenue']) || $validated['target_revenue'] === '' || $validated['target_revenue'] === null) {
+            $validated['target_revenue'] = 0;
         }
         
         // Ensure paid_amount is never null - set to 0 if empty
@@ -810,6 +820,26 @@ class ClasController extends Controller
         
         if (!$user->canApproveClass()) {
             abort(403, 'Hanya Akademik atau Admin yang dapat menyetujui kelas.');
+        }
+
+        $clas->load(['kategori', 'trainers']);
+
+        if ($clas->kategori?->slug === 'private') {
+            $missingFields = [];
+
+            if ($clas->trainers->isEmpty()) {
+                $missingFields[] = 'trainer';
+            }
+            if (!$clas->start_date) {
+                $missingFields[] = 'tanggal mulai';
+            }
+            if (!$clas->end_date) {
+                $missingFields[] = 'tanggal selesai';
+            }
+
+            if ($missingFields) {
+                return redirect()->back()->with('error', 'Kelas private belum dapat di-approve. Lengkapi: ' . implode(', ', $missingFields) . '.');
+            }
         }
         
         // Auto-fill paid_amount for full payment (non-termin)

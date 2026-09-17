@@ -706,7 +706,7 @@
                         <input type="date" 
                                name="start_date" 
                                id="start_date" 
-                               value="{{ old('start_date', $clas->start_date->format('Y-m-d')) }}"
+                               value="{{ old('start_date', $clas->start_date?->format('Y-m-d')) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('start_date') border-red-500 @enderror"
                                required>
                         @error('start_date')
@@ -722,7 +722,7 @@
                         <input type="date" 
                                name="end_date" 
                                id="end_date" 
-                               value="{{ old('end_date', $clas->end_date->format('Y-m-d')) }}"
+                               value="{{ old('end_date', $clas->end_date?->format('Y-m-d')) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('end_date') border-red-500 @enderror"
                                required>
                         @error('end_date')
