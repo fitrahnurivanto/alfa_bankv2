@@ -402,6 +402,9 @@ class ClasController extends Controller
         // Load related data including grade file version history
         $clas->load([
             'kategori',
+            'registrants' => function ($query) {
+                $query->orderByDesc('registered_at')->orderByDesc('id');
+            },
             'trainers',
             'expenses.user',
             'activeGradeFile',

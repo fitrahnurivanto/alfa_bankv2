@@ -107,7 +107,13 @@
                 </div>
                 <div class="bg-white border border-gray-200 rounded-xl p-4">
                     <p class="text-xs text-gray-500 mb-1">Total Peserta</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ number_format((int) ($clas->amount ?? 0), 0, ',', '.') }} orang</p>
+                    @php
+                        $registeredStudents = $clas->registrants->whereIn('status', ['registered', 'paid', 'confirmed'])->count();
+                        $classCapacity = (int) ($clas->capacity ?? 0);
+                        $capacityPercentage = $classCapacity > 0 ? round(($registeredStudents / $classCapacity) * 100, 2) : 0;
+                    @endphp
+                    <p class="text-sm font-semibold text-gray-900">{{ $registeredStudents }}/{{ $classCapacity ?: '-' }} siswa</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ $capacityPercentage }}% kuota terisi</p>
                 </div>
                 <div class="bg-white border border-gray-200 rounded-xl p-4">
                     <p class="text-xs text-gray-500 mb-1">Pertemuan</p>
@@ -117,6 +123,46 @@
                     <p class="text-xs text-gray-500 mb-1">Pendapatan Kelas</p>
                     <p class="text-sm font-semibold text-emerald-700">Rp {{ number_format((float) ($clas->price ?? 0), 0, ',', '.') }}</p>
                 </div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-xl p-4">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <div>
+                        <h2 class="text-base font-semibold text-gray-900">Siswa Terdaftar</h2>
+                        <p class="text-xs text-gray-500">Data diterima dari CI4 setelah verifikasi pendaftaran.</p>
+                    </div>
+                    <span class="text-sm font-bold text-emerald-700">{{ $registeredStudents }}/{{ $classCapacity ?: '-' }}</span>
+                </div>
+                @if($clas->registrants->isEmpty())
+                    <p class="text-sm text-gray-500">Belum ada siswa yang dikirim ke kelas ini.</p>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-200 text-left text-xs text-gray-500">
+                                    <th class="py-2 pr-4">Nama</th>
+                                    <th class="py-2 pr-4">Email</th>
+                                    <th class="py-2 pr-4">Status</th>
+                                    <th class="py-2">Terdaftar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($clas->registrants as $registrant)
+                                    <tr class="border-b border-gray-100 last:border-0">
+                                        <td class="py-2 pr-4 font-medium text-gray-900">{{ $registrant->full_name }}</td>
+                                        <td class="py-2 pr-4 text-gray-600">{{ $registrant->email }}</td>
+                                        <td class="py-2 pr-4">
+                                            <span class="rounded-full px-2 py-1 text-xs font-semibold {{ in_array($registrant->status, ['registered', 'paid', 'confirmed'], true) ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                                                {{ ucfirst($registrant->status) }}
+                                            </span>
+                                        </td>
+                                        <td class="py-2 text-gray-600">{{ $registrant->registered_at?->format('d M Y H:i') ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
             </div>
 
             <div class="sticky top-4 z-20">
