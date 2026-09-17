@@ -303,7 +303,7 @@
                     <!-- Jadwal -->
                     <div class="mb-3 text-sm text-gray-600">
                         <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
-                        {{ $class->start_date->format('d M Y') }} - {{ $class->end_date->format('d M Y') }}
+                        {{ $class->start_date?->format('d M Y') ?? '-' }} - {{ $class->end_date?->format('d M Y') ?? '-' }}
                     </div>
 
                     <!-- Summary -->
@@ -342,42 +342,84 @@
                             </span>
                         @endif
                     </div>
-
-                    <!-- Progress Bar -->
+            
+                    <!-- Progress Bar: Target Pendapatan -->
                     <div class="mb-4">
                         @php
-                            // Hitung progress berdasarkan status
-                            $progress = 0;
-                            $progressText = 'Belum Dimulai';
-                            $progressColor = 'bg-gray-400';
-                            
-                            if($class->status === 'approved') {
-                                $progress = 50;
-                                $progressText = 'Sedang Berjalan';
-                                $progressColor = 'bg-gradient-to-r from-yellow-400 to-amber-500';
-                            } elseif($class->status === 'done') {
-                                $progress = 100;
-                                $progressText = 'Selesai';
-                                $progressColor = 'bg-gradient-to-r from-green-400 to-emerald-500';
-                            } elseif($class->status === 'rejected') {
-                                $progress = 0;
-                                $progressText = 'Ditolak';
-                                $progressColor = 'bg-red-400';
+                            $targetRevenue = (float) ($class->target_revenue ?? 0);
+                            $paidAmount    = (float) ($class->paid_amount ?? 0);
+                    
+                            // Jika ada target revenue → progress berdasarkan uang masuk vs target
+                            if ($targetRevenue > 0) {
+                                $revenueProgress     = min(100, round($paidAmount / $targetRevenue * 100));
+                                $revenueProgressColor = $revenueProgress >= 100
+                                    ? 'bg-gradient-to-r from-green-400 to-emerald-500'
+                                    : ($revenueProgress >= 60
+                                        ? 'bg-gradient-to-r from-blue-400 to-blue-500'
+                                        : ($revenueProgress >= 30
+                                            ? 'bg-gradient-to-r from-yellow-400 to-amber-500'
+                                            : 'bg-gradient-to-r from-red-400 to-rose-500'));
+                            } else {
+                                $revenueProgress      = null;
+                                $revenueProgressColor = 'bg-gray-300';
+                            }
+                    
+                            // Progress status kelas (existing logic)
+                            $statusProgress = 0;
+                            $progressText   = 'Belum Dimulai';
+                            $progressColor  = 'bg-gray-400';
+                    
+                            if ($class->status === 'approved') {
+                                $statusProgress = 50;
+                                $progressText   = 'Sedang Berjalan';
+                                $progressColor  = 'bg-gradient-to-r from-yellow-400 to-amber-500';
+                            } elseif ($class->status === 'done') {
+                                $statusProgress = 100;
+                                $progressText   = 'Selesai';
+                                $progressColor  = 'bg-gradient-to-r from-green-400 to-emerald-500';
+                            } elseif ($class->status === 'rejected') {
+                                $statusProgress = 0;
+                                $progressText   = 'Ditolak';
+                                $progressColor  = 'bg-red-400';
                             }
                         @endphp
-                        
-                        <div class="flex items-center justify-between text-xs text-gray-600 mb-2">
+                    
+                        {{-- Progress status kelas --}}
+                        <div class="flex items-center justify-between text-xs text-gray-600 mb-1">
                             <span class="font-semibold"><i class="fas fa-tasks mr-1"></i>{{ $progressText }}</span>
-                            <span class="font-bold {{ $progress >= 100 ? 'text-green-600' : ($progress >= 50 ? 'text-amber-600' : 'text-gray-500') }}">{{ $progress }}%</span>
+                            <span class="font-bold {{ $statusProgress >= 100 ? 'text-green-600' : ($statusProgress >= 50 ? 'text-amber-600' : 'text-gray-500') }}">
+                                {{ $statusProgress }}%
+                            </span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
-                            <div class="{{ $progressColor }} h-3 rounded-full transition-all duration-500 shadow-sm flex items-center justify-end px-1"
-                                 style="width: {{ $progress }}%">
-                                @if($progress >= 20)
-                                    <i class="fas fa-{{ $progress >= 100 ? 'check' : 'spinner fa-pulse' }} text-white text-[8px]"></i>
-                                @endif
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden shadow-inner mb-3">
+                            <div class="{{ $progressColor }} h-2.5 rounded-full transition-all duration-500"
+                                style="width: {{ $statusProgress }}%"></div>
+                        </div>
+                    
+                        {{-- Progress target pendapatan --}}
+                        @if($targetRevenue > 0)
+                            <div class="flex items-center justify-between text-xs text-gray-600 mb-1">
+                                <span class="font-semibold">
+                                    <i class="fas fa-bullseye mr-1 text-emerald-600"></i>Target Pendapatan
+                                </span>
+                                <span class="font-bold {{ $revenueProgress >= 100 ? 'text-green-600' : ($revenueProgress >= 60 ? 'text-blue-600' : 'text-amber-600') }}">
+                                    {{ $revenueProgress }}%
+                                </span>
                             </div>
-                        </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden shadow-inner mb-1">
+                                <div class="{{ $revenueProgressColor }} h-2.5 rounded-full transition-all duration-500"
+                                    style="width: {{ $revenueProgress }}%"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>Masuk: <strong class="text-gray-600">Rp {{ number_format($paidAmount, 0, ',', '.') }}</strong></span>
+                                <span>Target: <strong class="text-gray-600">Rp {{ number_format($targetRevenue, 0, ',', '.') }}</strong></span>
+                            </div>
+                        @else
+                            {{-- Belum ada target, tampilkan hint --}}
+                            <div class="mt-1 text-[10px] text-gray-400 italic">
+                                <i class="fas fa-info-circle mr-1"></i>Belum ada target pendapatan. Set target saat edit kelas.
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Action Buttons -->
