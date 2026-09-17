@@ -155,6 +155,9 @@ class ClassApiController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:30',
             'preferred_start_date' => 'nullable|date',
+            'preferred_time' => 'nullable|string|max:100',
+            'learning_method' => 'nullable|in:online,offline',
+            'payment_type' => 'nullable|in:full,termin_2x',
             'notes' => 'nullable|string|max:2000',
         ]);
 
@@ -213,12 +216,19 @@ class ClassApiController extends Controller
                 'meet' => 1,
                 'duration' => $training->duration ?: 1,
                 'start_date' => $validated['preferred_start_date'] ?? null,
-                'description' => $validated['notes'] ?? null,
+                'description' => implode(' | ', array_filter([
+                    $validated['notes'] ?? null,
+                    !empty($validated['preferred_time']) ? 'Jam pilihan: ' . $validated['preferred_time'] : null,
+                ])),
                 'status' => 'pending',
-                'payment_type' => 'full',
+                'payment_type' => $validated['payment_type'] ?? 'full',
                 'paid_amount' => 0,
                 'income' => $training->price,
             ]);
+
+            if (($validated['learning_method'] ?? 'offline') === 'online') {
+                $class->update(['method' => 'online']);
+            }
 
             ClassRegistrant::create([
                 'class_id' => $class->id,
