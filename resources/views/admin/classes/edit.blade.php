@@ -609,7 +609,7 @@
                     <!-- Jumlah Siswa (tidak muncul untuk Private) -->
                     <div id="amount-wrapper">
                         <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-                            Jumlah Siswa <span class="text-red-500">*</span>
+                            <span id="amount-label">Jumlah Siswa</span> <span class="text-red-500">*</span>
                         </label>
                         <input type="number" 
                                name="amount" 
@@ -820,6 +820,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const isCorporate = kategoriText.includes('corporate');
         const isPrivate = kategoriText.includes('private');
+        const isRegular = kategoriText.includes('reguler') || kategoriText.includes('regular');
         const useTerminFlow = isCorporate || isPrivate;
 
         // Toggle instansi khusus Corporate Training
@@ -851,12 +852,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (useTerminFlow) {
             paymentTypeWrapper.style.display = 'block';
             paymentTypeInput.required = true;
-            priceLabel.textContent = isCorporate ? 'Nilai Kontrak' : 'Pendapatan/Nilai Kelas';
+            priceLabel.textContent = isCorporate ? 'Nilai Kontrak' : (isRegular ? 'Harga per Siswa' : 'Pendapatan/Nilai Kelas');
         } else {
             paymentTypeWrapper.style.display = 'none';
             paymentTypeInput.required = false;
             paymentTypeInput.value = 'full';
-            priceLabel.textContent = 'Pendapatan/Nilai Kelas';
+            priceLabel.textContent = isRegular ? 'Harga per Siswa' : 'Pendapatan/Nilai Kelas';
+            document.getElementById('amount-label').textContent = isRegular ? 'Kuota / Jumlah Siswa' : 'Jumlah Siswa';
         }
         
         // Toggle amount for Private

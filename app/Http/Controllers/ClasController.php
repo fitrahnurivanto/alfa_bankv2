@@ -189,6 +189,10 @@ class ClasController extends Controller
         $isPrivateKategori = str_contains(strtolower($selectedKategori->nama_kategori ?? ''), 'private');
         $privateStudentName = trim((string) ($validated['private_student_name'] ?? ''));
         $validated['private_student_name'] = $isPrivateKategori && $privateStudentName !== '' ? $privateStudentName : null;
+        $isRegularKategori = in_array(strtolower((string) ($selectedKategori->slug ?? '')), ['reguler', 'regular'], true);
+        if ($isRegularKategori) {
+            $validated['capacity'] = (int) ($validated['amount'] ?? 0);
+        }
 
         // Validasi: Kategori Private hanya boleh 1 siswa
         if ($isPrivateKategori && isset($validated['amount']) && !empty($validated['amount'])) {
@@ -566,6 +570,10 @@ class ClasController extends Controller
         $isPrivateKategori = str_contains(strtolower($selectedKategori->nama_kategori ?? ''), 'private');
         $privateStudentName = trim((string) ($validated['private_student_name'] ?? ''));
         $validated['private_student_name'] = $isPrivateKategori && $privateStudentName !== '' ? $privateStudentName : null;
+        $isRegularKategori = in_array(strtolower((string) ($selectedKategori->slug ?? '')), ['reguler', 'regular'], true);
+        if ($isRegularKategori) {
+            $validated['capacity'] = (int) ($validated['amount'] ?? 0);
+        }
 
         // Validasi: Kategori Private hanya boleh 1 siswa
         if ($isPrivateKategori && isset($validated['amount']) && !empty($validated['amount'])) {

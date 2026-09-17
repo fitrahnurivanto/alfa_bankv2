@@ -109,7 +109,10 @@
                     <p class="text-xs text-gray-500 mb-1">Total Peserta</p>
                     @php
                         $registeredStudents = $clas->registrants->whereIn('status', ['registered', 'paid', 'confirmed'])->count();
-                        $classCapacity = (int) ($clas->capacity ?? 0);
+                        $isRegularClass = $clas->kategori?->slug === 'reguler';
+                        $classCapacity = $isRegularClass
+                            ? (int) ($clas->amount ?? 0)
+                            : (int) ($clas->capacity ?? 0);
                         $capacityPercentage = $classCapacity > 0 ? round(($registeredStudents / $classCapacity) * 100, 2) : 0;
                     @endphp
                     <p class="text-sm font-semibold text-gray-900">{{ $registeredStudents }}/{{ $classCapacity ?: '-' }} siswa</p>

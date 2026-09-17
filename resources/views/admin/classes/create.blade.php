@@ -466,23 +466,50 @@
                         @enderror
                     </div>
 
-                    <!-- Pendapatan/Nilai Kelas / Nilai Kontrak -->
+                    <!-- Target Pendapatan Kelas -->
+                    <div>
+                        <label for="target_revenue_display" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-bullseye text-emerald-600 mr-1"></i>
+                            Target Pendapatan Kelas
+                            <span class="text-gray-400 text-xs font-normal">(Opsional)</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">Rp</span>
+                            <input type="text"
+                                name="target_revenue_display"
+                                id="target_revenue_display"
+                                value="{{ old('target_revenue', $clas->target_revenue ?? '') ? number_format(old('target_revenue', $clas->target_revenue ?? 0), 0, ',', '.') : '' }}"
+                                class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('target_revenue') border-red-500 @enderror"
+                                placeholder="Contoh: 10.000.000"
+                                oninput="formatRupiah(this, 'target_revenue')">
+                            <input type="hidden" name="target_revenue" id="target_revenue"
+                                value="{{ old('target_revenue', $clas->target_revenue ?? 0) }}">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Target total pendapatan kelas ini. Progress bar di Kelas Berjalan akan menunjukkan persentase uang masuk vs target.
+                        </p>
+                        @error('target_revenue')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <!-- Pendapatan/Nilai Kelas (tetap ada, tapi label lebih jelas) -->
                     <div>
                         <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
                             <span id="price-label">Pendapatan/Nilai Kelas</span>
+                            <span class="text-gray-400 text-xs font-normal">(untuk perhitungan pendapatan kelas)</span>
                         </label>
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">Rp</span>
-                            <input type="text" 
-                                   name="price_display" 
-                                   id="price_display" 
-                                   value="{{ old('price', $clas->price ?? '') ? number_format(old('price', $clas->price ?? ''), 0, ',', '.') : '' }}"
-                                   class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('price') border-red-500 @enderror"
-                                   placeholder="5.000.000"
-                                   >
+                            <input type="text"
+                                name="price_display"
+                                id="price_display"
+                                value="{{ old('price', $clas->price ?? '') ? number_format(old('price', $clas->price ?? ''), 0, ',', '.') : '' }}"
+                                class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('price') border-red-500 @enderror"
+                                placeholder="5.000.000">
                             <input type="hidden" name="price" id="price" value="{{ old('price', $clas->price ?? '') }}">
                         </div>
-                        <p class="mt-1 text-xs text-gray-500">Boleh dikosongkan dulu, isi saat kelas akan diselesaikan. Contoh: 5.000.000</p>
+                        <p class="mt-1 text-xs text-gray-500">Harga satu siswa dikali jumlah siswa terdaftar.</p>
                         @error('price')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -491,7 +518,7 @@
                     <!-- Jumlah Siswa (tidak muncul untuk Private) -->
                     <div id="amount-wrapper">
                         <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-                            Jumlah Siswa <span class="text-gray-500 text-xs">(Opsional, bisa diisi di detail kelas)</span>
+                            <span id="amount-label">Jumlah Siswa</span> <span class="text-gray-500 text-xs">(acuan kapasitas hanya untuk reguler)</span>
                         </label>
                         <input type="number" 
                                name="amount" 
@@ -815,6 +842,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const isCorporate = kategoriText.includes('corporate');
         const isPrivate = kategoriText.includes('private');
+        const isRegular = kategoriText.includes('reguler') || kategoriText.includes('regular');
         const useTerminFlow = isCorporate || isPrivate;
 
         // Toggle instansi khusus Corporate Training
@@ -846,7 +874,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (useTerminFlow) {
             paymentTypeWrapper.style.display = 'block';
             paymentTypeInput.required = true;
-            priceLabel.textContent = isCorporate ? 'Nilai Kontrak' : 'Pendapatan/Nilai Kelas';
+            priceLabel.textContent = isCorporate ? 'Nilai Kontrak' : (isRegular ? 'Harga per Siswa' : 'Pendapatan/Nilai Kelas');
             togglePaidAmount();
         } else {
             paymentTypeWrapper.style.display = 'none';
@@ -856,7 +884,8 @@ document.addEventListener('DOMContentLoaded', function() {
             paidAmountDisplay.required = false;
             paidAmountDisplay.value = '';
             document.getElementById('paid_amount').value = '';
-            priceLabel.textContent = 'Pendapatan/Nilai Kelas';
+            priceLabel.textContent = isRegular ? 'Harga per Siswa' : 'Pendapatan/Nilai Kelas';
+            document.getElementById('amount-label').textContent = isRegular ? 'Kuota / Jumlah Siswa' : 'Jumlah Siswa';
         }
         
         // Toggle jenis_reguler for Regular
@@ -1166,8 +1195,14 @@ document.getElementById('kategori_id').addEventListener('change', function() {
 
 // Pastikan training dropdown ter-enable sebelum form submit
 document.getElementById('classForm').addEventListener('submit', function(e) {
+    const submitBtn = this.querySelector('button[type="submit"]');
     const trainingSelect = document.getElementById('training_id');
     const kategoriSelect = document.getElementById('kategori_id');
+
+    if (submitBtn && submitBtn.disabled) {
+        e.preventDefault();
+        return false;
+    }
     
     // Jika training dropdown disabled tapi kategori sudah dipilih, enable dulu
     if (trainingSelect.disabled && kategoriSelect.value) {
@@ -1180,6 +1215,11 @@ document.getElementById('classForm').addEventListener('submit', function(e) {
         alert('Silakan pilih Jenis Pelatihan terlebih dahulu!');
         trainingSelect.focus();
         return false;
+    }
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan...';
     }
 });
 </script>
