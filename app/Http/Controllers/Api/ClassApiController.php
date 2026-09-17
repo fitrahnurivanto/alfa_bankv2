@@ -23,35 +23,19 @@ class ClassApiController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $perPage = min(max((int) $request->integer('per_page', 15), 1), 100);
-
         $classes = Clas::query()
             ->with([
                 'kategori:id,nama_kategori',
                 'training:id,type,name',
                 'trainers:id,name,email,phone,address,specialization,bio,photo_path,cv_path,status',
             ])
-            ->where(function ($query) {
-                $query
-                    ->where(function ($query) {
-                        $query->where('status', 'approved')
-                            ->whereDate('start_date', '>=', today());
-                    })
-                    ->orWhere(function ($query) {
-                        $query->where('status', 'pending')
-                            ->whereDate('start_date', '>', today())
-                            ->whereHas('kategori', function ($query) {
-                                $query->where('slug', 'reguler');
-                            });
-                    });
-            })
+            ->where('status', 'pending')
+            ->whereBetween('start_date', [
+                now()->startOfMonth(),
+                now()->endOfMonth(),
+            ])
             ->whereHas('kategori', function ($query) {
                 $query->where('slug', 'reguler');
-            })
-            ->when($request->filled('category'), function ($query) use ($request) {
-                $query->whereHas('kategori', function ($query) use ($request) {
-                    $query->where('slug', $request->input('category'));
-                });
             })
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = trim((string) $request->input('search'));
@@ -59,15 +43,12 @@ class ClassApiController extends Controller
             })
             ->orderBy('start_date')
             ->orderBy('id')
-            ->paginate($perPage);
+            ->get();
 
         return response()->json([
-            'data' => $classes->getCollection()->map(fn (Clas $class) => $this->classData($class))->values(),
+            'data' => $classes->map(fn (Clas $class) => $this->classData($class))->values(),
             'meta' => [
-                'current_page' => $classes->currentPage(),
-                'last_page' => $classes->lastPage(),
-                'per_page' => $classes->perPage(),
-                'total' => $classes->total(),
+                'total' => $classes->count(),
             ],
         ]);
     }
@@ -160,6 +141,7 @@ class ClassApiController extends Controller
                 'status' => $registrant->status,
                 'registered_students' => $class->enrolled,
                 'calculated_revenue' => $this->calculatedRevenue($class),
+                'capacity_percentage' => $this->capacityPercentage($class),
             ],
         ], 201);
     }
@@ -272,7 +254,9 @@ class ClassApiController extends Controller
         ];
 
         if (in_array($class->kategori?->slug, self::REGISTRATION_CATEGORY_SLUGS, true)) {
-            $summary['price'] = $this->calculatedRevenueForStudents($class, $activeStudents);
+            $revenue = $this->calculatedRevenueForStudents($class, $activeStudents);
+            $summary['price'] = $revenue;
+            $summary['income'] = $revenue;
         }
 
         $class->update($summary);
@@ -288,6 +272,17 @@ class ClassApiController extends Controller
         $unitPrice = (float) ($class->price_per_student ?: $class->price);
 
         return round($studentCount * $unitPrice, 2);
+    }
+
+    private function capacityPercentage(Clas $class): float
+    {
+        $capacity = (int) $class->capacity;
+
+        if ($capacity <= 0) {
+            return 0;
+        }
+
+        return round(((int) $class->enrolled / $capacity) * 100, 2);
     }
 
     private function isRegistrationOpen(Clas $class): bool
@@ -361,6 +356,7 @@ class ClassApiController extends Controller
                 'target_students' => $class->capacity,
                 'enrolled_students' => $class->enrolled,
                 'participant_count' => $class->amount,
+                'percentage' => $this->capacityPercentage($class),
             ],
             'pricing' => [
                 'price' => $class->price,
