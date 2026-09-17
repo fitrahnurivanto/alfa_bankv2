@@ -295,8 +295,8 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">{{ $class->start_date->format('d M Y') }}</div>
-                        <div class="text-sm text-gray-500">{{ $class->end_date->format('d M Y') }}</div>
+                        <div class="text-sm text-gray-900">{{ $class->start_date?->format('d M Y') ?? '-' }}</div>
+                        <div class="text-sm text-gray-500">{{ $class->end_date?->format('d M Y') ?? '-' }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-2">
@@ -418,7 +418,7 @@
                     <p class="text-xs text-gray-600 mb-1">Periode:</p>
                     <p class="text-sm text-gray-900">
                         <i class="fas fa-calendar-alt mr-1 text-purple-600"></i>
-                        {{ $class->start_date->format('d M Y') }} - {{ $class->end_date->format('d M Y') }}
+                        {{ $class->start_date?->format('d M Y') ?? '-' }} - {{ $class->end_date?->format('d M Y') ?? '-' }}
                     </p>
                 </div>
 
