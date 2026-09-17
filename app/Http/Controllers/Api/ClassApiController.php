@@ -23,6 +23,8 @@ class ClassApiController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $includePrivate = $request->boolean('include_private');
+
         $classes = Clas::query()
             ->with([
                 'kategori:id,nama_kategori',
@@ -30,12 +32,14 @@ class ClassApiController extends Controller
                 'trainers:id,name,email,phone,address,specialization,bio,photo_path,cv_path,status',
             ])
             ->where('status', 'pending')
-            ->whereBetween('start_date', [
-                now()->startOfMonth(),
-                now()->endOfMonth(),
-            ])
+            ->when(!$includePrivate, function ($query) {
+                $query->whereBetween('start_date', [
+                    now()->startOfMonth(),
+                    now()->endOfMonth(),
+                ]);
+            })
             ->whereHas('kategori', function ($query) {
-                $query->where('slug', 'reguler');
+                $query->whereIn('slug', $this->includePrivateCategorySlugs());
             })
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = trim((string) $request->input('search'));
@@ -51,6 +55,13 @@ class ClassApiController extends Controller
                 'total' => $classes->count(),
             ],
         ]);
+    }
+
+    private function includePrivateCategorySlugs(): array
+    {
+        return request()->boolean('include_private')
+            ? self::REGISTRATION_CATEGORY_SLUGS
+            : ['reguler'];
     }
 
     public function show(Clas $class): JsonResponse
@@ -210,8 +221,8 @@ class ClassApiController extends Controller
                 'price' => $training->price,
                 'target_revenue' => $training->price,
                 'capacity' => 1,
-                'enrolled' => 1,
-                'amount' => 1,
+                'enrolled' => 0,
+                'amount' => 0,
                 'method' => 'offline',
                 'meet' => 1,
                 'duration' => $training->duration ?: 1,
@@ -223,7 +234,7 @@ class ClassApiController extends Controller
                 'status' => 'pending',
                 'payment_type' => $validated['payment_type'] ?? 'full',
                 'paid_amount' => 0,
-                'income' => $training->price,
+                'income' => 0,
             ]);
 
             if (($validated['learning_method'] ?? 'offline') === 'online') {
@@ -236,7 +247,7 @@ class ClassApiController extends Controller
                 'full_name' => $validated['full_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
-                'status' => 'registered',
+                'status' => 'pending',
                 'registered_at' => now(),
             ]);
 

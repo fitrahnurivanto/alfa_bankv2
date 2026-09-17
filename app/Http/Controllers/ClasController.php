@@ -844,6 +844,9 @@ class ClasController extends Controller
             if (!$clas->end_date) {
                 $missingFields[] = 'tanggal selesai';
             }
+            if (!$clas->registrants()->active()->exists()) {
+                $missingFields[] = 'penerimaan siswa dari web sim';
+            }
 
             if ($missingFields) {
                 return redirect()->back()->with('error', 'Kelas private belum dapat di-approve. Lengkapi: ' . implode(', ', $missingFields) . '.');
