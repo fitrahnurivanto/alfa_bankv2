@@ -323,7 +323,7 @@ class ClassApiController extends Controller
         $startDate = Carbon::parse($class->start_date);
 
         return $class->status === 'pending'
-            ? $startDate->isAfter(today())
+            ? $startDate->isSameDay(today()) || $startDate->isAfter(today())
             : !$startDate->isBefore(today());
     }
 
