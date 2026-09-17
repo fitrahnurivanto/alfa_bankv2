@@ -219,13 +219,6 @@
                 </a>
             </li>
 
-            <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.students.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-emerald-50 hover:text-emerald-600 hover:translate-x-1 {{ request()->routeIs('admin.students.*') ? 'bg-emerald-50 text-emerald-600 font-semibold' : '' }}">
-                    <i class="fas fa-user-graduate w-6 text-lg"></i>
-                    <span class="ml-2.5">Data Siswa</span>
-                </a>
-            </li>
-
             <li class="mx-2.5 my-1 pt-2 border-t border-gray-200">
                 <a href="{{ route('admin.trainings.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.trainings.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
                     <i class="fas fa-graduation-cap w-6 text-lg"></i>
