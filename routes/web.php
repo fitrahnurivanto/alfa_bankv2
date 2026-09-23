@@ -38,6 +38,9 @@ Route::middleware(['guest', \App\Http\Middleware\NoCacheHeaders::class])->group(
 Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth', \App\Http\Middleware\NoCacheHeaders::class])->name('logout');
 // Fallback for accidental GET /logout requests (e.g. old links/bookmarks)
 Route::get('/logout', [AuthController::class, 'logout'])->middleware(['auth', \App\Http\Middleware\NoCacheHeaders::class]);
+Route::get('/sso/sim/start', [\App\Http\Controllers\Auth\SimSsoController::class, 'start'])
+    ->middleware(['auth', \App\Http\Middleware\NoCacheHeaders::class])
+    ->name('sso.sim.start');
 
 // Authenticated routes
 Route::middleware(['auth', \App\Http\Middleware\NoCacheHeaders::class])->group(function () {

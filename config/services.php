@@ -50,4 +50,8 @@ return [
         'key' => env('ALFABANK_API_KEY'),
     ],
 
+    'sim' => [
+        'sso_url' => env('SIM_SSO_URL', 'http://localhost/sim/'),
+    ],
+
 ];

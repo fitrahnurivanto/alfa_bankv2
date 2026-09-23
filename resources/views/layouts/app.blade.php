@@ -175,6 +175,14 @@
             </div>
             <!-- User Info - Responsive -->
             <div class="flex items-center gap-2 sm:gap-4">
+                @auth
+                    @if(in_array(auth()->user()->role, ['admin', 'akademik', 'marketing'], true))
+                        <a href="{{ route('sso.sim.start') }}" target="_blank" rel="noopener" title="Buka dashboard SIM"
+                           class="text-gray-600 hover:text-gray-900 transition">
+                            <i class="fas fa-external-link-alt text-lg"></i>
+                        </a>
+                    @endif
+                @endauth
                 <!-- Notification Bell -->
                 <div x-data="notificationSystem" class="relative">
                     <button @click="toggleNotifications" class="relative text-gray-600 hover:text-gray-900 transition">

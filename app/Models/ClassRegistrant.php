@@ -8,6 +8,9 @@ class ClassRegistrant extends Model
 {
     protected $fillable = [
         'class_id',
+        'student_id',
+        'registration_id',
+        'nis',
         'external_registration_id',
         'full_name',
         'email',

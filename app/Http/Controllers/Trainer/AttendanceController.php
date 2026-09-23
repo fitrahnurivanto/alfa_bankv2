@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Trainer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Clas;
+use App\Models\ClassSession;
 use App\Models\TrainerAttendance;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -156,6 +157,20 @@ class AttendanceController extends Controller
         $attendance->check_in_longitude = $validated['check_in_longitude'];
         $attendance->check_in_accuracy = $validated['check_in_accuracy'];
         $attendance->save();
+
+        ClassSession::firstOrCreate(
+            [
+                'class_id' => $class->id,
+                'session_number' => $attendance->session_number,
+            ],
+            [
+                'title' => 'Pertemuan ' . $attendance->session_number,
+                'session_date' => $today,
+                'start_time' => $attendance->planned_start_time ?: now()->format('H:i:s'),
+                'end_time' => $class->end_time ?: now()->addHour()->format('H:i:s'),
+                'status' => 'ongoing',
+            ]
+        );
 
         return back()->with('success', 'Absen berangkat berhasil dicatat secara real-time.');
     }

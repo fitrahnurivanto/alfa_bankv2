@@ -93,6 +93,9 @@ class ClassApiController extends Controller
 
         $validated = $request->validate([
             'external_registration_id' => 'required|string|max:100',
+            'student_id' => 'nullable|integer',
+            'registration_id' => 'nullable|integer',
+            'nis' => 'nullable|string|max:50',
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:30',
@@ -130,6 +133,9 @@ class ClassApiController extends Controller
                 ],
                 [
                     'full_name' => $validated['full_name'],
+                    'student_id' => $validated['student_id'] ?? null,
+                    'registration_id' => $validated['registration_id'] ?? null,
+                    'nis' => $validated['nis'] ?? null,
                     'email' => $validated['email'],
                     'phone' => $validated['phone'] ?? null,
                     'status' => $validated['status'],
