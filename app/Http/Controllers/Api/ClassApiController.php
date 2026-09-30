@@ -31,7 +31,7 @@ class ClassApiController extends Controller
                 'training:id,type,name',
                 'trainers:id,name,email,phone,address,specialization,bio,photo_path,cv_path,status',
             ])
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'approved', 'done'])
             ->when(!$includePrivate, function ($query) {
                 $query->whereBetween('start_date', [
                     now()->startOfMonth(),
