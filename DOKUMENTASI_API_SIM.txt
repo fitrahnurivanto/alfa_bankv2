@@ -1,14 +1,34 @@
-INTEGRASI SIM <-> ALFABANKV2
-- ID kelas sama dengan alfabankv2.clas.id dan sim.booking.kelas_id.
-- student_id = sim.users.id.
-- registration_id = sim.booking.id. Satu siswa dapat mempunyai banyak registration_id.
-- nis = buku_induk_siswa.nis. NIK tidak dipakai.
-- Peserta dianggap diterima jika sim.booking.status = terdaftar.
-- Saat dikirim ke Laravel, peserta harus memakai status confirmed.
+INTEGRASI SIM KE ALFABANKV2
+
+IDENTITAS DATA
+
+Data siswa:
+- users.id digunakan sebagai student_id.
+- buku_induk_siswa.nis digunakan sebagai NIS.
+- NIK tidak digunakan karena sudah tidak tersedia di tabel buku_induk_siswa.
+
+Data pendaftaran:
+- booking.id digunakan sebagai registration_id.
+- booking.kelas_id digunakan sebagai class_id.
+- class_id sama dengan alfabankv2.clas.id.
+- Satu siswa dapat memiliki beberapa booking karena dapat mengikuti beberapa kelas.
+- Setiap booking harus diproses terpisah berdasarkan registration_id dan class_id.
+
+Status peserta:
+- booking.status = terdaftar berarti peserta sudah diterima dan dapat mengikuti kelas.
+- Peserta yang belum lunas tetap dapat mengikuti kelas jika statusnya terdaftar.
+- Status peserta yang dikirim ke Laravel harus confirmed.
+
+Semua request ke API Laravel menggunakan header:
+X-API-KEY: nilai ALFABANK_API_KEY
 
 1. SINKRON PESERTA
-POST /classes/{class_id}/registrants
-Body JSON:
+
+POST /api/classes/{class_id}/registrants
+
+Kirim setelah booking berstatus terdaftar.
+
+Request:
 {
   "external_registration_id": "CI4-BOOKING-123",
   "student_id": 25,
@@ -20,29 +40,65 @@ Body JSON:
   "status": "confirmed",
   "registered_at": "2026-09-23T10:00:00+07:00"
 }
-Kirim hanya untuk booking yang sudah terdaftar/diterima. Belum lunas tetap boleh dikirim.
+
+Gunakan registration_id dan class_id agar siswa yang sama pada kelas berbeda tidak tercampur.
 
 2. SESI KELAS
-GET /classes/{class_id}/sessions
-Laravel mengembalikan meeting_target, tanggal kelas, dan sesi yang sudah dibuka.
-Sesi dibuat otomatis saat trainer melakukan check-in.
+
+GET /api/classes/{class_id}/sessions
+
+Response berisi:
+- jumlah target pertemuan dari kelas Laravel
+- tanggal mulai dan selesai kelas
+- daftar sesi yang sudah dibuka
+- nomor sesi
+- tanggal sesi
+- status sesi
+
+Sesi dibuat otomatis di Laravel ketika trainer melakukan check-in. Tidak perlu membuat sesi secara manual di SIM.
 
 3. CEK ABSEN TRAINER
-GET /classes/{class_id}/trainer-attendance?session_number=1
-Jika data memiliki checked_in=true, peserta boleh absen di sim.
-Syarat membuka absen peserta adalah trainer sudah check-in, bukan check-out.
 
-4. FILE NILAI DAN REKAP
-GET /classes/{class_id}/grade-file?registration_id=123
-atau gunakan student_id/nis.
-Hanya peserta dengan status confirmed yang dapat mengambil data.
-File hanya dikirim jika sudah approved dan active di Laravel.
-Response berisi file download_url dan summary passed_students/failed_students.
+GET /api/classes/{class_id}/trainer-attendance?session_number=1
+
+Jika checked_in bernilai true, peserta boleh melakukan absen di SIM.
+Peserta tidak perlu menunggu trainer melakukan check-out.
+
+Jika trainer belum check-in, absensi peserta tidak boleh dibuka.
+
+4. FILE NILAI DAN REKAP KELAS
+
+GET /api/classes/{class_id}/grade-file?registration_id=123
+
+Parameter peserta dapat menggunakan salah satu dari:
+- registration_id
+- student_id
+- nis
+
+Syarat akses:
+- peserta terdaftar pada class_id yang diminta
+- status peserta di Laravel adalah confirmed
+- file nilai berstatus approved
+- file nilai berstatus active
+
+Response berisi:
+- nama file
+- tipe file
+- download_url
+- waktu persetujuan
+- jumlah siswa lulus
+- jumlah siswa tidak lulus
+
+File dengan status pending_review atau rejected tidak boleh ditampilkan di SIM.
 
 5. PEMBAYARAN DARI SIM KE LARAVEL
-POST /payments
-Kirim setelah pembayaran diverifikasi di sim.
-Body JSON:
+
+Pembayaran dikirim setelah diverifikasi di SIM.
+Pembayaran dicatat per siswa dan per kelas. Pembayaran siswa yang sama untuk kelas berbeda dihitung terpisah.
+
+POST /api/payments
+
+Request:
 {
   "class_id": 8,
   "student_id": 25,
@@ -56,29 +112,78 @@ Body JSON:
   "proof_url": "https://sim.example/bukti/9988",
   "notes": "Pembayaran pertama"
 }
-payment_type hanya: registration, installment, remedial.
-external_transaction_id wajib unik. Pengiriman ulang ID yang sama tidak menggandakan total.
-Nominal otomatis masuk ke perhitungan pembayaran kelas Laravel berdasarkan class_id.
 
-6. SSO LARAVEL KE SIM
-Tombol Laravel tersedia untuk role admin, akademik, marketing.
-Laravel membuka URL SIM di tab baru:
+payment_type hanya boleh menggunakan:
+- registration
+- installment
+- remedial
+
+external_transaction_id harus unik. Pengiriman ulang dengan ID yang sama tidak menambah total pembayaran.
+Nominal pembayaran masuk ke perhitungan keuangan kelas berdasarkan class_id.
+
+6. DATA PEMBAYARAN DI SIM
+
+Pembayaran utama di SIM berasal dari booking dan terkait dengan kelas melalui booking.kelas_id.
+
+Data pembayaran utama yang tersedia di SIM:
+- metode_pembayaran
+- bukti_bayar
+- jenis_pembayaran
+- status_pelunasan
+- bukti_pelunasan
+- jatuh_tempo_pelunasan
+
+Ledger keuangan SIM menggunakan tabel buku_besar_keuangan dengan data:
+- booking_id
+- user_id
+- kelas_id
+- evaluasi_ujian_id jika terkait remedial
+- kategori_transaksi
+- nominal
+- bukti_bayar
+
+7. PEMBAYARAN REMEDIAL
+
+Data remedial di SIM terkait dengan siswa dan kelas melalui evaluasi_ujian.
+Data yang tersedia antara lain:
+- status_lulus
+- percobaan_ke
+- jadwal_remedial
+- batas_akhir_remedial
+- status_bayar_remedial
+- bukti_bayar_remedial
+- catatan_bayar_remedial
+- waktu_bayar_remedial
+
+Pembayaran remedial dikirim ke Laravel dengan payment_type remedial.
+
+8. SSO LARAVEL KE SIM
+
+Laravel membuka SIM di tab baru dengan URL:
 GET https://DOMAIN-SIM/?sso_token=TOKEN
-Token berlaku 60 detik dan hanya dapat dipakai sekali.
-SIM wajib membuat endpoint internal yang:
-1) mengambil sso_token dari query string;
-2) POST ke https://DOMAIN-LARAVEL/api/sso/consume dengan header X-API-KEY;
-3) mengirim JSON {"token":"TOKEN"};
-4) jika berhasil, membuat session admin SIM dari user_id/email/name/role response;
-5) mengarahkan user ke dashboard admin SIM;
-6) menolak token yang gagal, kedaluwarsa, atau sudah dipakai.
-Jangan menyimpan token di database SIM dan jangan meminta password Laravel.
 
-CHECKLIST PROGRAMMER SIM
-- Tambahkan student_id, registration_id, dan nis pada payload sinkron peserta.
-- Kirim status peserta hanya setelah booking berstatus terdaftar.
-- Panggil trainer-attendance sebelum membuka absensi peserta.
-- Kirim pembayaran hanya setelah status pembayaran diverifikasi.
-- Pastikan registration_id dan class_id selalu dikirim agar pembayaran tidak tercampur antar kelas.
-- Batasi tampilan file nilai hanya untuk peserta kelas yang sama.
-- Implementasikan penerima sso_token dan pemanggilan /sso/consume.
+Token berlaku selama 60 detik dan hanya dapat digunakan satu kali.
+
+Yang perlu dibuat di SIM:
+1. Ambil sso_token dari query string.
+2. Kirim token ke Laravel:
+   POST https://DOMAIN-LARAVEL/api/sso/consume
+   Header: X-API-KEY
+   Request: {"token":"TOKEN"}
+3. Jika response berhasil, buat session login dari data akun yang diterima.
+4. Arahkan pengguna ke dashboard SIM.
+5. Tolak token yang tidak valid, sudah digunakan, atau sudah kedaluwarsa.
+6. Jangan meminta password Laravel.
+
+9. DATA YANG HARUS DISESUAIKAN DI SIM
+
+- Tambahkan student_id, registration_id, dan nis pada payload sinkronisasi peserta.
+- Kirim peserta hanya setelah booking berstatus terdaftar.
+- Gunakan status confirmed saat mengirim peserta ke Laravel.
+- Gunakan class_id dan registration_id pada setiap transaksi.
+- Panggil API trainer-attendance sebelum membuka absensi peserta.
+- Tampilkan file nilai hanya untuk peserta pada kelas yang sama.
+- Tampilkan file nilai hanya jika sudah approved dan active.
+- Kirim pembayaran hanya setelah diverifikasi.
+- Pastikan external_transaction_id tidak berubah saat pengiriman ulang.
+- Buat proses penerimaan sso_token dan pemanggilan endpoint /api/sso/consume.

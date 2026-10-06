@@ -57,7 +57,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Reguler</p>
                             <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-blue-600 break-words">Rp {{ number_format($adminRegularRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor kategori reguler</p>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori reguler</p>
                         </div>
                         <div class="bg-blue-100 p-3 rounded-xl">
                             <i class="fas fa-book-open text-3xl text-blue-500"></i>
@@ -72,7 +72,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Corporate</p>
                             <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-indigo-600 break-words">Rp {{ number_format($adminCorporateRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor kategori corporate</p>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori corporate</p>
                         </div>
                         <div class="bg-indigo-100 p-3 rounded-xl">
                             <i class="fas fa-building text-3xl text-indigo-500"></i>
@@ -87,7 +87,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Private</p>
                             <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-amber-600 break-words">Rp {{ number_format($adminPrivateRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor kategori private</p>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori private</p>
                         </div>
                         <div class="bg-amber-100 p-3 rounded-xl">
                             <i class="fas fa-user text-3xl text-amber-500"></i>
@@ -100,12 +100,27 @@
                 <div class="p-4 md:p-6">
                     <div class="flex justify-between items-center">
                         <div class="flex-1 min-w-0">
-                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Pendapatan Kotor (Bruto)</p>
+                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omzet Masuk</p>
                             <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-gray-800 break-words">Rp {{ number_format($adminTotalRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor semua kategori</p>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk semua kategori</p>
                         </div>
                         <div class="bg-purple-100 p-3 rounded-xl">
                             <i class="fas fa-money-bill-wave text-3xl text-purple-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
+                <div class="p-4 md:p-6">
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Nilai Kelas</p>
+                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-slate-700 break-words">Rp {{ number_format($adminClassValueRevenue, 0, ',', '.') }}</h4>
+                            <p class="text-gray-400 text-xs mt-1 truncate">Total harga kelas periode ini</p>
+                        </div>
+                        <div class="bg-slate-100 p-3 rounded-xl">
+                            <i class="fas fa-tags text-3xl text-slate-600"></i>
                         </div>
                     </div>
                 </div>
@@ -331,9 +346,9 @@
         <div class="mb-4 md:mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div class="flex-1">
                 <h3 class="text-base md:text-lg font-bold text-gray-900 mb-1">
-                    <i class="fas fa-chart-bar mr-2 text-purple-600"></i>Tren Nilai Kelas per Kategori ({{ $selectedYear }})
+                    <i class="fas fa-chart-bar mr-2 text-purple-600"></i>Tren Omzet Masuk per Kategori ({{ $selectedYear }})
                 </h3>
-                <p class="text-xs md:text-sm text-gray-600">Perbandingan nilai kelas Reguler, Corporate, dan Private per bulan</p>
+                <p class="text-xs md:text-sm text-gray-600">Perbandingan omzet yang sudah dikonfirmasi untuk Reguler, Corporate, dan Private per bulan</p>
             </div>
             <div class="flex gap-2 shrink-0">
                 <button id="revenueChartTypeBar" onclick="switchFinanceChartType('bar')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-purple-100 text-purple-700 border-purple-400 hover:bg-purple-200">

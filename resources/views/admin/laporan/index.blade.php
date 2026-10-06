@@ -138,17 +138,28 @@
                         $query->whereDate('start_date', '<=', $filters['end_date']);
                     }
                     
-                    // Revenue calculation - SAMA SEPERTI DASHBOARD
-                    // Hanya hitung approved & done, dengan corporate tidak dikali amount
+                    // Revenue calculation - cash basis from confirmed payments
                     $classes = (clone $query)->whereIn('status', ['approved', 'done'])
                         ->with('kategori')
                         ->get();
 
-                    $totalRevenue = 0;
-                    foreach ($classes as $class) {
-                        // Price is now total revenue for all categories
-                        $totalRevenue += $class->price;
+                    $paymentRevenueQuery = \App\Models\Payment::whereNotNull('confirmed_at');
+
+                    if ($hasDateRange) {
+                        $paymentRevenueQuery->whereBetween('confirmed_at', [$filters['start_date'], $filters['end_date']]);
+                    } else {
+                        if (!empty($filters['year'])) {
+                            $paymentRevenueQuery->whereYear('confirmed_at', $filters['year']);
+                        }
+                        if (!empty($filters['start_date'])) {
+                            $paymentRevenueQuery->whereDate('confirmed_at', '>=', $filters['start_date']);
+                        }
+                        if (!empty($filters['end_date'])) {
+                            $paymentRevenueQuery->whereDate('confirmed_at', '<=', $filters['end_date']);
+                        }
                     }
+
+                    $totalRevenue = (float) (clone $paymentRevenueQuery)->sum('amount');
 
                     $regularClasses = (clone $query)->whereIn('status', ['approved', 'done'])->whereHas('training', function ($q) {
                         $q->where('type', 'reguler');
@@ -163,15 +174,15 @@
                     // Samakan cakupan Total Kelas dengan 3 card kategori agar sinkron.
                     $totalClasses = $regularClasses + $corporateClasses + $privateClasses;
 
-                    $regularRevenue = (clone $query)->whereIn('status', ['approved', 'done'])->whereHas('training', function ($q) {
+                    $regularRevenue = (clone $paymentRevenueQuery)->whereHas('invoice.registration.training', function ($q) {
                         $q->where('type', 'reguler');
-                    })->sum('price');
-                    $corporateRevenue = (clone $query)->whereIn('status', ['approved', 'done'])->whereHas('training', function ($q) {
+                    })->sum('amount');
+                    $corporateRevenue = (clone $paymentRevenueQuery)->whereHas('invoice.registration.training', function ($q) {
                         $q->where('type', 'corporate');
-                    })->sum('price');
-                    $privateRevenue = (clone $query)->whereIn('status', ['approved', 'done'])->whereHas('training', function ($q) {
+                    })->sum('amount');
+                    $privateRevenue = (clone $paymentRevenueQuery)->whereHas('invoice.registration.training', function ($q) {
                         $q->where('type', 'private');
-                    })->sum('price');
+                    })->sum('amount');
 
                     $certificationQuery = (clone $query)->where('sertifikasi_bnsp', true);
                     $certificationClassCount = (clone $certificationQuery)->count();
@@ -191,7 +202,7 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Reguler</p>
                                             <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-blue-600 break-words">Rp {{ number_format($regularRevenue, 0, ',', '.') }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor kategori reguler</p>
+                                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori reguler</p>
                                         </div>
                                         <div class="bg-blue-100 p-3 rounded-xl">
                                             <i class="fas fa-book-open text-3xl text-blue-500"></i>
@@ -206,7 +217,7 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Corporate</p>
                                             <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-indigo-600 break-words">Rp {{ number_format($corporateRevenue, 0, ',', '.') }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor kategori corporate</p>
+                                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori corporate</p>
                                         </div>
                                         <div class="bg-indigo-100 p-3 rounded-xl">
                                             <i class="fas fa-building text-3xl text-indigo-500"></i>
@@ -221,7 +232,7 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Private</p>
                                             <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-amber-600 break-words">Rp {{ number_format($privateRevenue, 0, ',', '.') }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor kategori private</p>
+                                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori private</p>
                                         </div>
                                         <div class="bg-amber-100 p-3 rounded-xl">
                                             <i class="fas fa-user text-3xl text-amber-500"></i>
@@ -234,9 +245,9 @@
                                 <div class="p-4 md:p-6">
                                     <div class="flex justify-between items-center">
                                         <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Pendapatan Kotor (Bruto)</p>
+                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omzet Masuk</p>
                                             <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-gray-800 break-words">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total pendapatan kotor semua kategori</p>
+                                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk semua kategori</p>
                                         </div>
                                         <div class="bg-purple-100 p-3 rounded-xl">
                                             <i class="fas fa-money-bill-wave text-3xl text-purple-500"></i>

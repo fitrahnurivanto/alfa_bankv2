@@ -81,6 +81,28 @@
                 <p class="mt-1 text-xs text-gray-500">Opsional - Jelaskan tujuan dan materi yang akan dipelajari dalam pelatihan ini</p>
             </div>
 
+            <!-- Price -->
+            <div class="mb-6">
+                <label for="price" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Harga <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <span class="absolute left-4 top-3 text-gray-600 text-sm font-semibold">Rp</span>
+                    <input type="text" 
+                           id="priceDisplay" 
+                           data-price-input="price"
+                           value="{{ old('price', $training->price) ? number_format(old('price', $training->price), 0, ',', '.') : '0' }}"
+                           class="w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent @error('price') border-red-500 @enderror"
+                           placeholder="0"
+                           required>
+                    <input type="hidden" name="price" id="price" value="{{ old('price', $training->price) }}">
+                </div>
+                @error('price')
+                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                @enderror
+                <p class="mt-1 text-xs text-gray-500">Harga yang akan ditampilkan saat pendaftaran online</p>
+            </div>
+
             <!-- Status -->
             <div class="mb-6">
                 <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -146,4 +168,39 @@
         @endif
     </div>
 </div>
+
+<script>
+    // Price formatter
+    document.addEventListener('DOMContentLoaded', function() {
+        const priceDisplay = document.getElementById('priceDisplay');
+        const priceInput = document.getElementById('price');
+        
+        if (!priceDisplay || !priceInput) return;
+        
+        // Format number with thousand separators (Indonesian format)
+        function formatPrice(value) {
+            // Remove all non-digit characters
+            const rawValue = value.replace(/\D/g, '');
+            // Format with dots as thousand separators
+            return rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+        
+        // Handle input event
+        priceDisplay.addEventListener('input', function(e) {
+            const formatted = formatPrice(this.value);
+            this.value = formatted;
+            // Update hidden input with raw value
+            priceInput.value = formatted.replace(/\./g, '');
+        });
+        
+        // Handle paste event
+        priceDisplay.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const formatted = formatPrice(pastedText);
+            this.value = formatted;
+            priceInput.value = formatted.replace(/\./g, '');
+        });
+    });
+</script>
 @endsection
