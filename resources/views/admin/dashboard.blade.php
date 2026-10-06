@@ -7,180 +7,73 @@
 @push('styles')
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
 <style>
-    .chart-container {
-        position: relative;
-        height: 300px;
-    }
-
-    .chart-container-lg {
-        position: relative;
-        height: 380px;
-    }
-
-    .recap-card-grid > div {
-        min-height: 100%;
-    }
-
-    .recap-card-grid .recap-card {
-        min-height: 100%;
-    }
-
-    .recap-card-grid .recap-card-body {
-        padding: 0.875rem;
-    }
-
-    @media (min-width: 768px) {
-        .recap-card-grid .recap-card-body {
-            padding: 1rem 1.1rem;
-        }
-    }
-
-    .recap-card-grid .recap-card-title {
-        font-size: 0.72rem;
-        line-height: 1rem;
-    }
-
-    .recap-card-grid .recap-card-value {
-        font-size: 1.05rem;
-        line-height: 1.35rem;
-    }
-
-    @media (min-width: 768px) {
-        .recap-card-grid .recap-card-title {
-            font-size: 0.78rem;
-        }
-
-        .recap-card-grid .recap-card-value {
-            font-size: 1.2rem;
-        }
-    }
-
-    .recap-card-grid .recap-card-icon {
-        width: 2.5rem;
-        height: 2.5rem;
-        padding: 0.55rem;
-        border-radius: 0.75rem;
-    }
-
-    .recap-card-grid .recap-card-icon i {
-        font-size: 1.1rem;
-    }
-
-    @media (min-width: 768px) {
-        .recap-card-grid .recap-card-icon {
-            width: 2.75rem;
-            height: 2.75rem;
-            padding: 0.6rem;
-        }
-
-        .recap-card-grid .recap-card-icon i {
-            font-size: 1.15rem;
-        }
-    }
-
-    #calendar {
-        max-width: 100%;
-        margin: 0 auto;
-        height: 600px;
-    }
-    
-    .fc-event {
-        cursor: pointer;
-    }
-    
-    .fc-event:hover {
-        opacity: 0.8;
-    }
-    
-    .calendar-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
-    }
-    
-    .calendar-content.active {
-        max-height: 700px;
-        overflow-y: auto;
-    }
+    .chart-container { position: relative; height: 320px; }
+    .chart-container-lg { position: relative; height: 380px; }
+    #calendar { max-width: 100%; margin: 0 auto; height: 600px; }
+    .fc-event { cursor: pointer; }
+    .fc-event:hover { opacity: 0.8; }
+    .calendar-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    .calendar-content.active { max-height: 700px; overflow-y: auto; }
+    .filter-select { background:#fff; border:1px solid #e5e5e5; color:#6b7280; font-size:12px; padding:6px 10px; border-radius:6px; }
+    .filter-select:focus { outline:none; border-color:#fe0000; box-shadow:0 0 0 2px rgba(254,0,0,.15); }
 </style>
 @endpush
 
 @section('content')
-<!-- Success/Error Messages -->
 @if(session('success'))
-<div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-sm animate-fade-in">
-    <div class="flex items-center">
-        <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
-        <p class="text-green-800 font-medium">{{ session('success') }}</p>
-    </div>
+<div class="mb-4 bg-green-50 border-l-4 border-[#43bf21] p-4 rounded-lg shadow-sm">
+    <div class="flex items-center"><i class="fas fa-check-circle text-[#43bf21] text-xl mr-3"></i><p class="text-green-800 font-medium">{{ session('success') }}</p></div>
 </div>
 @endif
 
 @if(session('error'))
-<div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm animate-fade-in">
-    <div class="flex items-center">
-        <i class="fas fa-exclamation-circle text-red-600 text-xl mr-3"></i>
-        <p class="text-red-800 font-medium">{{ session('error') }}</p>
-    </div>
+<div class="mb-4 bg-red-50 border-l-4 border-[#fe0000] p-4 rounded-lg shadow-sm">
+    <div class="flex items-center"><i class="fas fa-exclamation-circle text-[#fe0000] text-xl mr-3"></i><p class="text-red-800 font-medium">{{ session('error') }}</p></div>
 </div>
 @endif
 
 @if($errors->any())
-<div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm animate-fade-in">
+<div class="mb-4 bg-red-50 border-l-4 border-[#fe0000] p-4 rounded-lg shadow-sm">
     <div class="flex items-start">
-        <i class="fas fa-exclamation-triangle text-red-600 text-xl mr-3 mt-0.5"></i>
+        <i class="fas fa-exclamation-triangle text-[#fe0000] text-xl mr-3 mt-0.5"></i>
         <div>
             <p class="text-red-800 font-medium mb-2">Terjadi kesalahan:</p>
             <ul class="list-disc list-inside text-red-700 text-sm space-y-1">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
+                @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
             </ul>
         </div>
     </div>
 </div>
 @endif
 
-<!-- Filter Form -->
-<div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 md:mb-6 gap-3">
-    <div>
-        <h4 class="text-xl md:text-2xl font-bold text-gray-800">
-            <i class="fas fa-chart-line mr-2 md:mr-3"></i>Dashboard <span class="text-green-600">Alfa Bank</span>
-        </h4>
-        @if(\Illuminate\Support\Facades\Auth::user()?->isAdmin())
-            <div class="inline-flex items-center gap-1 p-1 mt-2 rounded-full bg-gray-100 border border-gray-200">
-                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full bg-green-600 text-white shadow-md hover:shadow-lg"><i class="fas fa-chart-bar mr-1"></i>Admin</a>
-                <a href="{{ route('admin.dashboard.akademik') }}" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full text-gray-700 hover:bg-gray-200 hover:text-gray-900"><i class="fas fa-graduation-cap mr-1"></i>Akademik</a>
-                <a href="{{ route('admin.dashboard.finance') }}" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full text-gray-700 hover:bg-gray-200 hover:text-gray-900"><i class="fas fa-money-bill-wave mr-1"></i>Finance</a>
-            </div>
-        @endif
+<!-- Tab Dashboard -->
+@if(\Illuminate\Support\Facades\Auth::user()?->isAdmin())
+<div class="flex justify-center mb-6">
+    <div class="inline-flex items-center gap-1 px-2 py-1.5 rounded-full bg-white border-2 border-[#fe0000]">
+        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-1.5 px-5 py-1.5 text-xs font-semibold rounded-full bg-[#fe0000] text-white"><i class="fas fa-chart-simple"></i>Admin</a>
+        <a href="{{ route('admin.dashboard.akademik') }}" class="inline-flex items-center gap-1.5 px-5 py-1.5 text-xs font-medium rounded-full text-gray-800 hover:bg-[#fed0d0]"><i class="fas fa-graduation-cap"></i>Akademik</a>
+        <a href="{{ route('admin.dashboard.finance') }}" class="inline-flex items-center gap-1.5 px-5 py-1.5 text-xs font-medium rounded-full text-gray-800 hover:bg-[#fed0d0]"><i class="far fa-credit-card"></i>Finance</a>
     </div>
-    
+</div>
+@endif
+
+<!-- Judul + Filter -->
+<div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-5 gap-3">
+    <h4 class="text-xl md:text-2xl font-bold text-gray-900">Dashboard <span class="text-[#fe0000]">Alfabank</span></h4>
     <form method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-wrap gap-2 w-full lg:w-auto">
-        <select name="period" class="flex-1 sm:flex-none px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" onchange="this.form.submit()">
+        <select name="period" class="filter-select flex-1 sm:flex-none sm:w-36" onchange="this.form.submit()">
             <option value="all" {{ $period == 'all' ? 'selected' : '' }}>Semua Periode</option>
-            <option value="month_01" {{ $period == 'month_01' ? 'selected' : '' }}>Januari</option>
-            <option value="month_02" {{ $period == 'month_02' ? 'selected' : '' }}>Februari</option>
-            <option value="month_03" {{ $period == 'month_03' ? 'selected' : '' }}>Maret</option>
-            <option value="month_04" {{ $period == 'month_04' ? 'selected' : '' }}>April</option>
-            <option value="month_05" {{ $period == 'month_05' ? 'selected' : '' }}>Mei</option>
-            <option value="month_06" {{ $period == 'month_06' ? 'selected' : '' }}>Juni</option>
-            <option value="month_07" {{ $period == 'month_07' ? 'selected' : '' }}>Juli</option>
-            <option value="month_08" {{ $period == 'month_08' ? 'selected' : '' }}>Agustus</option>
-            <option value="month_09" {{ $period == 'month_09' ? 'selected' : '' }}>September</option>
-            <option value="month_10" {{ $period == 'month_10' ? 'selected' : '' }}>Oktober</option>
-            <option value="month_11" {{ $period == 'month_11' ? 'selected' : '' }}>November</option>
-            <option value="month_12" {{ $period == 'month_12' ? 'selected' : '' }}>Desember</option>
+            @foreach(['01'=>'Januari','02'=>'Februari','03'=>'Maret','04'=>'April','05'=>'Mei','06'=>'Juni','07'=>'Juli','08'=>'Agustus','09'=>'September','10'=>'Oktober','11'=>'November','12'=>'Desember'] as $mk => $mn)
+            <option value="month_{{ $mk }}" {{ $period == 'month_'.$mk ? 'selected' : '' }}>{{ $mn }}</option>
+            @endforeach
         </select>
-        
-        <select name="year" class="flex-1 sm:flex-none px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" onchange="this.form.submit()">
+        <select name="year" class="filter-select flex-1 sm:flex-none sm:w-32" onchange="this.form.submit()">
             <option value="all" {{ request('year', 'all') == 'all' ? 'selected' : '' }}>Semua Tahun</option>
             @for($y = now()->year; $y >= 2023; $y--)
-                <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
+            <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
             @endfor
         </select>
-        
-        <select name="status" class="flex-1 sm:flex-none px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" onchange="this.form.submit()">
+        <select name="status" class="filter-select flex-1 sm:flex-none sm:w-36" onchange="this.form.submit()">
             <option value="all" {{ $status == 'all' ? 'selected' : '' }}>Semua Status</option>
             <option value="completed" {{ $status == 'completed' ? 'selected' : '' }}>Selesai</option>
             <option value="active" {{ $status == 'active' ? 'selected' : '' }}>Aktif</option>
@@ -188,436 +81,246 @@
     </form>
 </div>
 
-<!-- Stats Cards -->
-<div class="space-y-3 md:space-y-4 mb-4 md:mb-5">
-    <div class="bg-gray-50 rounded-2xl border border-gray-200 p-3 md:p-4 space-y-3">
-        <div class="flex items-start justify-start px-1">
-            <span class="inline-flex items-center px-3 py-1 rounded-full bg-gray-900 text-white text-xs md:text-sm font-semibold tracking-wide uppercase shadow-sm">
-                Rekap Omset
-            </span>
+<!-- Target Omset Bulanan -->
+<div id="target-omset" class="card-figma rounded-lg overflow-hidden mb-5 scroll-mt-6">
+    <div class="px-5 py-3 border-b border-gray-200 flex justify-between items-center">
+        <div>
+            <h5 class="text-base font-bold text-gray-900 leading-tight">Target Omset Bulanan</h5>
+            <p class="text-xs text-gray-800">{{ now()->translatedFormat('F Y') }} (Real-time)</p>
         </div>
-        <div class="grid recap-card-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 items-stretch">
-            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 h-full recap-card">
-                <div class="recap-card-body h-full flex flex-col">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1 min-w-0">
-                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Omset Reguler</p>
-                            <h4 class="recap-card-value font-bold text-blue-600 break-words">Rp {{ number_format($regularRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori reguler</p>
-                        </div>
-                        <div class="recap-card-icon bg-blue-100 shrink-0 flex items-center justify-center">
-                            <i class="fas fa-sack-dollar text-3xl text-blue-500"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 h-full recap-card">
-                <div class="recap-card-body h-full flex flex-col">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1 min-w-0">
-                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Omset Corporate</p>
-                            <h4 class="recap-card-value font-bold text-indigo-600 break-words">Rp {{ number_format($corporateRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori corporate</p>
-                        </div>
-                        <div class="recap-card-icon bg-indigo-100 shrink-0 flex items-center justify-center">
-                            <i class="fas fa-building text-3xl text-indigo-600"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 h-full recap-card">
-                <div class="recap-card-body h-full flex flex-col">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1 min-w-0">
-                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Omset Private</p>
-                            <h4 class="recap-card-value font-bold text-amber-600 break-words">Rp {{ number_format($privateRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori private</p>
-                        </div>
-                        <div class="recap-card-icon bg-amber-100 shrink-0 flex items-center justify-center">
-                            <i class="fas fa-user text-3xl text-amber-600"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 h-full recap-card">
-                <div class="recap-card-body h-full flex flex-col">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1 min-w-0">
-                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Omzet Masuk</p>
-                            <h4 class="recap-card-value font-bold text-gray-800 break-words">Rp {{ number_format($classRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk semua kategori</p>
-                        </div>
-                        <div class="recap-card-icon bg-gray-200 shrink-0 flex items-center justify-center">
-                            <i class="fas fa-money-bill-wave text-3xl text-gray-700"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 h-full recap-card">
-                <div class="recap-card-body h-full flex flex-col">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1 min-w-0">
-                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Nilai Kelas</p>
-                            <h4 class="recap-card-value font-bold text-slate-700 break-words">Rp {{ number_format($classValueRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total nilai harga kelas periode ini</p>
-                        </div>
-                        <div class="recap-card-icon bg-slate-100 shrink-0 flex items-center justify-center">
-                            <i class="fas fa-tags text-3xl text-slate-600"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 h-full recap-card">
-                <div class="recap-card-body h-full flex flex-col">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1 min-w-0">
-                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Omset Sertifikasi</p>
-                            <h4 class="recap-card-value font-bold text-emerald-700 break-words">Rp {{ number_format($certificationRevenue, 0, ',', '.') }}</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Dari {{ $certificationClassCount }} kelas sertifikasi</p>
-                        </div>
-                        <div class="recap-card-icon bg-emerald-100 shrink-0 flex items-center justify-center">
-                            <i class="fas fa-certificate text-3xl text-emerald-600"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 h-full recap-card">
-                <div class="recap-card-body h-full flex flex-col">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1 min-w-0">
-                            <p class="recap-card-title text-gray-500 font-medium mb-1 truncate">Data Sertifikasi</p>
-                            <h4 class="recap-card-value font-bold text-cyan-700 break-words">{{ number_format($certificationStudentCount, 0, ',', '.') }} siswa</h4>
-                            <p class="text-gray-400 text-xs mt-1 truncate">Total peserta program sertifikasi</p>
-                        </div>
-                        <div class="recap-card-icon bg-cyan-100 shrink-0 flex items-center justify-center">
-                            <i class="fas fa-user-check text-3xl text-cyan-600"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        @if($targetAmount > 0)
+        <button type="button" onclick="openTargetModal()" class="border border-[#e28100] text-[#e28100] bg-[#fff4e5] px-4 py-1.5 rounded-md hover:bg-[#ffe9cc] transition text-xs font-medium flex items-center gap-2"><i class="fas fa-pen-to-square"></i><span>Edit Target</span></button>
+        @else
+        <button type="button" onclick="openTargetModal()" class="bg-[#fe0000] text-white px-4 py-1.5 rounded-md hover:bg-red-700 transition text-xs font-medium flex items-center gap-2"><i class="fas fa-plus"></i><span>Set Target</span></button>
+        @endif
+    </div>
+    @if($targetAmount > 0)
+    <div class="px-5 pt-6 pb-5">
+        <div class="text-center mb-3">
+            <div class="text-5xl md:text-6xl font-bold text-gray-900 leading-none">{{ number_format($targetPercentage, 1) }}%</div>
+            <p class="text-sm text-gray-800 mt-1">dari target tercapai</p>
+        </div>
+        <div class="w-full bg-[#d9d9d9] rounded-full h-3 overflow-hidden mb-5">
+            <div class="bg-[#fed0d0] h-full transition-all duration-500" style="width: {{ min($targetPercentage, 100) }}%"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="card-figma rounded-md p-3"><p class="text-xs text-gray-800">Omset Masuk</p><p class="text-lg font-bold text-gray-900">Rp {{ number_format($targetRevenue, 0, ',', '.') }}</p></div>
+            <div class="card-figma rounded-md p-3"><p class="text-xs text-gray-800">Target Bulan Ini</p><p class="text-lg font-bold text-gray-900">Rp {{ number_format($targetAmount, 0, ',', '.') }}</p></div>
         </div>
     </div>
-
-    <div class="bg-gray-50 rounded-2xl border border-gray-200 p-3 md:p-4 space-y-3">
-        <div class="flex items-start justify-start px-1">
-            <span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-800 text-white text-xs md:text-sm font-semibold tracking-wide uppercase shadow-sm">
-                Rekap Kelas
-            </span>
-        </div>
-        <div class="grid recap-card-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Kelas Reguler</p>
-                        <h4 class="recap-card-value font-bold text-blue-700">{{ $regularClassesCount }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Jumlah kelas approved + selesai kategori reguler</p>
-                    </div>
-                    <div class="recap-card-icon bg-blue-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-book-open text-2xl text-blue-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Kelas Corporate</p>
-                        <h4 class="recap-card-value font-bold text-indigo-700">{{ $corporateClassesCount }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Jumlah kelas approved + selesai kategori corporate</p>
-                    </div>
-                    <div class="recap-card-icon bg-indigo-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-building text-2xl text-indigo-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Kelas Private</p>
-                        <h4 class="recap-card-value font-bold text-amber-700">{{ $privateClassesCount }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Jumlah kelas approved + selesai kategori private</p>
-                    </div>
-                    <div class="recap-card-icon bg-amber-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-user text-2xl text-amber-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Kelas Berjalan Reguler</p>
-                        <h4 class="recap-card-value font-bold text-blue-700">{{ $runningRegularClasses }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Jumlah kelas berjalan kategori reguler</p>
-                    </div>
-                    <div class="recap-card-icon bg-blue-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-book-open text-2xl text-blue-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Kelas Berjalan Corporate</p>
-                        <h4 class="recap-card-value font-bold text-indigo-700">{{ $runningCorporateClasses }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Jumlah kelas berjalan kategori corporate</p>
-                    </div>
-                    <div class="recap-card-icon bg-indigo-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-building text-2xl text-indigo-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Kelas Berjalan Private</p>
-                        <h4 class="recap-card-value font-bold text-amber-700">{{ $runningPrivateClasses }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Jumlah kelas berjalan kategori private</p>
-                    </div>
-                    <div class="recap-card-icon bg-amber-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-user text-2xl text-amber-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Peserta Reguler</p>
-                        <h4 class="recap-card-value font-bold text-blue-700">{{ number_format($regularParticipants, 0, ',', '.') }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Peserta reguler dari kelas berjalan yang mulai bulan ini</p>
-                    </div>
-                    <div class="recap-card-icon bg-blue-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-users text-2xl text-blue-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Peserta Corporate</p>
-                        <h4 class="recap-card-value font-bold text-indigo-700">{{ number_format($corporateParticipants, 0, ',', '.') }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Peserta corporate dari kelas berjalan yang mulai bulan ini</p>
-                    </div>
-                    <div class="recap-card-icon bg-indigo-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-building text-2xl text-indigo-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Peserta Private</p>
-                        <h4 class="recap-card-value font-bold text-amber-700">{{ number_format($privateParticipants, 0, ',', '.') }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Peserta private dari kelas berjalan yang mulai bulan ini</p>
-                    </div>
-                    <div class="recap-card-icon bg-amber-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-user text-2xl text-amber-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-start gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Kelulusan Reguler</p>
-                        <h4 class="text-base md:text-lg font-bold text-emerald-700">Lulus: {{ number_format($regularPassedParticipants, 0, ',', '.') }}</h4>
-                        <h5 class="text-base md:text-lg font-bold text-rose-700">Tidak Lulus: {{ number_format($regularFailedParticipants, 0, ',', '.') }}</h5>
-                    </div>
-                    <div class="recap-card-icon bg-emerald-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-book-open text-2xl text-emerald-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-start gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Kelulusan Corporate</p>
-                        <h4 class="text-base md:text-lg font-bold text-emerald-700">Lulus: {{ number_format($corporatePassedParticipants, 0, ',', '.') }}</h4>
-                        <h5 class="text-base md:text-lg font-bold text-rose-700">Tidak Lulus: {{ number_format($corporateFailedParticipants, 0, ',', '.') }}</h5>
-                    </div>
-                    <div class="recap-card-icon bg-indigo-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-building text-2xl text-indigo-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between recap-card">
-                <div class="flex justify-between items-start gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Kelulusan Private</p>
-                        <h4 class="text-base md:text-lg font-bold text-emerald-700">Lulus: {{ number_format($privatePassedParticipants, 0, ',', '.') }}</h4>
-                        <h5 class="text-base md:text-lg font-bold text-rose-700">Tidak Lulus: {{ number_format($privateFailedParticipants, 0, ',', '.') }}</h5>
-                    </div>
-                    <div class="recap-card-icon bg-amber-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-user-xmark text-2xl text-amber-600"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+    @else
+    <div class="p-12 text-center">
+        <div class="w-20 h-20 bg-[#fed0d0] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-bullseye text-4xl text-[#fe0000]"></i></div>
+        <h6 class="text-xl font-bold text-gray-700 mb-2">Belum Ada Target</h6>
+        <p class="text-gray-500 mb-6">Silakan set target omset bulanan terlebih dahulu untuk mulai tracking</p>
+        <button onclick="openTargetModal()" class="bg-[#fe0000] text-white px-6 py-2.5 rounded-lg hover:bg-red-700 transition font-semibold"><i class="fas fa-plus mr-2"></i>Set Target Sekarang</button>
     </div>
-
-    <div class="bg-gray-50 rounded-2xl border border-gray-200 p-3 md:p-4 space-y-3">
-        <div class="flex items-start justify-start px-1">
-            <span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-700 text-white text-xs md:text-sm font-semibold tracking-wide uppercase shadow-sm">
-                Rekap Honor
-            </span>
-        </div>
-        <div class="grid recap-card-grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 items-stretch">
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between md:order-1 recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Honor Reguler</p>
-                        <h4 class="recap-card-value font-bold text-blue-700">Rp {{ number_format($regularHonorPayment, 0, ',', '.') }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Pembayaran honor kategori reguler</p>
-                    </div>
-                    <div class="recap-card-icon bg-blue-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-book-open text-2xl text-blue-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between md:order-4 xl:order-last recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Total Honor</p>
-                        <h4 class="recap-card-value font-bold text-emerald-700">Rp {{ number_format($totalHonorPayment, 0, ',', '.') }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Total honor dari seluruh kategori</p>
-                    </div>
-                    <div class="recap-card-icon bg-emerald-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-coins text-2xl text-emerald-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between md:order-2 recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Honor Corporate</p>
-                        <h4 class="recap-card-value font-bold text-indigo-700">Rp {{ number_format($trainingHonorPayment, 0, ',', '.') }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Pembayaran honor kategori corporate</p>
-                    </div>
-                    <div class="recap-card-icon bg-indigo-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-building text-2xl text-indigo-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full flex flex-col justify-between md:order-3 recap-card">
-                <div class="flex justify-between items-center gap-3">
-                    <div class="flex-1 min-w-0">
-                        <p class="recap-card-title text-gray-500 font-medium mb-1">Honor Private</p>
-                        <h4 class="recap-card-value font-bold text-amber-700">Rp {{ number_format($privateHonorPayment, 0, ',', '.') }}</h4>
-                        <p class="text-gray-400 text-xs mt-1">Pembayaran honor kategori private</p>
-                    </div>
-                    <div class="recap-card-icon bg-amber-100 shrink-0 flex items-center justify-center">
-                        <i class="fas fa-user text-2xl text-amber-600"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @endif
 </div>
 
-<!-- Monthly Class Revenue Chart -->
-<div class="bg-white rounded-2xl shadow-sm mb-6">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div class="flex-1">
-                <h5 class="text-lg font-semibold text-gray-800">
-                    <i class="fas fa-chart-line mr-2 text-green-600"></i>Grafik Keuangan Kelas per Bulan ({{ $selectedYear }})
-                </h5>
-                <p class="text-xs text-gray-500 mt-1">
-            <span class="inline-block mr-3">
-                <span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span>Omzet Masuk
-            </span>
-            <span class="inline-block mr-3">
-                <span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-1"></span>Sisa Pembayaran (Unpaid)
-            </span>
-            <span class="inline-block">
-                <span class="inline-block w-3 h-3 bg-blue-500 rounded-full mr-1"></span>Biaya Operasional
-            </span>
-                </p>
+<!-- Rekap Omset + Rekap Honor -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-5">
+    <section class="card-figma rounded-lg p-4 xl:col-span-2">
+        <h5 class="text-base font-bold text-gray-900 mb-3">Rekap Omset</h5>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-book-open text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Omset Reguler</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($regularRevenue, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total Omset Masuk kategori reguler</p>
+                </div>
             </div>
-            <div class="flex gap-2 shrink-0">
-                <button id="classRevenueChartTypeBar" onclick="switchChartType('classRevenueChart', 'bar')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-emerald-100 text-emerald-700 border-emerald-400 hover:bg-emerald-200">
-                    <i class="fas fa-chart-bar"></i> Bar
-                </button>
-                <button id="classRevenueChartTypeLine" onclick="switchChartType('classRevenueChart', 'line')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200">
-                    <i class="fas fa-chart-line"></i> Line
-                </button>
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-certificate text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Data Sertifikasi</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">{{ number_format($certificationStudentCount, 0, ',', '.') }} siswa</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total peserta program sertifikasi</p>
+                </div>
+            </div>
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-building text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Omset Corporate</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($corporateRevenue, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total Omset Masuk kategori corporate</p>
+                </div>
+            </div>
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Omset Sertifikasi</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($certificationRevenue, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Dari {{ $certificationClassCount }} kelas sertifikasi</p>
+                </div>
+            </div>
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-user text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Omset Private</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($privateRevenue, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total Omset Masuk kategori private</p>
+                </div>
+            </div>
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-layer-group text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Nilai Kelas</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($classValueRevenue, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total nilai harga kelas periode ini</p>
+                </div>
+            </div>
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-money-bill-transfer text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Omset Masuk</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($classRevenue, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total Omset Masuk semua kategori</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="card-figma rounded-lg p-4">
+        <h5 class="text-base font-bold text-gray-900 mb-3">Rekap Honor</h5>
+        <div class="grid grid-cols-1 gap-3">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-book-open text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Honor Reguler</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($regularHonorPayment, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Pembayaran honor kategori reguler</p>
+                </div>
+            </div>
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-building text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Honor Corporate</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($trainingHonorPayment, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Pembayaran honor kategori corporate</p>
+                </div>
+            </div>
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-user text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Honor Private</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($privateHonorPayment, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Pembayaran honor kategori private</p>
+                </div>
+            </div>
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+                <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[13px] text-gray-800 leading-tight">Total Honor</p>
+                    <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($totalHonorPayment, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total honor dari seluruh kategori</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Rekap Kelas -->
+<section class="card-figma rounded-lg p-4 mb-5">
+    <h5 class="text-base font-bold text-gray-900 mb-3">Rekap Kelas</h5>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="card-figma rounded-lg overflow-hidden">
+            <div class="px-5 py-3.5 bg-gradient-to-r from-[#fed0d0] to-[#fff1f1]"><h6 class="text-base font-bold text-gray-900">Reguler</h6></div>
+            <div class="divide-y divide-gray-100 text-sm">
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Total Kelas</span><span class="text-xl font-bold text-[#fe0000]">{{ $regularClassesCount }}</span></div>
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Kelas Berjalan</span><span class="text-xl font-bold text-[#fe0000]">{{ $runningRegularClasses }}</span></div>
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Peserta</span><span class="text-xl font-bold text-[#fe0000]">{{ number_format($regularParticipants, 0, ',', '.') }}</span></div>
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Kelulusan</span><span class="font-semibold"><span class="text-[#43bf21]">{{ number_format($regularPassedParticipants, 0, ',', '.') }} lulus</span> <span class="text-gray-300">/</span> <span class="text-[#fe0000]">{{ number_format($regularFailedParticipants, 0, ',', '.') }} gagal</span></span></div>
+            </div>
+        </div>
+        <div class="card-figma rounded-lg overflow-hidden">
+            <div class="px-5 py-3.5 bg-gradient-to-r from-[#fed0d0] to-[#fff1f1]"><h6 class="text-base font-bold text-gray-900">Corporate</h6></div>
+            <div class="divide-y divide-gray-100 text-sm">
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Total Kelas</span><span class="text-xl font-bold text-[#fe0000]">{{ $corporateClassesCount }}</span></div>
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Kelas Berjalan</span><span class="text-xl font-bold text-[#fe0000]">{{ $runningCorporateClasses }}</span></div>
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Peserta</span><span class="text-xl font-bold text-[#fe0000]">{{ number_format($corporateParticipants, 0, ',', '.') }}</span></div>
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Kelulusan</span><span class="font-semibold"><span class="text-[#43bf21]">{{ number_format($corporatePassedParticipants, 0, ',', '.') }} lulus</span> <span class="text-gray-300">/</span> <span class="text-[#fe0000]">{{ number_format($corporateFailedParticipants, 0, ',', '.') }} gagal</span></span></div>
+            </div>
+        </div>
+        <div class="card-figma rounded-lg overflow-hidden">
+            <div class="px-5 py-3.5 bg-gradient-to-r from-[#fed0d0] to-[#fff1f1]"><h6 class="text-base font-bold text-gray-900">Private</h6></div>
+            <div class="divide-y divide-gray-100 text-sm">
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Total Kelas</span><span class="text-xl font-bold text-[#fe0000]">{{ $privateClassesCount }}</span></div>
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Kelas Berjalan</span><span class="text-xl font-bold text-[#fe0000]">{{ $runningPrivateClasses }}</span></div>
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Peserta</span><span class="text-xl font-bold text-[#fe0000]">{{ number_format($privateParticipants, 0, ',', '.') }}</span></div>
+                <div class="px-5 py-4 flex justify-between items-center"><span class="text-gray-600">Kelulusan</span><span class="font-semibold"><span class="text-[#43bf21]">{{ number_format($privatePassedParticipants, 0, ',', '.') }} lulus</span> <span class="text-gray-300">/</span> <span class="text-[#fe0000]">{{ number_format($privateFailedParticipants, 0, ',', '.') }} gagal</span></span></div>
             </div>
         </div>
     </div>
-    <div class="p-6">
-        @if(is_array($monthlyClassRevenue) && (array_sum($monthlyClassRevenue) > 0 || array_sum($monthlyRemainingPayment) > 0 || array_sum($monthlyClassCost) > 0))
-            <div class="chart-container">
-                <canvas id="classRevenueChart"></canvas>
+</section>
+
+<!-- Grafik Keuangan Kelas -->
+<div class="card-figma rounded-lg mb-5">
+    <div class="px-5 pt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <h5 class="text-base font-bold text-gray-900">Grafik Keuangan Kelas per Bulan ({{ $selectedYear }})</h5>
+        <div class="flex gap-2 shrink-0">
+                <button id="classRevenueChartTypeBar" onclick="switchChartType('classRevenueChart', 'bar')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold text-xs transition border bg-[#fe0000] text-white border-[#fe0000]"><i class="fas fa-chart-simple"></i> Bar</button>
+                <button id="classRevenueChartTypeLine" onclick="switchChartType('classRevenueChart', 'line')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold text-xs transition border bg-white text-gray-800 border-gray-800"><i class="fas fa-chart-line"></i> Line</button>
             </div>
+    </div>
+    <p class="px-5 pt-2 text-[11px] text-gray-600 flex flex-wrap justify-center gap-4">
+        <span><span class="inline-block w-2.5 h-2.5 bg-[#43bf21] rounded-full mr-1"></span>Omset Masuk</span>
+        <span><span class="inline-block w-2.5 h-2.5 bg-[#fe0000] rounded-full mr-1"></span>Sisa Pembayaran (Unpaid)</span>
+        <span><span class="inline-block w-2.5 h-2.5 bg-[#344bfd] rounded-full mr-1"></span>Biaya Operasional</span>
+    </p>
+    <div class="p-5">
+        @if(is_array($monthlyClassRevenue) && (array_sum($monthlyClassRevenue) > 0 || array_sum($monthlyRemainingPayment) > 0 || array_sum($monthlyClassCost) > 0))
+        <div class="chart-container"><canvas id="classRevenueChart"></canvas></div>
         @else
             <div class="text-center py-12">
-                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-chart-line text-4xl text-gray-400"></i>
-                </div>
+                <div class="w-20 h-20 bg-[#fed0d0] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-chart-line text-4xl text-[#fe0000]"></i></div>
                 <h6 class="text-lg font-semibold text-gray-700 mb-2">Belum Ada Data Keuangan</h6>
-                <p class="text-sm text-gray-500">
-                    @if($period !== 'all' ||$year !== 'all')
-                        Tidak ada data keuangan kelas untuk filter yang dipilih
-                    @else
-                        Belum ada data keuangan kelas tersedia
-                    @endif
-                </p>
+                <p class="text-sm text-gray-500">@if($period !== 'all' || $year !== 'all')Tidak ada data keuangan kelas untuk filter yang dipilih @else Belum ada data keuangan kelas tersedia @endif</p>
             </div>
         @endif
     </div>
 </div>
 
-<!-- Monthly Class Revenue by Class Chart -->
-<div class="bg-white rounded-2xl shadow-sm mb-6">
-    <div class="px-6 py-5 border-b border-gray-200">
-        <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-            <div class="flex-1 min-w-0">
-                <h5 class="text-lg font-semibold text-gray-800">
-                    <i class="fas fa-coins mr-2 text-amber-600"></i>Grafik Omset per Kelas/Pelatihan Bulan Berjalan ({{ $currentMonthLabel }})
-                </h5>
-                <p class="text-xs text-gray-500 mt-1">Menampilkan kelas aktif yang overlap bulan ini dan kelas selesai pada bulan ini.</p>
-            </div>
-            <div class="flex flex-wrap items-center justify-end gap-2 shrink-0">
-                <div class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold">
-                    <i class="fas fa-layer-group"></i>
-                    {{ $currentMonthClassRevenueByClass->count() }} kelas aktif
-                </div>
-                <button id="currentMonthClassRevenueChartTypeBar" onclick="switchChartType('currentMonthClassRevenueChart', 'bar')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-emerald-100 text-emerald-700 border-emerald-400 hover:bg-emerald-200">
-                    <i class="fas fa-chart-bar"></i> Bar
-                </button>
-                <button id="currentMonthClassRevenueChartTypeLine" onclick="switchChartType('currentMonthClassRevenueChart', 'line')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200">
-                    <i class="fas fa-chart-line"></i> Line
-                </button>
-            </div>
+<!-- Grafik Omset per Kelas -->
+<div class="card-figma rounded-lg mb-5">
+    <div class="px-5 pt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+            <h5 class="text-base font-bold text-gray-900">Grafik Omset per Kelas/Pelatihan Bulan Berjalan ({{ $currentMonthLabel }})</h5>
+            <p class="text-[11px] text-gray-500 mt-0.5">Menampilkan kelas aktif yang overlap bulan ini dan kelas selesai pada bulan ini. ({{ $currentMonthClassRevenueByClass->count() }} kelas)</p>
         </div>
-    </div>
-    <div class="p-6">
-        @if($currentMonthClassRevenueByClass->count() > 0)
-            <div class="chart-container-lg" style="height: {{ $currentMonthClassRevenueByClass->count() <= 3 ? '250px' : ($currentMonthClassRevenueByClass->count() <= 6 ? '310px' : '380px') }};">
-                <canvas id="currentMonthClassRevenueChart"></canvas>
+        <div class="flex gap-2 shrink-0">
+                <button id="currentMonthClassRevenueChartTypeBar" onclick="switchChartType('currentMonthClassRevenueChart', 'bar')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold text-xs transition border bg-[#fe0000] text-white border-[#fe0000]"><i class="fas fa-chart-simple"></i> Bar</button>
+                <button id="currentMonthClassRevenueChartTypeLine" onclick="switchChartType('currentMonthClassRevenueChart', 'line')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold text-xs transition border bg-white text-gray-800 border-gray-800"><i class="fas fa-chart-line"></i> Line</button>
             </div>
+    </div>
+    <div class="p-5">
+        @if($currentMonthClassRevenueByClass->count() > 0)
+        <div class="chart-container-lg" style="height: {{ $currentMonthClassRevenueByClass->count() <= 3 ? '250px' : ($currentMonthClassRevenueByClass->count() <= 6 ? '310px' : '380px') }};"><canvas id="currentMonthClassRevenueChart"></canvas></div>
         @else
             <div class="text-center py-12">
-                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-coins text-4xl text-gray-400"></i>
-                </div>
+                <div class="w-20 h-20 bg-[#fed0d0] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-coins text-4xl text-[#fe0000]"></i></div>
                 <h6 class="text-lg font-semibold text-gray-700 mb-2">Belum Ada Data Omset Kelas Bulan Ini</h6>
                 <p class="text-sm text-gray-500">Belum ada kelas aktif yang menghasilkan omset pada bulan berjalan.</p>
             </div>
@@ -625,511 +328,241 @@
     </div>
 </div>
 
-<!-- Monthly Certification Revenue Chart -->
-<div class="bg-white rounded-2xl shadow-sm mb-6">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <h5 class="text-lg font-semibold text-gray-800">
-                <i class="fas fa-certificate mr-2 text-emerald-600"></i>Grafik Omset Sertifikasi per Bulan ({{ $selectedYear }})
-            </h5>
+<!-- Sertifikasi (2 kolom) -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-5">
+    <div class="card-figma rounded-lg">
+        <div class="px-5 pt-4 flex items-center justify-between gap-3">
+            <h5 class="text-base font-bold text-gray-900">Grafik Omset Sertifikasi per Bulan ({{ $selectedYear }})</h5>
             <div class="flex gap-2 shrink-0">
-                <button id="certificationRevenueChartTypeBar" onclick="switchChartType('certificationRevenueChart', 'bar')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-emerald-100 text-emerald-700 border-emerald-400 hover:bg-emerald-200">
-                    <i class="fas fa-chart-bar"></i> Bar
-                </button>
-                <button id="certificationRevenueChartTypeLine" onclick="switchChartType('certificationRevenueChart', 'line')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200">
-                    <i class="fas fa-chart-line"></i> Line
-                </button>
+                <button id="certificationRevenueChartTypeBar" onclick="switchChartType('certificationRevenueChart', 'bar')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold text-xs transition border bg-[#fe0000] text-white border-[#fe0000]"><i class="fas fa-chart-simple"></i> Bar</button>
+                <button id="certificationRevenueChartTypeLine" onclick="switchChartType('certificationRevenueChart', 'line')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold text-xs transition border bg-white text-gray-800 border-gray-800"><i class="fas fa-chart-line"></i> Line</button>
             </div>
         </div>
-    </div>
-    <div class="p-6">
-        @if(is_array($monthlyCertificationRevenue) && array_sum($monthlyCertificationRevenue) > 0)
-            <div class="chart-container">
-                <canvas id="certificationRevenueChart"></canvas>
-            </div>
-        @else
+        <div class="p-5">
+            @if(is_array($monthlyCertificationRevenue) && array_sum($monthlyCertificationRevenue) > 0)
+            <div class="chart-container"><canvas id="certificationRevenueChart"></canvas></div>
+            @else
             <div class="text-center py-12">
-                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-certificate text-4xl text-gray-400"></i>
-                </div>
+                <div class="w-20 h-20 bg-[#fed0d0] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-certificate text-4xl text-[#fe0000]"></i></div>
                 <h6 class="text-lg font-semibold text-gray-700 mb-2">Belum Ada Data Omset Sertifikasi</h6>
                 <p class="text-sm text-gray-500">Belum ada omset sertifikasi pada periode yang dipilih.</p>
             </div>
-        @endif
+            @endif
+        </div>
     </div>
-</div>
-
-<!-- Monthly Class Count Chart -->
-<div class="bg-white rounded-2xl shadow-sm mb-6">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div class="flex-1">
-                <h5 class="text-lg font-semibold text-gray-800">
-                    <i class="fas fa-chart-bar mr-2 text-purple-600"></i>Grafik Jumlah Kelas dan Siswa Sertifikasi per Bulan ({{ $selectedYear }})
-                </h5>
-                <p class="text-xs text-gray-500 mt-1">Siswa sertifikasi dihitung dari peserta yang benar-benar ikut sertifikasi, bukan total siswa kelas.</p>
+    <div class="card-figma rounded-lg">
+        <div class="px-5 pt-4 flex items-center justify-between gap-3">
+            <div>
+                <h5 class="text-base font-bold text-gray-900">Grafik Jumlah Kelas dan Siswa Sertifikasi per Bulan ({{ $selectedYear }})</h5>
+                <p class="text-[11px] text-gray-500 mt-0.5">Siswa sertifikasi dihitung dari peserta yang benar-benar ikut sertifikasi.</p>
             </div>
             <div class="flex gap-2 shrink-0">
-                <button id="classCountChartTypeBar" onclick="switchChartType('classCountChart', 'bar')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-purple-100 text-purple-700 border-purple-400 hover:bg-purple-200">
-                    <i class="fas fa-chart-bar"></i> Bar
-                </button>
-                <button id="classCountChartTypeLine" onclick="switchChartType('classCountChart', 'line')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs md:text-sm transition border-2 shadow-sm bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200">
-                    <i class="fas fa-chart-line"></i> Line
-                </button>
+                <button id="classCountChartTypeBar" onclick="switchChartType('classCountChart', 'bar')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold text-xs transition border bg-[#fe0000] text-white border-[#fe0000]"><i class="fas fa-chart-simple"></i> Bar</button>
+                <button id="classCountChartTypeLine" onclick="switchChartType('classCountChart', 'line')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold text-xs transition border bg-white text-gray-800 border-gray-800"><i class="fas fa-chart-line"></i> Line</button>
             </div>
         </div>
-    </div>
-    <div class="p-6">
-        @if(is_array($monthlyCertificationClassCount) && (array_sum($monthlyCertificationClassCount) > 0 || array_sum($monthlyCertificationCount) > 0))
-            <div class="chart-container">
-                <canvas id="classCountChart"></canvas>
-            </div>
-        @else
+        <div class="p-5">
+            @if(is_array($monthlyCertificationClassCount) && (array_sum($monthlyCertificationClassCount) > 0 || array_sum($monthlyCertificationCount) > 0))
+            <div class="chart-container"><canvas id="classCountChart"></canvas></div>
+            @else
             <div class="text-center py-12">
-                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-chart-bar text-4xl text-gray-400"></i>
-                </div>
+                <div class="w-20 h-20 bg-[#fed0d0] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-chart-bar text-4xl text-[#fe0000]"></i></div>
                 <h6 class="text-lg font-semibold text-gray-700 mb-2">Belum Ada Data Kelas</h6>
-                <p class="text-sm text-gray-500">
-                    @if($period !== 'all' || $year !== 'all')
-                        Tidak ada kelas untuk filter yang dipilih
-                    @else
-                        Belum ada kelas tersedia
-                    @endif
-                </p>
+                <p class="text-sm text-gray-500">@if($period !== 'all' || $year !== 'all')Tidak ada kelas untuk filter yang dipilih @else Belum ada kelas tersedia @endif</p>
             </div>
-        @endif
+            @endif
+        </div>
     </div>
 </div>
 
-<!-- Training Charts -->
-<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-    <div class="bg-white rounded-2xl shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h5 class="text-lg font-semibold text-gray-800">
-                <i class="fas fa-chart-bar mr-2 text-indigo-600"></i>Grafik Jumlah Siswa per Pelatihan ({{ $currentMonthLabel }})
-            </h5>
-            <p class="text-sm text-gray-500 mt-1">Total siswa dari kelas berjalan (status approved) yang mulai pada bulan ini.</p>
+<!-- Donut (2 kolom) -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-5">
+    <div class="card-figma rounded-lg">
+        <div class="px-5 pt-4">
+            <h5 class="text-base font-bold text-gray-900">Grafik Jumlah Siswa per Pelatihan ({{ $currentMonthLabel }})</h5>
+            <p class="text-[11px] text-gray-500 mt-0.5">Total siswa dari kelas berjalan (status approved) yang mulai pada bulan ini.</p>
         </div>
-        <div class="p-6">
+        <div class="p-5">
             @if($currentMonthStudentsByTraining->count() > 0)
-                <div class="chart-container">
-                    <canvas id="currentMonthStudentsByTrainingChart"></canvas>
-                </div>
+            <div class="chart-container"><canvas id="currentMonthStudentsByTrainingChart"></canvas></div>
             @else
-                <div class="text-center py-12">
-                    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-chart-bar text-5xl text-gray-300"></i>
-                    </div>
-                    <h6 class="text-lg font-semibold text-gray-600 mb-2">Belum Ada Data Siswa Bulan Ini</h6>
-                    <p class="text-gray-400 text-sm mb-1">Coba ubah periode atau tunggu kelas aktif berjalan.</p>
-                </div>
+            <div class="text-center py-12">
+                <div class="w-20 h-20 bg-[#fed0d0] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-chart-pie text-4xl text-[#fe0000]"></i></div>
+                <h6 class="text-lg font-semibold text-gray-700 mb-2">Belum Ada Data Siswa Bulan Ini</h6>
+                <p class="text-sm text-gray-500">Coba ubah periode atau tunggu kelas aktif berjalan.</p>
+            </div>
             @endif
         </div>
     </div>
-
-    <div class="bg-white rounded-2xl shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h5 class="text-lg font-semibold text-gray-800">
-                <i class="fas fa-certificate mr-2 text-emerald-600"></i>Grafik Siswa Sertifikasi per Pelatihan
-                @if($status === 'completed')
-                    (Selesai)
-                @elseif($status === 'active')
-                    (Aktif)
-                @else
-                    (Total)
-                @endif
-            </h5>
-            <p class="text-sm text-gray-500 mt-1">Pelatihan yang memiliki peserta sertifikasi pada filter yang dipilih.</p>
+    <div class="card-figma rounded-lg">
+        <div class="px-5 pt-4">
+            <h5 class="text-base font-bold text-gray-900">Grafik Siswa Sertifikasi per Pelatihan @if($status === 'completed')(Selesai)@elseif($status === 'active')(Aktif)@else(Total)@endif</h5>
+            <p class="text-[11px] text-gray-500 mt-0.5">Pelatihan yang memiliki peserta sertifikasi pada filter yang dipilih.</p>
         </div>
-        <div class="p-6">
+        <div class="p-5">
             @if($certificationByTraining->count() > 0)
-                <div class="chart-container">
-                    <canvas id="certificationByTrainingChart"></canvas>
-                </div>
+            <div class="chart-container"><canvas id="certificationByTrainingChart"></canvas></div>
             @else
-                <div class="text-center py-12">
-                    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-certificate text-5xl text-gray-300"></i>
-                    </div>
-                    <h6 class="text-lg font-semibold text-gray-600 mb-2">Belum Ada Data Sertifikasi</h6>
-                    <p class="text-gray-400 text-sm mb-1">Belum ada siswa sertifikasi pada filter yang dipilih</p>
-                </div>
+            <div class="text-center py-12">
+                <div class="w-20 h-20 bg-[#fed0d0] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-certificate text-4xl text-[#fe0000]"></i></div>
+                <h6 class="text-lg font-semibold text-gray-700 mb-2">Belum Ada Data Sertifikasi</h6>
+                <p class="text-sm text-gray-500">Belum ada siswa sertifikasi pada filter yang dipilih</p>
+            </div>
             @endif
         </div>
     </div>
 </div>
 
-<!-- Real-time Target Omset -->
-<div class="mb-6">
-    <div id="target-omset" class="bg-white rounded-xl shadow-sm scroll-mt-6 overflow-hidden border border-gray-200">
-        <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h5 class="text-lg font-bold text-gray-900">Target Omset Bulanan</h5>
-                    <p class="text-sm text-gray-500">{{ now()->translatedFormat('F Y') }} (Real-time)</p>
-                </div>
-                @if($targetAmount > 0)
-                    <button type="button" onclick="openTargetModal()" class="border-2 border-green-500 text-green-700 bg-green-50 px-4 py-2 rounded-lg hover:bg-green-100 transition text-sm font-medium flex items-center gap-2">
-                        <i class="fas fa-edit"></i>
-                        <span>Edit Target</span>
-                    </button>
-                @else
-                    <button type="button" onclick="openTargetModal()" class="border-2 border-green-500 text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm font-medium flex items-center gap-2 shadow-md">
-                        <i class="fas fa-plus"></i>
-                        <span>Set Target</span>
-                    </button>
-                @endif
-            </div>
-        </div>
-
-        @if($targetAmount > 0)
-        <!-- Main Content -->
-        <div class="p-8 pb-24">
-            <!-- Big Percentage -->
-            <div class="text-center mb-6">
-                <div class="text-7xl font-black text-gray-900 mb-2">
-                    {{ number_format($targetPercentage, 1) }}%
-                </div>
-                <p class="text-sm text-gray-500">dari target tercapai</p>
-            </div>
-
-            <!-- Progress Bar -->
-            <div class="mb-20">
-                <div class="w-full bg-blue-50 rounded-full h-4 overflow-hidden">
-                    <div class="bg-green-600 h-full transition-all duration-500" 
-                         style="width: {{ min($targetPercentage, 100) }}%">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Revenue Stats -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="border border-gray-200 rounded-lg p-4">
-                    <p class="text-xs text-gray-500 mb-1">Omzet Masuk</p>
-                    <p class="text-xl font-bold text-gray-900">Rp {{ number_format($targetRevenue, 0, ',', '.') }}</p>
-                </div>
-                <div class="border border-gray-200 rounded-lg p-4">
-                    <p class="text-xs text-gray-500 mb-1">Target Bulan Ini</p>
-                    <p class="text-xl font-bold text-gray-900">Rp {{ number_format($targetAmount, 0, ',', '.') }}</p>
-                </div>
-            </div>
-        </div>
-        @else
-        <!-- No Target Set -->
-        <div class="p-12 text-center">
-            <div class="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-bullseye text-4xl text-gray-400"></i>
-            </div>
-            <h6 class="text-xl font-bold text-gray-700 mb-2">Belum Ada Target</h6>
-            <p class="text-gray-500 mb-6">Silakan set target omset bulanan terlebih dahulu untuk mulai tracking</p>
-            <button onclick="openTargetModal()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold">
-                <i class="fas fa-plus mr-2"></i>Set Target Sekarang
-            </button>
-        </div>
-        @endif
-    </div>
-</div>
-
-
-
-<!-- Kelas Selesai Table -->
-<div class="bg-white rounded-xl shadow-sm mb-6">
-    <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
-        <div class="flex justify-between items-center">
-            <div>
-                <h5 class="text-lg font-bold text-gray-900"><i class="fas fa-check-circle mr-2 text-blue-600"></i>Kelas Selesai</h5>
-                <p class="text-sm text-gray-600">Kelas yang telah diselesaikan</p>
-            </div>
-            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
-                {{ $completedClassesList->count() }} Kelas
-            </span>
-        </div>
+<!-- Kelas Selesai | Kelas Berjalan -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-5">
+<div class="card-figma rounded-lg overflow-hidden">
+    <div class="px-5 py-3 bg-[#fed0d0] flex justify-between items-center">
+        <div><h5 class="text-base font-bold text-gray-900 leading-tight">Kelas Selesai</h5><p class="text-xs text-gray-800">Kelas yang telah diselesaikan</p></div>
+        <span class="text-sm font-medium text-gray-900">{{ $completedClassesList->count() }} Kelas</span>
     </div>
     @if($completedClassesList->count() > 0)
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-200">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Nama Kelas</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Trainer</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Instansi</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Periode</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Siswa</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Pertemuan</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Income</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
+    <div class="overflow-x-auto max-h-[420px] overflow-y-auto">
+        <table class="w-full text-sm">
+            <thead class="border-b border-gray-200"><tr><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Nama Kelas</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Trainer</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Periode</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Siswa</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Pertemuan</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Income</th></tr></thead>
+            <tbody class="divide-y divide-gray-100">
                 @foreach($completedClassesList as $class)
-                <tr class="hover:bg-blue-50 transition">
-                    <td class="px-6 py-4">
-                        <a href="{{ route('admin.classes.show', $class) }}" class="font-semibold text-gray-900 hover:text-blue-600">{{ $class->name }}</a>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900">
-                        @if($class->trainers->isNotEmpty())
-                            {{ $class->trainers->pluck('name')->join(', ') }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900">{{ $class->instansi ?? '-' }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">
-                        @if($class->end_date)
-                            {{ $class->end_date->format('d/m/Y') }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td class="px-6 py-4"><span class="font-semibold text-gray-900">{{ $class->amount }}</span></td>
-                    <td class="px-6 py-4"><span class="font-semibold text-gray-900">{{ $class->meet }}x</span></td>
-                    <td class="px-6 py-4"><span class="font-semibold text-green-600">Rp {{ number_format($class->income, 0, ',', '.') }}</span></td>
+
+                <tr class="hover:bg-[#f9f0f1] transition">
+                    <td class="px-3 py-3"><a href="{{ route('admin.classes.show', $class) }}" class="font-semibold text-gray-900 hover:text-[#fe0000]">{{ $class->name }}</a>
+                        @if(!empty($class->instansi))<div class="text-[11px] text-gray-500">{{ $class->instansi }}</div>@endif</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">@if($class->trainers->isNotEmpty()){{ $class->trainers->pluck('name')->join(', ') }}@else - @endif</td>
+                    <td class="px-3 py-3 text-xs text-gray-600 whitespace-nowrap">@if($class->end_date){{ $class->end_date->format('d/m/Y') }}@else - @endif</td>
+                    <td class="px-3 py-3"><span class="font-semibold text-gray-900 text-xs">{{ $class->amount }}</span></td>
+                    <td class="px-3 py-3"><span class="font-semibold text-gray-900 text-xs">{{ $class->meet }}x</span></td>
+                    <td class="px-3 py-3"><span class="font-semibold text-[#43bf21] text-xs whitespace-nowrap">Rp {{ number_format($class->income, 0, ',', '.') }}</span></td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
     @else
-    <div class="p-6 text-center text-gray-500">Tidak ada kelas selesai</div>
+    <div class="p-10 text-center text-gray-500 min-h-[220px] flex items-center justify-center">Tidak ada kelas selesai</div>
     @endif
 </div>
 
-<!-- Kelas Berjalan Table -->
-<div class="bg-white rounded-xl shadow-sm mb-6">
-    <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-green-100">
-        <div class="flex justify-between items-center">
-            <div>
-                <h5 class="text-lg font-bold text-gray-900"><i class="fas fa-chalkboard-teacher mr-2 text-green-600"></i>Kelas Berjalan</h5>
-                <p class="text-sm text-gray-600">Kelas yang sedang aktif berlangsung</p>
-            </div>
-            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded-full">
-                {{ $activeClassesList->count() }} Kelas
-            </span>
-        </div>
+<div class="card-figma rounded-lg overflow-hidden">
+    <div class="px-5 py-3 bg-[#fed0d0] flex justify-between items-center">
+        <div><h5 class="text-base font-bold text-gray-900 leading-tight">Kelas Berjalan</h5><p class="text-xs text-gray-800">Kelas yang sedang aktif berlangsung</p></div>
+        <span class="text-sm font-medium text-gray-900">{{ $activeClassesList->count() }} Kelas</span>
     </div>
     @if($activeClassesList->count() > 0)
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-200">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Nama Kelas</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Trainer</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Instansi</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Periode</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Siswa</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Pertemuan</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Metode</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Income</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Progress</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
+    <div class="overflow-x-auto max-h-[420px] overflow-y-auto">
+        <table class="w-full text-sm">
+            <thead class="border-b border-gray-200"><tr><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Nama Kelas</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Trainer</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Periode</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Siswa</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Pertemuan</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Income</th></tr></thead>
+            <tbody class="divide-y divide-gray-100">
                 @foreach($activeClassesList as $class)
                 @php
                     $totalDays = $class->start_date && $class->end_date ? $class->start_date->diffInDays($class->end_date) + 1 : 0;
                     $daysElapsed = $class->start_date ? $class->start_date->diffInDays(now()) + 1 : 0;
                     $progressPercent = $totalDays > 0 ? min(100, round(($daysElapsed / $totalDays) * 100)) : 0;
                 @endphp
-                <tr class="hover:bg-green-50 transition">
-                    <td class="px-6 py-4">
-                        <a href="{{ route('admin.classes.show', $class) }}" class="font-semibold text-gray-900 hover:text-green-600">{{ $class->name }}</a>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900">
-                        @if($class->trainers->isNotEmpty())
-                            {{ $class->trainers->pluck('name')->join(', ') }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900">{{ $class->instansi ?? '-' }}</td>
-                    <td class="px-6 py-4 text-sm">
-                        @if($class->start_date && $class->end_date)
-                            <div class="text-gray-900 font-medium">{{ $class->start_date->format('d M Y') }}</div>
-                            <div class="text-gray-600">s/d {{ $class->end_date->format('d M Y') }}</div>
-                        @else
-                            <div class="text-gray-500">-</div>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4"><span class="font-semibold text-gray-900">{{ $class->amount }}</span></td>
-                    <td class="px-6 py-4"><span class="font-semibold text-gray-900">{{ $class->meet }}x</span></td>
-                    <td class="px-6 py-4">
-                        @if($class->method == 'online')
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full"><i class="fas fa-laptop mr-1"></i>Online</span>
-                        @else
-                            <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full"><i class="fas fa-building mr-1"></i>Offline</span>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4"><span class="font-semibold text-green-600">Rp {{ number_format($class->income, 0, ',', '.') }}</span></td>
-                    <td class="px-6 py-4">
-                        <div class="w-20">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-semibold text-gray-700">{{ $progressPercent }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-600 h-2 rounded-full transition-all" style="width: {{ $progressPercent }}%"></div>
-                            </div>
-                        </div>
-                    </td>
+                <tr class="hover:bg-[#f9f0f1] transition">
+                    <td class="px-3 py-3"><a href="{{ route('admin.classes.show', $class) }}" class="font-semibold text-gray-900 hover:text-[#fe0000]">{{ $class->name }}</a>
+                        @if(!empty($class->instansi))<div class="text-[11px] text-gray-500">{{ $class->instansi }}</div>@endif
+                        @if(($class->method ?? null) == 'online')<span class="inline-block mt-0.5 px-2 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-semibold rounded-full"><i class="fas fa-laptop mr-1"></i>Online</span>@elseif(isset($class->method))<span class="inline-block mt-0.5 px-2 py-0.5 bg-green-100 text-green-800 text-[10px] font-semibold rounded-full"><i class="fas fa-building mr-1"></i>Offline</span>@endif</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">@if($class->trainers->isNotEmpty()){{ $class->trainers->pluck('name')->join(', ') }}@else - @endif</td>
+                    <td class="px-3 py-3 text-xs whitespace-nowrap">@if($class->start_date && $class->end_date)<div class="text-gray-900 font-medium">{{ $class->start_date->format('d M Y') }}</div><div class="text-gray-600">s/d {{ $class->end_date->format('d M Y') }}</div>
+                        <div class="mt-1 flex items-center gap-1.5"><div class="w-14 bg-gray-200 rounded-full h-1.5"><div class="bg-[#fe0000] h-1.5 rounded-full" style="width: {{ $progressPercent }}%"></div></div><span class="text-[10px] font-semibold text-gray-700">{{ $progressPercent }}%</span></div>@else<div class="text-gray-500">-</div>@endif</td>
+                    <td class="px-3 py-3"><span class="font-semibold text-gray-900 text-xs">{{ $class->amount }}</span></td>
+                    <td class="px-3 py-3"><span class="font-semibold text-gray-900 text-xs">{{ $class->meet }}x</span></td>
+                    <td class="px-3 py-3"><span class="font-semibold text-[#43bf21] text-xs whitespace-nowrap">Rp {{ number_format($class->income, 0, ',', '.') }}</span></td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
     @else
-    <div class="p-6 text-center text-gray-500">Tidak ada kelas berjalan</div>
+    <div class="p-10 text-center text-gray-500 min-h-[220px] flex items-center justify-center">Tidak ada kelas berjalan</div>
     @endif
 </div>
+</div>
 
-<!-- Kelas Pending Table -->
-<div class="bg-white rounded-xl shadow-sm mb-6">
-    <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-yellow-100">
-        <div class="flex justify-between items-center">
-            <div>
-                <h5 class="text-lg font-bold text-gray-900"><i class="fas fa-hourglass-half mr-2 text-yellow-600"></i>Kelas Pending</h5>
-                <p class="text-sm text-gray-600">Kelas yang belum di-approve</p>
-            </div>
-            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded-full">
-                {{ $pendingClassesList->count() }} Kelas
-            </span>
-        </div>
+<!-- Kelas Pending | Aktivitas Terbaru -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-5">
+<div class="card-figma rounded-lg overflow-hidden">
+    <div class="px-5 py-3 bg-[#fed0d0] flex justify-between items-center">
+        <div><h5 class="text-base font-bold text-gray-900 leading-tight">Kelas Pending</h5><p class="text-xs text-gray-800">Kelas yang belum di-approve</p></div>
+        <span class="text-sm font-medium text-gray-900">{{ $pendingClassesList->count() }} Kelas</span>
     </div>
     @if($pendingClassesList->count() > 0)
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-200">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Nama Kelas</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Trainer</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Instansi</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Tanggal Dibuat</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Periode</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Income</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
+    <div class="overflow-x-auto max-h-[420px] overflow-y-auto">
+        <table class="w-full text-sm">
+            <thead class="border-b border-gray-200"><tr><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Nama Kelas</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Trainer</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Periode</th><th class="px-3 py-2.5 text-left text-[11px] font-medium text-gray-800 uppercase tracking-wide">Income</th></tr></thead>
+            <tbody class="divide-y divide-gray-100">
                 @foreach($pendingClassesList as $class)
-                <tr class="hover:bg-yellow-50 transition">
-                    <td class="px-6 py-4">
-                        <a href="{{ route('admin.classes.show', $class) }}" class="font-semibold text-gray-900 hover:text-yellow-600">{{ $class->name }}</a>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900">
-                        @if($class->trainers->isNotEmpty())
-                            {{ $class->trainers->pluck('name')->join(', ') }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900">{{ $class->instansi ?? '-' }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ $class->created_at->format('d/m/Y') }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">
-                        @if($class->start_date && $class->end_date)
-                            {{ $class->start_date->format('d/m/Y') }} - {{ $class->end_date->format('d/m/Y') }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td class="px-6 py-4"><span class="font-semibold text-green-600">Rp {{ number_format($class->income, 0, ',', '.') }}</span></td>
+
+                <tr class="hover:bg-[#f9f0f1] transition">
+                    <td class="px-3 py-3"><a href="{{ route('admin.classes.show', $class) }}" class="font-semibold text-gray-900 hover:text-[#fe0000]">{{ $class->name }}</a>
+                        @if(!empty($class->instansi))<div class="text-[11px] text-gray-500">{{ $class->instansi }}</div>@endif</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">@if($class->trainers->isNotEmpty()){{ $class->trainers->pluck('name')->join(', ') }}@else - @endif</td>
+                    <td class="px-3 py-3 text-xs text-gray-600 whitespace-nowrap">@if($class->start_date && $class->end_date){{ $class->start_date->format('d/m/Y') }} - {{ $class->end_date->format('d/m/Y') }}@else - @endif<div class="text-[10px] text-gray-400">Dibuat {{ $class->created_at->format('d/m/Y') }}</div></td>
+                    <td class="px-3 py-3"><span class="font-semibold text-[#43bf21] text-xs whitespace-nowrap">Rp {{ number_format($class->income, 0, ',', '.') }}</span></td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
     @else
-    <div class="p-6 text-center text-gray-500">Tidak ada kelas pending</div>
+    <div class="p-10 text-center text-gray-500 min-h-[220px] flex items-center justify-center">Tidak ada kelas pending</div>
     @endif
 </div>
 
-<!-- Recent Activities -->
-<div class="bg-white rounded-2xl shadow-sm mb-6">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <h5 class="text-lg font-semibold text-gray-800"><i class="fas fa-history mr-2"></i>Aktivitas Terbaru</h5>
-    </div>
-    <div class="p-6">
+<div class="card-figma rounded-lg overflow-hidden">
+    <div class="px-5 py-3 bg-[#fed0d0]"><h5 class="text-base font-bold text-gray-900">Aktivitas Terbaru</h5></div>
+    <div class="p-5 max-h-[420px] overflow-y-auto">
         <div data-activities="container">
             @if($recentActivities->count() > 0)
-                <div class="space-y-4">
-                    @foreach($recentActivities as $activity)
-                        <div class="flex justify-between items-start py-3 border-b border-gray-100 last:border-0">
-                            <div class="flex items-start gap-3">
-                                <i class="fas fa-circle text-green-500 text-xs mt-2"></i>
-                                <div>
-                                    <p class="text-gray-800">
-                                        <strong>{{ $activity->user ? $activity->user->name : 'System' }}</strong>
-                                        <span class="text-gray-600">- {{ $activity->description }}</span>
-                                    </p>
-                                </div>
-                            </div>
-                            <small class="text-gray-500 text-sm whitespace-nowrap ml-4">{{ $activity->created_at->diffForHumans() }}</small>
-                        </div>
-                    @endforeach
+            <div class="space-y-1">
+                @foreach($recentActivities as $activity)
+                <div class="flex justify-between items-start py-2.5 border-b border-gray-100 last:border-0">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-circle text-[#43bf21] text-[9px] mt-1.5"></i>
+                        <p class="text-sm text-gray-800"><strong>{{ $activity->user ? $activity->user->name : 'System' }}</strong> <span class="text-gray-600">- {{ $activity->description }}</span></p>
+                    </div>
+                    <small class="text-gray-500 text-xs whitespace-nowrap ml-4">{{ $activity->created_at->diffForHumans() }}</small>
                 </div>
+                @endforeach
+            </div>
             @else
-                <p class="text-gray-500 text-center py-8">Belum ada aktivitas</p>
+            <p class="text-gray-500 text-center py-8">Belum ada aktivitas</p>
             @endif
         </div>
     </div>
 </div>
+</div>
 
 <!-- Modal Set/Edit Target -->
 <div id="targetModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4" onclick="event.target === this && closeTargetModal()">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full" onclick="event.stopPropagation()">
-        <!-- Modal Header -->
-        <div class="px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-2xl flex justify-between items-center">
-            <h3 class="text-lg font-semibold flex items-center gap-2">
-                <i class="fas fa-bullseye"></i>
-                <span>Set Target Omset Bulanan</span>
-            </h3>
-            <button type="button" onclick="closeTargetModal()" class="text-white hover:text-gray-200 transition">
-                <i class="fas fa-times text-xl"></i>
-            </button>
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full" onclick="event.stopPropagation()">
+        <div class="px-6 py-4 bg-[#fed0d0] rounded-t-xl flex justify-between items-center">
+            <h3 class="text-base font-bold text-gray-900 flex items-center gap-2"><i class="fas fa-bullseye text-[#fe0000]"></i><span>Set Target Omset Bulanan</span></h3>
+            <button type="button" onclick="closeTargetModal()" class="text-gray-700 hover:text-[#fe0000] transition"><i class="fas fa-times text-xl"></i></button>
         </div>
-        
-        <!-- Modal Body -->
         <form id="targetForm" action="{{ route('admin.dashboard.save-target') }}" method="POST" class="p-6">
             @csrf
             <div class="space-y-4">
-                <!-- Current Month Info -->
-                <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-                    <p class="text-sm text-green-700">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        Target untuk: <span class="font-bold">{{ now()->format('F Y') }}</span> - <span class="font-bold">Alfa Bank</span>
-                    </p>
+                <div class="bg-[#f9f0f1] border border-[#fed0d0] rounded-lg p-3">
+                    <p class="text-sm text-gray-800"><i class="fas fa-info-circle mr-2 text-[#fe0000]"></i>Target untuk: <span class="font-bold">{{ now()->format('F Y') }}</span> - <span class="font-bold">Alfa Bank</span></p>
                 </div>
-
-                <!-- Hidden Division Input -->
                 <input type="hidden" name="division" value="academy">
-
-                <!-- Target Amount -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Target Omset (Rp) <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="target_amount_display" id="target_amount_display" required
-                           placeholder="Contoh: 50.000.000" 
-                           value="{{ $targetAmount > 0 ? number_format($targetAmount, 0, ',', '.') : '' }}"
-                           oninput="formatCurrencyDashboard(this)"
-                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Target Omset (Rp) <span class="text-[#fe0000]">*</span></label>
+                    <input type="text" name="target_amount_display" id="target_amount_display" required placeholder="Contoh: 50.000.000"
+                        value="{{ $targetAmount > 0 ? number_format($targetAmount, 0, ',', '.') : '' }}" oninput="formatCurrencyDashboard(this)"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fe0000]/30 focus:border-[#fe0000] focus:outline-none transition">
                     <input type="hidden" name="target_amount" id="target_amount" value="{{ $targetAmount > 0 ? $targetAmount : '' }}">
                     <p class="text-xs text-gray-500 mt-1.5">Gunakan format ribuan dengan titik (contoh: 50.000.000)</p>
                 </div>
-
-                <!-- Error display dalam modal -->
-                <div id="modalError" class="hidden bg-red-50 border-l-4 border-red-500 p-3 rounded">
-                    <p class="text-red-700 text-sm"></p>
-                </div>
+                <div id="modalError" class="hidden bg-red-50 border-l-4 border-[#fe0000] p-3 rounded"><p class="text-red-700 text-sm"></p></div>
             </div>
-
-            <!-- Actions -->
             <div class="flex gap-3 mt-6 pt-4 border-t border-gray-200">
-                <button type="button" onclick="closeTargetModal()" 
-                        class="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
-                    <i class="fas fa-times mr-2"></i>Batal
-                </button>
-                <button type="submit" id="submitTargetBtn"
-                        class="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition shadow-md hover:shadow-lg font-medium">
-                    <i class="fas fa-save mr-2"></i>Simpan Target
-                </button>
+                <button type="button" onclick="closeTargetModal()" class="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"><i class="fas fa-times mr-2"></i>Batal</button>
+                <button type="submit" id="submitTargetBtn" class="flex-1 px-4 py-2.5 bg-[#fe0000] text-white rounded-lg hover:bg-red-700 transition shadow-md font-medium"><i class="fas fa-save mr-2"></i>Simpan Target</button>
             </div>
         </form>
     </div>
@@ -1311,18 +744,7 @@
         });
         const certificationStudentTotals = certificationByTraining.map(item => item.total_students);
 
-        const colors = [
-            'rgba(16, 185, 129, 0.85)',
-            'rgba(34, 197, 94, 0.8)',
-            'rgba(6, 182, 212, 0.8)',
-            'rgba(59, 130, 246, 0.8)',
-            'rgba(245, 158, 11, 0.8)',
-            'rgba(249, 115, 22, 0.8)',
-            'rgba(236, 72, 153, 0.8)',
-            'rgba(168, 85, 247, 0.8)',
-            'rgba(132, 204, 22, 0.8)',
-            'rgba(20, 184, 166, 0.8)'
-        ];
+        const colors = ['#344bfd','#43bf21','#e28100','#fe0000','#5b9bff','#a855f7','#e879f9','#86efac','#1e3a8a','#14b8a6'];
 
         new Chart(certificationByTrainingCtx, {
             type: 'doughnut',
@@ -1343,7 +765,7 @@
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'bottom',
+                        position: 'right',
                         labels: {
                             padding: 15,
                             font: {
@@ -1417,15 +839,15 @@
         if (!barBtn || !lineBtn) return;
         
         if (currentType === 'bar') {
-            barBtn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-200');
-            barBtn.classList.add('bg-emerald-100', 'text-emerald-700', 'border-emerald-400');
-            lineBtn.classList.remove('bg-emerald-100', 'text-emerald-700', 'border-emerald-400');
-            lineBtn.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-200');
+            barBtn.classList.remove('bg-white', 'text-gray-800', 'border-gray-800');
+            barBtn.classList.add('bg-[#fe0000]', 'text-white', 'border-[#fe0000]');
+            lineBtn.classList.remove('bg-[#fe0000]', 'text-white', 'border-[#fe0000]');
+            lineBtn.classList.add('bg-white', 'text-gray-800', 'border-gray-800');
         } else {
-            lineBtn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-200');
-            lineBtn.classList.add('bg-emerald-100', 'text-emerald-700', 'border-emerald-400');
-            barBtn.classList.remove('bg-emerald-100', 'text-emerald-700', 'border-emerald-400');
-            barBtn.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-200');
+            lineBtn.classList.remove('bg-white', 'text-gray-800', 'border-gray-800');
+            lineBtn.classList.add('bg-[#fe0000]', 'text-white', 'border-[#fe0000]');
+            barBtn.classList.remove('bg-[#fe0000]', 'text-white', 'border-[#fe0000]');
+            barBtn.classList.add('bg-white', 'text-gray-800', 'border-gray-800');
         }
     }
     
@@ -1456,44 +878,44 @@
                     {
                         label: 'Omzet Masuk',
                         data: monthlyClassRevenue,
-                        backgroundColor: type === 'bar' ? 'rgba(34, 197, 94, 0.8)' : 'rgba(34, 197, 94, 0.2)',
-                        borderColor: 'rgba(34, 197, 94, 1)',
+                        backgroundColor: type === 'bar' ? 'rgba(67, 191, 33, 0.8)' : 'rgba(67, 191, 33, 0.2)',
+                        borderColor: 'rgba(67, 191, 33, 1)',
                         borderWidth: type === 'bar' ? 2 : 3,
                         fill: type === 'line',
                         tension: 0.4,
-                        borderRadius: type === 'bar' ? 6 : 0,
+                        borderRadius: 0,
                         pointRadius: type === 'line' ? 5 : 0,
                         pointHoverRadius: type === 'line' ? 7 : 0
                     },
                     {
                         label: 'Sisa Pembayaran (Unpaid)',
                         data: monthlyRemainingPayment,
-                        backgroundColor: type === 'bar' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(239, 68, 68, 0.1)',
-                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: type === 'bar' ? 'rgba(254, 0, 0, 0.8)' : 'rgba(254, 0, 0, 0.1)',
+                        borderColor: 'rgba(254, 0, 0, 1)',
                         borderWidth: type === 'bar' ? 2 : 3,
                         fill: false,
                         tension: 0.4,
                         borderDash: [5, 5],
-                        borderRadius: type === 'bar' ? 6 : 0,
+                        borderRadius: 0,
                         pointRadius: type === 'line' ? 5 : 0,
                         pointHoverRadius: type === 'line' ? 7 : 0
                     },
                     {
                         label: 'Biaya Operasional',
                         data: monthlyClassCost,
-                        backgroundColor: type === 'bar' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(59, 130, 246, 0.1)',
-                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: type === 'bar' ? 'rgba(52, 75, 253, 0.8)' : 'rgba(52, 75, 253, 0.1)',
+                        borderColor: 'rgba(52, 75, 253, 1)',
                         borderWidth: type === 'bar' ? 2 : 3,
                         fill: false,
                         tension: 0.4,
-                        borderRadius: type === 'bar' ? 6 : 0,
+                        borderRadius: 0,
                         pointRadius: type === 'line' ? 5 : 0,
                         pointHoverRadius: type === 'line' ? 7 : 0
                     }
                 ]
             };
             options.plugins.tooltip = { callbacks: { label: c => 'Rp ' + c.parsed.y.toLocaleString('id-ID') } };
-            options.scales.y.ticks = { callback: v => 'Rp ' + (v / 1000000).toFixed(1) + 'jt' };
+            options.scales.y.ticks = { callback: v => 'Rp ' + (v / 1000000).toLocaleString('id-ID') + ' jt' };
         } else if (chartName === 'classCountChart') {
             const monthlyClassCount = {!! json_encode($monthlyCertificationClassCount) !!};
             const monthlyCert = {!! json_encode($monthlyCertificationCount) !!};
@@ -1504,24 +926,24 @@
                     {
                         label: 'Jumlah Kelas',
                         data: monthlyClassCount,
-                        backgroundColor: type === 'bar' ? 'rgba(139, 92, 246, 0.8)' : 'rgba(139, 92, 246, 0.2)',
-                        borderColor: 'rgba(139, 92, 246, 1)',
+                        backgroundColor: type === 'bar' ? 'rgba(52, 75, 253, 0.8)' : 'rgba(52, 75, 253, 0.2)',
+                        borderColor: 'rgba(52, 75, 253, 1)',
                         borderWidth: 2,
                         fill: type === 'line',
                         tension: 0.4,
-                        borderRadius: type === 'bar' ? 8 : 0,
+                        borderRadius: 0,
                         pointRadius: type === 'line' ? 5 : 0,
                         pointHoverRadius: type === 'line' ? 7 : 0
                     },
                     {
                         label: 'Jumlah Siswa Sertifikasi',
                         data: monthlyCert,
-                        backgroundColor: type === 'bar' ? 'rgba(34, 197, 94, 0.75)' : 'rgba(34, 197, 94, 0.2)',
-                        borderColor: 'rgba(34, 197, 94, 1)',
+                        backgroundColor: type === 'bar' ? 'rgba(67, 191, 33, 0.75)' : 'rgba(67, 191, 33, 0.2)',
+                        borderColor: 'rgba(67, 191, 33, 1)',
                         borderWidth: 2,
                         fill: type === 'line',
                         tension: 0.4,
-                        borderRadius: type === 'bar' ? 8 : 0,
+                        borderRadius: 0,
                         pointRadius: type === 'line' ? 5 : 0,
                         pointHoverRadius: type === 'line' ? 7 : 0
                     }
@@ -1537,18 +959,18 @@
                 datasets: [{
                     label: 'Omset Sertifikasi',
                     data: monthlyCertRev,
-                    backgroundColor: type === 'bar' ? 'rgba(16, 185, 129, 0.8)' : 'rgba(16, 185, 129, 0.2)',
-                    borderColor: 'rgba(16, 185, 129, 1)',
+                    backgroundColor: type === 'bar' ? 'rgba(52, 75, 253, 0.8)' : 'rgba(52, 75, 253, 0.2)',
+                    borderColor: 'rgba(52, 75, 253, 1)',
                     borderWidth: type === 'bar' ? 2 : 3,
                     fill: type === 'line',
                     tension: 0.35,
-                    borderRadius: type === 'bar' ? 6 : 0,
+                    borderRadius: 0,
                     pointRadius: type === 'line' ? 5 : 0,
                     pointHoverRadius: type === 'line' ? 7 : 0
                 }]
             };
             options.plugins.tooltip = { callbacks: { label: c => 'Omset: Rp ' + c.parsed.y.toLocaleString('id-ID') } };
-            options.scales.y.ticks = { callback: v => 'Rp ' + (v / 1000000).toFixed(1) + 'jt' };
+            options.scales.y.ticks = { callback: v => 'Rp ' + (v / 1000000).toLocaleString('id-ID') + ' jt' };
         } else if (chartName === 'currentMonthClassRevenueChart') {
             const currentMonthClassRevenueByClass = {!! json_encode($currentMonthClassRevenueByClass) !!};
             const currentMonthClassRevenueLabels = currentMonthClassRevenueByClass.map(item => {
@@ -1562,12 +984,12 @@
                 datasets: [{
                     label: 'Omset Kelas',
                     data: currentMonthClassRevenueTotals,
-                    backgroundColor: type === 'bar' ? 'rgba(245, 158, 11, 0.8)' : 'rgba(245, 158, 11, 0.15)',
-                    borderColor: 'rgba(245, 158, 11, 1)',
+                    backgroundColor: type === 'bar' ? 'rgba(226, 129, 0, 0.8)' : 'rgba(226, 129, 0, 0.15)',
+                    borderColor: 'rgba(226, 129, 0, 1)',
                     borderWidth: type === 'bar' ? 1 : 3,
                     fill: type === 'line',
                     tension: 0.35,
-                    borderRadius: type === 'bar' ? 8 : 0,
+                    borderRadius: 0,
                     categoryPercentage: 0.5,
                     barPercentage: 0.6,
                     maxBarThickness: 56,
@@ -1633,16 +1055,7 @@
             return name.length > 30 ? name.substring(0, 30) + '...' : name;
         });
         const currentMonthStudentTotals = currentMonthStudentsByTraining.map(item => item.total_students);
-        const studentColors = [
-            'rgba(79, 70, 229, 0.85)',
-            'rgba(16, 185, 129, 0.85)',
-            'rgba(245, 158, 11, 0.85)',
-            'rgba(239, 68, 68, 0.85)',
-            'rgba(14, 165, 233, 0.85)',
-            'rgba(168, 85, 247, 0.85)',
-            'rgba(236, 72, 153, 0.85)',
-            'rgba(34, 197, 94, 0.85)'
-        ];
+        const studentColors = ['#344bfd','#43bf21','#e28100','#fe0000','#5b9bff','#a855f7','#e879f9','#86efac','#1e3a8a','#14b8a6'];
 
         new Chart(currentMonthStudentsByTrainingCtx, {
             type: 'doughnut',
@@ -1663,7 +1076,7 @@
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'bottom',
+                        position: 'right',
                         labels: {
                             padding: 14,
                             boxWidth: 12,

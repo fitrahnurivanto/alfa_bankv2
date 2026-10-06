@@ -26,6 +26,9 @@
                 extend: {
                     fontFamily: {
                         sans: ['Instrument Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: { DEFAULT: '#fe0000', soft: '#fed0d0', page: '#f9f0f1', side: '#f5f4f2' }
                     }
                 }
             }
@@ -39,6 +42,9 @@
     
     <style>
         [x-cloak] { display: none !important; }
+        :root { --brand: #fe0000; --brand-soft: #fed0d0; --page-bg: #f9f0f1; }
+        body { font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif; }
+        .card-figma { background:#fff; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
         
         /* Responsive scaling untuk semua ukuran laptop */
         @media (min-width: 2560px) {
@@ -162,33 +168,33 @@
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-[#f9f0f1] text-gray-800">
     @include('components.sidebar')
     
     <!-- Main Content - Responsive -->
     <div class="lg:ml-64 min-h-screen max-w-full overflow-x-hidden">
         <!-- Header - Responsive -->
-        <div class="sticky top-0 bg-white px-4 sm:px-6 lg:px-6 xl:px-8 py-3 sm:py-3.5 md:py-4 shadow-sm z-10 flex justify-between items-center flex-wrap gap-2">
+        <div class="sticky top-0 bg-[#f9f0f1] px-4 sm:px-6 lg:px-6 xl:px-8 py-3 sm:py-3.5 md:py-4 z-10 flex justify-between items-center flex-wrap gap-2">
             <!-- Page Title - Responsive -->
-            <div class="ml-12 lg:ml-0 flex-1 min-w-0">
+            <div class="ml-12 lg:ml-0 flex-1 min-w-0 lg:hidden">
                 <h5 class="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 truncate">@yield('page-title', 'Dashboard')</h5>
             </div>
             <!-- User Info - Responsive -->
-            <div class="flex items-center gap-2 sm:gap-4">
+            <div class="flex items-center gap-3 sm:gap-5 lg:ml-auto">
                 @auth
                     @if(in_array(auth()->user()->role, ['admin', 'akademik', 'marketing'], true))
                         <a href="{{ route('sso.sim.start') }}" target="_blank" rel="noopener" title="Buka dashboard SIM"
-                           class="text-gray-600 hover:text-gray-900 transition">
+                           class="text-gray-800 hover:text-[#fe0000] transition">
                             <i class="fas fa-external-link-alt text-lg"></i>
                         </a>
                     @endif
                 @endauth
                 <!-- Notification Bell -->
                 <div x-data="notificationSystem" class="relative">
-                    <button @click="toggleNotifications" class="relative text-gray-600 hover:text-gray-900 transition">
+                    <button @click="toggleNotifications" class="relative text-gray-800 hover:text-[#fe0000] transition">
                         <i class="fas fa-bell text-xl"></i>
                         <span x-show="unreadCount > 0" x-text="unreadCount" 
-                              class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse"></span>
+                              class="absolute -top-2 -right-2 bg-[#fe0000] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse"></span>
                     </button>
                     
                     <!-- Notification Dropdown - Responsive -->
@@ -212,7 +218,7 @@
                             </template>
                             <template x-for="notif in notifications" :key="notif.id">
                                 <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                                     :class="{'bg-blue-50': !notif.read}"
+                                     :class="{'bg-[#fed0d0]/40': !notif.read}"
                                      @click="markAsRead(notif.id)">
                                     <div class="flex items-start gap-3">
                                         <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
@@ -235,17 +241,17 @@
                 </div>
                 
                 <!-- User Name - Hidden on mobile -->
-                <span class="hidden md:flex text-gray-600 items-center">
+                <span class="hidden md:flex text-gray-900 font-medium items-center">
                     <i class="fas fa-user-circle mr-2"></i>
                     <span class="truncate max-w-[150px]">{{ \Illuminate\Support\Facades\Auth::user()->name }}</span>
                 </span>
                 <!-- Role Badge -->
-                <span class="px-2 sm:px-3 py-1 bg-indigo-600 text-white text-xs sm:text-sm font-medium rounded-lg">{{ ucfirst(\Illuminate\Support\Facades\Auth::user()->role) }}</span>
+                <span class="px-4 sm:px-5 py-1.5 bg-[#fe0000] text-white text-xs sm:text-sm font-semibold rounded-md shadow">{{ ucfirst(\Illuminate\Support\Facades\Auth::user()->role) }}</span>
             </div>
         </div>
         
         <!-- Main Content Area - Responsive Padding -->
-        <div class="p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 max-w-full overflow-x-hidden">
+        <div class="px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8 pb-8 max-w-full overflow-x-hidden">
             @yield('content')
         </div>
     </div>

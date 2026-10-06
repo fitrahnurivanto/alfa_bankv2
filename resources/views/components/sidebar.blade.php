@@ -18,7 +18,7 @@
 
     <!-- Sidebar -->
     <div :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-         class="fixed left-0 top-0 bottom-0 w-64 bg-white text-gray-800 overflow-y-auto shadow-xl z-50 border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0">
+         class="fixed left-0 top-0 bottom-0 w-64 bg-[#f5f4f2] text-gray-800 overflow-y-auto shadow-[3px_3px_6px_rgba(0,0,0,0.25)] z-50 transition-transform duration-300 ease-in-out lg:translate-x-0">
     
     @php
         $user = \Illuminate\Support\Facades\Auth::user();
@@ -45,11 +45,11 @@
     @endphp
 
     <!-- Logo -->
-    <div class="px-4 lg:px-5 py-6 lg:py-8 border-b border-gray-200 flex items-center justify-center">
+    <div class="mx-4 mt-4 mb-2 px-3 py-4 bg-white rounded-xl shadow-[0_2px_6px_rgba(0,0,0,0.2)] flex items-center justify-center">
         @if($logoExists)
             <img src="{{ $logoUrl }}" 
                  alt="{{ $companyName }}" 
-                 class="h-16 lg:h-20 w-auto max-w-full object-contain"
+                 class="h-14 lg:h-16 w-auto max-w-full object-contain"
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <div class="text-center" style="display:none;">
                 <h1 class="text-2xl font-bold text-gray-800">{{ $companyName }}</h1>
@@ -67,7 +67,7 @@
         @if(\Illuminate\Support\Facades\Auth::user()->role === 'admin')
             <!-- Dashboard -->
             <li class="mx-2 lg:mx-2.5 my-1">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center px-3 lg:px-4 py-2.5 lg:py-3 text-sm lg:text-base text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.dashboard') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center px-3 lg:px-4 py-2.5 lg:py-3 text-sm lg:text-base text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.dashboard') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-home w-5 lg:w-6 text-base lg:text-lg"></i>
                     <span class="ml-2 lg:ml-2.5">Dashboard</span>
                 </a>
@@ -75,7 +75,7 @@
 
             <!-- Kelas -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.classes.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.classes.index') || request()->routeIs('admin.classes.create') || request()->routeIs('admin.classes.edit') || request()->routeIs('admin.classes.show') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.classes.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.classes.index') || request()->routeIs('admin.classes.create') || request()->routeIs('admin.classes.edit') || request()->routeIs('admin.classes.show') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chalkboard-teacher w-6 text-lg"></i>
                     <span class="ml-2.5">Kelas</span>
                 </a>
@@ -83,14 +83,14 @@
             
             <!-- Kelas Berjalan -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.classes.showclas') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-green-50 hover:text-green-600 hover:translate-x-1 {{ request()->routeIs('admin.classes.showclas') ? 'bg-green-50 text-green-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.classes.showclas') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.classes.showclas') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-play-circle w-6 text-lg"></i>
                     <span class="ml-2.5">Kelas Berjalan</span>
                     @php
                         $activeClassCount = \App\Models\Clas::where('status', 'approved')->count();
                     @endphp
                     @if($activeClassCount > 0)
-                    <span class="ml-auto bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">{{ $activeClassCount }}</span>
+                    <span class="ml-auto bg-[#fed0d0] text-[#fe0000] text-xs font-semibold px-2 py-1 rounded-full">{{ $activeClassCount }}</span>
                     @endif
                 </a>
             </li>
@@ -98,7 +98,7 @@
             {{-- Peserta/Client - DISEMBUNYIKAN SEMENTARA --}}
             {{-- 
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.clients.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.clients.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.clients.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.clients.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-user-graduate w-6 text-lg"></i>
                     <span class="ml-2.5">Peserta</span>
                 </a>
@@ -107,14 +107,14 @@
 
             <!-- Trainer/Pengajar -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.trainers.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.trainers.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.trainers.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.trainers.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chalkboard-user w-6 text-lg"></i>
                     <span class="ml-2.5">Pengajar</span>
                 </a>
             </li>
 
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.trainer-attendance.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-green-50 hover:text-green-600 hover:translate-x-1 {{ request()->routeIs('admin.trainer-attendance.*') ? 'bg-green-50 text-green-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.trainer-attendance.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.trainer-attendance.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-user-check w-6 text-lg"></i>
                     <span class="ml-2.5">Absen Pengajar</span>
                 </a>
@@ -122,7 +122,7 @@
 
             <!-- Laporan -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.laporan.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.laporan.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.laporan.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.laporan.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chart-line w-6 text-lg"></i>
                     <span class="ml-2.5">Laporan</span>
                 </a>
@@ -130,14 +130,14 @@
 
             <!-- Payment Requests -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.payment-requests.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.payment-requests.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.payment-requests.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.payment-requests.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-money-bill-wave w-6 text-lg"></i>
                     <span class="ml-2.5">Payment Requests</span>
                     @php
                         $pendingPayments = \App\Models\PaymentRequest::where('status', 'pending')->whereNotNull('class_id')->count();
                     @endphp
                     @if($pendingPayments > 0)
-                    <span class="ml-auto bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full">{{ $pendingPayments }}</span>
+                    <span class="ml-auto bg-[#fed0d0] text-[#fe0000] text-xs font-semibold px-2 py-1 rounded-full">{{ $pendingPayments }}</span>
                     @endif
                 </a>
             </li>
@@ -146,15 +146,17 @@
         @if(\Illuminate\Support\Facades\Auth::user()->role === 'admin')
             <!-- Inventaris Barang -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.inventaris.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-purple-50 hover:text-purple-600 hover:translate-x-1 {{ request()->routeIs('admin.inventaris.*') ? 'bg-purple-50 text-purple-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.inventaris.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.inventaris.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-cube w-6 text-lg"></i>
                     <span class="ml-2.5">Inventaris Barang</span>
                 </a>
             </li>
-            
-                <button @click="settingsOpen = !settingsOpen" class="w-full flex items-center justify-between px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 {{ request()->routeIs('admin.settings.*') || request()->routeIs('admin.positions.*') || request()->routeIs('admin.trainings.*') || request()->routeIs('admin.users.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+
+            <!-- Pengaturan -->
+            <li class="mx-2.5 my-1">
+                <button @click="settingsOpen = !settingsOpen" class="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000] {{ request()->routeIs('admin.settings.*') || request()->routeIs('admin.positions.*') || request()->routeIs('admin.trainings.*') || request()->routeIs('admin.users.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <div class="flex items-center">
-                        <i class="fas fa-cog w-6 text-lg"></i>
+                        <i class="fas fa-gear w-6 text-lg"></i>
                         <span class="ml-2.5">Pengaturan</span>
                     </div>
                     <i class="fas fa-chevron-down text-xs transition-transform" :class="settingsOpen ? 'rotate-180' : ''"></i>
@@ -162,17 +164,17 @@
                 
                 <!-- Submenu -->
                 <div x-show="settingsOpen" x-cloak x-collapse class="mt-1 ml-4 space-y-1">
-                    <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-600 no-underline rounded-lg transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.settings.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                    <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-600 no-underline rounded-lg transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.settings.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                         <i class="fas fa-building w-5 text-sm"></i>
                         <span class="ml-2">Info Perusahaan</span>
                     </a>
                     
-                    <a href="{{ route('admin.trainings.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-600 no-underline rounded-lg transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.trainings.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                    <a href="{{ route('admin.trainings.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-600 no-underline rounded-lg transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.trainings.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                         <i class="fas fa-graduation-cap w-5 text-sm"></i>
                         <span class="ml-2">Nama Pelatihan</span>
                     </a>
 
-                    <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-600 no-underline rounded-lg transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.users.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                    <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-600 no-underline rounded-lg transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.users.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                         <i class="fas fa-users w-5 text-sm"></i>
                         <span class="ml-2">Manajemen Pengguna</span>
                     </a>
@@ -182,13 +184,13 @@
         @elseif(\Illuminate\Support\Facades\Auth::user()->role === 'marketing')
             <!-- Marketing Menu -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.dashboard') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.dashboard') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-home w-6 text-lg"></i>
                     <span class="ml-2.5">Dashboard</span>
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.classes.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.classes.index') || request()->routeIs('admin.classes.create') || request()->routeIs('admin.classes.show') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.classes.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.classes.index') || request()->routeIs('admin.classes.create') || request()->routeIs('admin.classes.show') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chalkboard-teacher w-6 text-lg"></i>
                     <span class="ml-2.5">Kelas</span>
                     @php
@@ -196,31 +198,31 @@
                             ->where('user_id', \Illuminate\Support\Facades\Auth::id())->count();
                     @endphp
                     @if($pendingKelas > 0)
-                    <span class="ml-auto bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full">{{ $pendingKelas }}</span>
+                    <span class="ml-auto bg-[#fed0d0] text-[#fe0000] text-xs font-semibold px-2 py-1 rounded-full">{{ $pendingKelas }}</span>
                     @endif
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.classes.showclas') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-green-50 hover:text-green-600 hover:translate-x-1 {{ request()->routeIs('admin.classes.showclas') ? 'bg-green-50 text-green-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.classes.showclas') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.classes.showclas') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-play-circle w-6 text-lg"></i>
                     <span class="ml-2.5">Kelas Berjalan</span>
                     @php
                         $activeClassCount = \App\Models\Clas::where('status', 'approved')->count();
                     @endphp
                     @if($activeClassCount > 0)
-                    <span class="ml-auto bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">{{ $activeClassCount }}</span>
+                    <span class="ml-auto bg-[#fed0d0] text-[#fe0000] text-xs font-semibold px-2 py-1 rounded-full">{{ $activeClassCount }}</span>
                     @endif
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.laporan.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.laporan.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.laporan.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.laporan.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chart-line w-6 text-lg"></i>
                     <span class="ml-2.5">Laporan</span>
                 </a>
             </li>
 
             <li class="mx-2.5 my-1 pt-2 border-t border-gray-200">
-                <a href="{{ route('admin.trainings.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.trainings.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.trainings.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.trainings.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-graduation-cap w-6 text-lg"></i>
                     <span class="ml-2.5">Nama Pelatihan</span>
                 </a>
@@ -229,62 +231,62 @@
         @elseif(\Illuminate\Support\Facades\Auth::user()->role === 'akademik')
             <!-- Akademik Menu -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('akademik.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('akademik.dashboard') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('akademik.dashboard') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('akademik.dashboard') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-home w-6 text-lg"></i>
                     <span class="ml-2.5">Dashboard</span>
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.classes.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-green-50 hover:text-green-600 hover:translate-x-1 {{ request()->routeIs('admin.classes.*') ? 'bg-green-50 text-green-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.classes.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.classes.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chalkboard-teacher w-6 text-lg"></i>
                     <span class="ml-2.5">Kelas</span>
                     @php
                         $pendingApproval = \App\Models\Clas::where('status', 'pending')->count();
                     @endphp
                     @if($pendingApproval > 0)
-                    <span class="ml-auto bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full">{{ $pendingApproval }}</span>
+                    <span class="ml-auto bg-[#fed0d0] text-[#fe0000] text-xs font-semibold px-2 py-1 rounded-full">{{ $pendingApproval }}</span>
                     @endif
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.classes.showclas') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-green-50 hover:text-green-600 hover:translate-x-1 {{ request()->routeIs('admin.classes.showclas') ? 'bg-green-50 text-green-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.classes.showclas') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.classes.showclas') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-play-circle w-6 text-lg"></i>
                     <span class="ml-2.5">Kelas Berjalan</span>
                     @php
                         $activeClassCount = \App\Models\Clas::where('status', 'approved')->count();
                     @endphp
                     @if($activeClassCount > 0)
-                    <span class="ml-auto bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">{{ $activeClassCount }}</span>
+                    <span class="ml-auto bg-[#fed0d0] text-[#fe0000] text-xs font-semibold px-2 py-1 rounded-full">{{ $activeClassCount }}</span>
                     @endif
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.trainers.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.trainers.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.trainers.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.trainers.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chalkboard-user w-6 text-lg"></i>
                     <span class="ml-2.5">Pengajar</span>
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.trainer-attendance.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-green-50 hover:text-green-600 hover:translate-x-1 {{ request()->routeIs('admin.trainer-attendance.*') ? 'bg-green-50 text-green-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.trainer-attendance.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.trainer-attendance.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-user-check w-6 text-lg"></i>
                     <span class="ml-2.5">Absen Pengajar</span>
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.laporan.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.laporan.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.laporan.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.laporan.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chart-line w-6 text-lg"></i>
                     <span class="ml-2.5">Laporan</span>
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.payment-requests.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('admin.payment-requests.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.payment-requests.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.payment-requests.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-money-bill-wave w-6 text-lg"></i>
                     <span class="ml-2.5">Payment Request</span>
                     @php
                         $pendingPayments = \App\Models\PaymentRequest::where('status', 'pending')->whereNotNull('class_id')->count();
                     @endphp
                     @if($pendingPayments > 0)
-                    <span class="ml-auto bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full">{{ $pendingPayments }}</span>
+                    <span class="ml-auto bg-[#fed0d0] text-[#fe0000] text-xs font-semibold px-2 py-1 rounded-full">{{ $pendingPayments }}</span>
                     @endif
                 </a>
             </li>
@@ -292,13 +294,13 @@
         @elseif(\Illuminate\Support\Facades\Auth::user()->role === 'finance')
             <!-- Finance Menu -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('finance.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('finance.dashboard') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('finance.dashboard') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('finance.dashboard') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-home w-6 text-lg"></i>
                     <span class="ml-2.5">Dashboard</span>
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('finance.expenses.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('finance.expenses.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('finance.expenses.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('finance.expenses.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-receipt w-6 text-lg"></i>
                     <span class="ml-2.5">Expenses</span>
                     @php
@@ -308,12 +310,12 @@
                             ->count();
                     @endphp
                     @if($expenseNotifications > 0)
-                    <span class="ml-auto bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $expenseNotifications }}</span>
+                    <span class="ml-auto bg-[#fe0000] text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $expenseNotifications }}</span>
                     @endif
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('finance.payment-requests.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('finance.payment-requests.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('finance.payment-requests.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('finance.payment-requests.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-money-bill-wave w-6 text-lg"></i>
                     <span class="ml-2.5">Payment Requests</span>
                     @php
@@ -323,12 +325,12 @@
                             ->count();
                     @endphp
                     @if($paymentNotifications > 0)
-                    <span class="ml-auto bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $paymentNotifications }}</span>
+                    <span class="ml-auto bg-[#fe0000] text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $paymentNotifications }}</span>
                     @endif
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('admin.inventaris.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-purple-50 hover:text-purple-600 hover:translate-x-1 {{ request()->routeIs('admin.inventaris.*') ? 'bg-purple-50 text-purple-600 font-semibold' : '' }}">
+                <a href="{{ route('admin.inventaris.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('admin.inventaris.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-cube w-6 text-lg"></i>
                     <span class="ml-2.5">Inventaris Barang</span>
                 </a>
@@ -336,13 +338,13 @@
         @elseif(\Illuminate\Support\Facades\Auth::user()->role === 'trainer')
             <!-- Trainer Menu -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('trainer.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('trainer.dashboard') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('trainer.dashboard') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('trainer.dashboard') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-home w-6 text-lg"></i>
                     <span class="ml-2.5">Dashboard</span>
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('trainer.classes.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('trainer.classes.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('trainer.classes.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('trainer.classes.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chalkboard-teacher w-6 text-lg"></i>
                     <span class="ml-2.5">Kelas Saya</span>
                     @php
@@ -352,18 +354,18 @@
                             ->count();
                     @endphp
                     @if($classNotifications > 0)
-                    <span class="ml-auto bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $classNotifications }}</span>
+                    <span class="ml-auto bg-[#fe0000] text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $classNotifications }}</span>
                     @endif
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('trainer.attendance.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-green-50 hover:text-green-600 hover:translate-x-1 {{ request()->routeIs('trainer.attendance.*') ? 'bg-green-50 text-green-600 font-semibold' : '' }}">
+                <a href="{{ route('trainer.attendance.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('trainer.attendance.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-user-check w-6 text-lg"></i>
                     <span class="ml-2.5">Absensi Pengajar</span>
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('trainer.payment-requests.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('trainer.payment-requests.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('trainer.payment-requests.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('trainer.payment-requests.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-money-bill-wave w-6 text-lg"></i>
                     <span class="ml-2.5">Payment Requests</span>
                     @php
@@ -373,20 +375,20 @@
                             ->count();
                     @endphp
                     @if($paymentNotifications > 0)
-                    <span class="ml-auto bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $paymentNotifications }}</span>
+                    <span class="ml-auto bg-[#fe0000] text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $paymentNotifications }}</span>
                     @endif
                 </a>
             </li>
         @elseif(\Illuminate\Support\Facades\Auth::user()->role === 'client')
             <!-- Client Menu -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('client.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('client.dashboard') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('client.dashboard') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('client.dashboard') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-home w-6 text-lg"></i>
                     <span class="ml-2.5">Dashboard</span>
                 </a>
             </li>
             <li class="mx-2.5 my-1">
-                <a href="{{ route('client.classes.index') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 {{ request()->routeIs('client.classes.*') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">
+                <a href="{{ route('client.classes.index') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  {{ request()->routeIs('client.classes.*') ? 'bg-[#fed0d0] text-[#fe0000] font-semibold' : '' }}">
                     <i class="fas fa-chalkboard-teacher w-6 text-lg"></i>
                     <span class="ml-2.5">Kelas Saya</span>
                     @php
@@ -396,14 +398,14 @@
                             ->count();
                     @endphp
                     @if($clientNotifications > 0)
-                    <span class="ml-auto bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $clientNotifications }}</span>
+                    <span class="ml-auto bg-[#fe0000] text-white text-xs font-semibold px-2 py-1 rounded-full animate-pulse">{{ $clientNotifications }}</span>
                     @endif
                 </a>
             </li>
         @else
             <!-- Default Menu (Legacy Support) -->
             <li class="mx-2.5 my-1">
-                <a href="{{ route('client.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 no-underline rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1">
+                <a href="{{ route('client.dashboard') }}" class="flex items-center px-4 py-2.5 text-sm text-gray-500 no-underline rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000] ">
                     <i class="fas fa-home w-6 text-lg"></i>
                     <span class="ml-2.5">Dashboard</span>
                 </a>
@@ -414,9 +416,9 @@
         <li class="mx-2.5 my-1">
             <form action="{{ route('logout') }}" method="POST" id="logout-form">
                 @csrf
-                <button type="submit" class="w-full flex items-center px-4 py-3 text-gray-700 rounded-xl transition-all hover:bg-red-50 hover:text-red-600 hover:translate-x-1 bg-transparent border-0 text-left cursor-pointer">
+                <button type="submit" class="w-full flex items-center px-4 py-2.5 text-sm text-gray-500 rounded-xl transition-all hover:bg-[#fed0d0]/60 hover:text-[#fe0000]  bg-transparent border-0 text-left cursor-pointer">
                     <i class="fas fa-sign-out-alt w-6 text-lg"></i>
-                    <span class="ml-2.5">Logout</span>
+                    <span class="ml-2.5">Log Out</span>
                 </button>
             </form>
         </li>
@@ -430,7 +432,7 @@
     width: 6px;
 }
 .fixed::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.05);
+    background: transparent;
 }
 .fixed::-webkit-scrollbar-thumb {
     background: rgba(0,0,0,0.2);
