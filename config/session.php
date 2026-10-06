@@ -167,9 +167,13 @@ return [
     | to the server if the browser has a HTTPS connection. This will keep
     | the cookie from being sent to you when it can't be done securely.
     |
+    | AUTO CONFIGURATION:
+    | - Development (local/testing): false - allows HTTP (localhost:8000)
+    | - Production (staging/production): true - requires HTTPS only
+    |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => env('APP_ENV') === 'production' ? true : false,
 
     /*
     |--------------------------------------------------------------------------

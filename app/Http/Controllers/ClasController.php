@@ -855,10 +855,8 @@ class ClasController extends Controller
             if (!$clas->end_date) {
                 $missingFields[] = 'tanggal selesai';
             }
-            // Hanya wajib cek registrant aktif kalau kelas ini memang berasal
-            // dari registrasi siswa di web SIM (punya record registrant).
-            // Kelas private yang dibikin manual (tanpa registrant sama sekali)
-            // tetap boleh di-approve seperti sebelumnya.
+            // Kelas private dari Web SIM memiliki registrant. Kelas private
+            // manual tidak memiliki registrant sehingga tidak terkena syarat ini.
             if ($clas->registrants()->exists() && !$clas->registrants()->active()->exists()) {
                 $missingFields[] = 'penerimaan siswa dari web sim';
             }
