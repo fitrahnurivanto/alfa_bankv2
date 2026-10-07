@@ -20,8 +20,8 @@
         right: 10px;
     }
     .select2-container--default.select2-container--focus .select2-selection--single {
-        border-color: #7b2cbf;
-        box-shadow: 0 0 0 1px #7b2cbf;
+        border-color: #fe0000;
+        box-shadow: 0 0 0 1px #fe0000;
     }
     .select2-dropdown {
         border: 1px solid #d1d5db;
@@ -33,25 +33,25 @@
         padding: 8px 12px;
     }
     .select2-results__option--highlighted {
-        background-color: #7b2cbf !important;
+        background-color: #fe0000 !important;
     }
 </style>
 @endpush
 
 @section('content')
 <div class="p-6">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         <!-- Header -->
         <div class="mb-6">
             <div class="flex items-center gap-4">
-                <a href="{{ route('admin.classes.index') }}" class="text-gray-600 hover:text-gray-900">
+                <a href="{{ route('admin.classes.index') }}" class="text-gray-900 hover:text-[#fe0000] text-2xl">
                     <i class="fas fa-arrow-left"></i>
                 </a>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">
+                    <h1 class="text-3xl font-bold text-gray-900">
                         {{ isset($clas) ? 'Edit Kelas' : 'Tambah Kelas' }}
                     </h1>
-                    <p class="text-gray-600">Lengkapi informasi kelas di bawah ini</p>
+                    <p class="text-gray-800">Lengkapi informasi kelas di bawah ini</p>
                 </div>
             </div>
         </div>
@@ -78,7 +78,7 @@
         @endif
 
         <!-- Form -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
+        <div>
             <form id="classForm" 
                   action="{{ isset($clas) ? route('admin.classes.update', $clas) : route('admin.classes.store') }}" 
                   method="POST">
@@ -87,15 +87,18 @@
                     @method('PUT')
                 @endif
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-5">
+                <section class="card-figma bg-white rounded-lg overflow-hidden">
+                    <div class="px-5 py-3 border-b border-gray-300"><h2 class="text-xl font-bold text-gray-900">Informasi Kelas</h2></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-5">
                     <!-- Kategori -->
                     <div class="md:col-span-2">
-                        <label for="kategori_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="kategori_id" class="block text-sm font-medium text-gray-900 mb-2">
                             Kategori <span class="text-red-500">*</span>
                         </label>
                         <select name="kategori_id" 
                                 id="kategori_id" 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('kategori_id') border-red-500 @enderror"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('kategori_id') border-red-500 @enderror"
                                 required>
                             <option value="">-- Pilih Kategori --</option>
                             @foreach($kategoris as $kategori)
@@ -111,10 +114,9 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
                     <!-- Nama Pelatihan -->
                     <div class="md:col-span-2">
-                        <label for="training_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="training_id" class="block text-sm font-medium text-gray-900 mb-2">
                             Jenis Pelatihan/Skema Sertirfikasi <span class="text-red-500">*</span>
                             @if(isset($trainings))
                                 <span class="text-xs text-gray-500">({{ $trainings->count() }} pelatihan tersedia)</span>
@@ -122,7 +124,7 @@
                         </label>
                         <select name="training_id" 
                                 id="training_id" 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('training_id') border-red-500 @enderror"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('training_id') border-red-500 @enderror"
                                 required
                                 disabled>
                             <option value="">-- Pilih Kategori Terlebih Dahulu --</option>
@@ -148,17 +150,16 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
                     <!-- Nama Kelas -->
                     <div class="md:col-span-2">
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="name" class="block text-sm font-medium text-gray-900 mb-2">
                             Nama Kelas <span class="text-red-500">*</span>
                         </label>
                         <input type="text" 
                                name="name" 
                                id="name" 
                                value="{{ old('name', $clas->name ?? '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('name') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('name') border-red-500 @enderror"
                                placeholder="Contoh: Laravel Advanced Development"
                                required>
                         @error('name')
@@ -167,78 +168,73 @@
                     </div>
 
                     <input type="hidden" name="private_student_name" id="private_student_name" value="{{ old('private_student_name', $clas->private_student_name ?? '') }}">
-
                     <!-- Instansi (hanya muncul untuk Corporate Training) -->
                     <div class="md:col-span-2" id="instansi-wrapper" style="display: none;">
-                        <label for="instansi" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="instansi" class="block text-sm font-medium text-gray-900 mb-2">
                             Instansi <span class="text-red-500">*</span>
                         </label>
                         <input type="text" 
                                name="instansi" 
                                id="instansi" 
                                value="{{ old('instansi', $clas->instansi ?? '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('instansi') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('instansi') border-red-500 @enderror"
                                placeholder="Contoh: PT. ABC atau Universitas XYZ">
                         @error('instansi')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
                     <!-- Alamat (hanya muncul untuk Corporate Training) -->
                     <div class="md:col-span-2" id="alamat-wrapper" style="display: none;">
-                        <label for="alamat" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="alamat" class="block text-sm font-medium text-gray-900 mb-2">
                             Alamat <span class="text-red-500">*</span>
                         </label>
                         <textarea name="alamat" 
                                   id="alamat" 
                                   rows="3"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('alamat') border-red-500 @enderror"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('alamat') border-red-500 @enderror"
                                   placeholder="Contoh: Jl. Sudirman No. 123, Jakarta Pusat">{{ old('alamat', $clas->alamat ?? '') }}</textarea>
                         @error('alamat')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
                     <!-- No PIC (hanya muncul untuk Corporate Training) -->
                     <div class="md:col-span-1" id="no-pic-wrapper" style="display: none;">
-                        <label for="no_pic" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="no_pic" class="block text-sm font-medium text-gray-900 mb-2">
                             No. PIC <span class="text-red-500">*</span>
                         </label>
                         <input type="text" 
                                name="no_pic" 
                                id="no_pic" 
                                value="{{ old('no_pic', $clas->no_pic ?? '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('no_pic') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('no_pic') border-red-500 @enderror"
                                placeholder="Contoh: John Doe">
                         @error('no_pic')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
                     <!-- No Kontak (hanya muncul untuk Corporate Training) -->
                     <div class="md:col-span-1" id="no-kontak-wrapper" style="display: none;">
-                        <label for="no_kontak" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="no_kontak" class="block text-sm font-medium text-gray-900 mb-2">
                             No. Kontak <span class="text-red-500">*</span>
                         </label>
                         <input type="text" 
                                name="no_kontak" 
                                id="no_kontak" 
                                value="{{ old('no_kontak', $clas->no_kontak ?? '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('no_kontak') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('no_kontak') border-red-500 @enderror"
                                placeholder="Contoh: 081234567890">
                         @error('no_kontak')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
                     <!-- Type Pembayaran (muncul untuk Corporate Training & Private) -->
                     <div class="md:col-span-2" id="payment-type-wrapper" style="display: none;">
-                        <label for="payment_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="payment_type" class="block text-sm font-medium text-gray-900 mb-2">
                             Type Pembayaran <span class="text-red-500">*</span>
                         </label>
                         <select name="payment_type" 
                                 id="payment_type" 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('payment_type') border-red-500 @enderror">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('payment_type') border-red-500 @enderror">
                             <option value="full" {{ old('payment_type', $clas->payment_type ?? 'full') == 'full' ? 'selected' : '' }}>Full Payment</option>
                             <option value="termin_2x" {{ old('payment_type', $clas->payment_type ?? 'full') == 'termin_2x' ? 'selected' : '' }}>Termin 2x</option>
                         </select>
@@ -246,10 +242,9 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
                     <!-- Pembayaran DP / Termin 1 (hanya muncul untuk Termin 2x) -->
                     <div class="md:col-span-2" id="paid-amount-wrapper" style="display: none;">
-                        <label for="paid_amount" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="paid_amount" class="block text-sm font-medium text-gray-900 mb-2">
                             Pembayaran DP (Termin 1) <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
@@ -258,7 +253,7 @@
                                    name="paid_amount_display" 
                                    id="paid_amount_display" 
                                    value="{{ old('paid_amount', $clas->paid_amount ?? '') ? number_format(old('paid_amount', $clas->paid_amount ?? ''), 0, ',', '.') : '' }}"
-                                   class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('paid_amount') border-red-500 @enderror"
+                                   class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('paid_amount') border-red-500 @enderror"
                                    placeholder="0">
                             <input type="hidden" name="paid_amount" id="paid_amount" value="{{ old('paid_amount', $clas->paid_amount ?? '') }}">
                         </div>
@@ -269,18 +264,15 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
                     <!-- Sertifikasi BNSP -->
-                  
-
                     <!-- Jenis Reguler (hanya muncul untuk Regular) -->
                     <div class="md:col-span-2" id="jenis-reguler-wrapper" style="display: none;">
-                        <label for="jenis_reguler" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="jenis_reguler" class="block text-sm font-medium text-gray-900 mb-2">
                             Jenis <span class="text-red-500">*</span>
                         </label>
                         <select name="jenis_reguler" 
                                 id="jenis_reguler" 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('jenis_reguler') border-red-500 @enderror">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('jenis_reguler') border-red-500 @enderror">
                             <option value="">-- Pilih Jenis --</option>
                             <option value="mandiri" {{ old('jenis_reguler', $clas->jenis_reguler ?? '') == 'mandiri' ? 'selected' : '' }}>Mandiri</option>
                             <option value="lain_lain" {{ old('jenis_reguler', $clas->jenis_reguler ?? '') == 'lain_lain' ? 'selected' : '' }}>Lain-lain</option>
@@ -289,15 +281,197 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
+                    </div>
+                </section>
+                <section class="card-figma bg-white rounded-lg overflow-hidden">
+                    <div class="px-5 py-3 border-b border-gray-300"><h2 class="text-xl font-bold text-gray-900">Jadwal &amp; Operasional</h2></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-5">
+                    <!-- Target Pendapatan Kelas -->
+                    <div>
+                        <label for="target_revenue_display" class="block text-sm font-medium text-gray-900 mb-2">
+                            <i class="fas fa-bullseye text-emerald-600 mr-1"></i>
+                            Target Pendapatan Kelas
+                            <span class="text-gray-400 text-xs font-normal">(Opsional)</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">Rp</span>
+                            <input type="text"
+                                name="target_revenue_display"
+                                id="target_revenue_display"
+                                value="{{ old('target_revenue', $clas->target_revenue ?? '') ? number_format(old('target_revenue', $clas->target_revenue ?? 0), 0, ',', '.') : '' }}"
+                                class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('target_revenue') border-red-500 @enderror"
+                                placeholder="Contoh: 10.000.000"
+                                oninput="formatRupiah(this, 'target_revenue')">
+                            <input type="hidden" name="target_revenue" id="target_revenue"
+                                value="{{ old('target_revenue', $clas->target_revenue ?? 0) }}">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Target total pendapatan kelas ini. Progress bar di Kelas Berjalan akan menunjukkan persentase uang masuk vs target.
+                        </p>
+                        @error('target_revenue')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Pendapatan/Nilai Kelas (tetap ada, tapi label lebih jelas) -->
+                    <div>
+                        <label for="price" class="block text-sm font-medium text-gray-900 mb-2">
+                            <span id="price-label">Pendapatan/Nilai Kelas</span>
+                            <span class="text-gray-400 text-xs font-normal">(untuk perhitungan pendapatan kelas)</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">Rp</span>
+                            <input type="text"
+                                name="price_display"
+                                id="price_display"
+                                value="{{ old('price', $clas->price ?? '') ? number_format(old('price', $clas->price ?? ''), 0, ',', '.') : '' }}"
+                                class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('price') border-red-500 @enderror"
+                                placeholder="5.000.000">
+                            <input type="hidden" name="price" id="price" value="{{ old('price', $clas->price ?? '') }}">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Harga satu siswa dikali jumlah siswa terdaftar.</p>
+                        @error('price')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Jumlah Siswa (tidak muncul untuk Private) -->
+                    <div id="amount-wrapper">
+                        <label for="amount" class="block text-sm font-medium text-gray-900 mb-2">
+                            <span id="amount-label">Jumlah Siswa</span> <span class="text-gray-500 text-xs">(acuan kapasitas hanya untuk reguler)</span>
+                        </label>
+                        <input type="number" 
+                               name="amount" 
+                               id="amount" 
+                               value="{{ old('amount', $clas->amount ?? '') }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('amount') border-red-500 @enderror"
+                               placeholder="0"
+                               min="0">
+                        @error('amount')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Jumlah Pertemuan -->
+                    <div>
+                        <label for="meet" class="block text-sm font-medium text-gray-900 mb-2">
+                            Jumlah Pertemuan (hari) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" 
+                               name="meet" 
+                               id="meet" 
+                               value="{{ old('meet', $clas->meet ?? '') }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('meet') border-red-500 @enderror"
+                               placeholder="0"
+                               min="1"
+                               required>
+                        @error('meet')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Durasi -->
+                    <div>
+                        <label for="duration" class="block text-sm font-medium text-gray-900 mb-2">
+                            JPL dalam satu pertemuan <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" 
+                               name="duration" 
+                               id="duration" 
+                               value="{{ old('duration', $clas->duration ?? '') }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('duration') border-red-500 @enderror"
+                               placeholder="0"
+                               min="1"
+                               required>
+                        @error('duration')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Metode -->
+                    <div>
+                        <label for="method" class="block text-sm font-medium text-gray-900 mb-2">
+                            Metode Pembelajaran <span class="text-red-500">*</span>
+                        </label>
+                        <select name="method" 
+                                id="method" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('method') border-red-500 @enderror"
+                                required>
+                            <option value="">Pilih Metode</option>
+                            <option value="online" {{ old('method', $clas->method ?? '') == 'online' ? 'selected' : '' }}>Online</option>
+                            <option value="offline" {{ old('method', $clas->method ?? '') == 'offline' ? 'selected' : '' }}>Offline</option>
+                            <option value="mix" {{ old('method', $clas->method ?? '') == 'mix' ? 'selected' : '' }}>Mix (Online & Offline)</option>
+                        </select>
+                        @error('method')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Tanggal Mulai -->
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-900 mb-2">
+                            Tanggal Mulai <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" 
+                               name="start_date" 
+                               id="start_date" 
+                               value="{{ old('start_date', isset($clas) ? $clas->start_date->format('Y-m-d') : '') }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('start_date') border-red-500 @enderror"
+                               required>
+                        @error('start_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Tanggal Selesai -->
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-900 mb-2">
+                            Tanggal Selesai <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" 
+                               name="end_date" 
+                               id="end_date" 
+                               value="{{ old('end_date', isset($clas) ? $clas->end_date->format('Y-m-d') : '') }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('end_date') border-red-500 @enderror"
+                               required>
+                        @error('end_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Jam Mulai -->
+                    <div>
+                        <label for="start_time" class="block text-sm font-medium text-gray-900 mb-2">
+                            Jam Mulai
+                        </label>
+                        <input type="time" 
+                               name="start_time" 
+                               id="start_time" 
+                               value="{{ old('start_time', isset($clas) && $clas->start_time ? $clas->start_time->format('H:i') : '') }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('start_time') border-red-500 @enderror">
+                        @error('start_time')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Jam Selesai -->
+                    <div>
+                        <label for="end_time" class="block text-sm font-medium text-gray-900 mb-2">
+                            Jam Selesai
+                        </label>
+                        <input type="time" 
+                               name="end_time" 
+                               id="end_time" 
+                               value="{{ old('end_time', isset($clas) && $clas->end_time ? $clas->end_time->format('H:i') : '') }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('end_time') border-red-500 @enderror">
+                        @error('end_time')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    </div>
+                </section>
+                <section class="card-figma bg-white rounded-lg overflow-hidden">
+                    <div class="px-5 py-3 border-b border-gray-300"><h2 class="text-xl font-bold text-gray-900">Pengajar &amp; Detail</h2></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-5">
                     <!-- Pilih Trainer dari Database -->
                     {{-- <div class="md:col-span-2">
-                        <label for="trainer_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="trainer_id" class="block text-sm font-medium text-gray-900 mb-2">
                             Pilih Trainer Utama
                         </label>
                         <select name="trainer_id" 
                                 id="trainer_id" 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('trainer_id') border-red-500 @enderror">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('trainer_id') border-red-500 @enderror">
                             <option value="">-- Pilih Trainer (Opsional) --</option>
                             @foreach($trainers as $trainer)
                                 <option value="{{ $trainer->id }}" 
@@ -313,14 +487,13 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div> --}}
-
                     <!-- Trainer Section -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-3">
                             Pilih / Tambah Trainer <span class="text-red-500">*</span>
                         </label>
 
-                        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.15)]">
                             <div id="trainers-container" class="space-y-4">
                                 @php
                                     $oldTrainerIds = old('trainer_ids', []);
@@ -331,14 +504,14 @@
                                 @if($hasOldData)
                                     {{-- Display selected trainers from old data --}}
                                     @foreach($oldTrainerIds as $index => $trainerId)
-                                    <div class="trainer-dropdown-item p-3 bg-white border-2 border-purple-200 rounded-lg">
+                                    <div class="trainer-dropdown-item p-3 bg-white border-2 border-gray-200 rounded-lg">
                                         <div class="space-y-3">
                                             <div>
                                                 <label class="block text-xs font-semibold text-gray-700 mb-1">
-                                                    <i class="fas fa-user-circle text-purple-600 mr-1"></i> Pilih Trainer yang Sudah Terdaftar
+                                                    <i class="fas fa-user-circle text-[#fe0000] mr-1"></i> Pilih Trainer yang Sudah Terdaftar
                                                 </label>
                                                 <select name="trainer_ids[]" 
-                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] bg-white">
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] bg-white">
                                                     <option value="">-- Pilih Trainer --</option>
                                                     @foreach($trainers as $trainer)
                                                         <option value="{{ $trainer->id }}" {{ $trainerId == $trainer->id ? 'selected' : '' }}>
@@ -354,7 +527,7 @@
                                                 <input type="text" 
                                                        name="new_trainers[]" 
                                                        value=""
-                                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf]"
+                                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000]"
                                                        placeholder="Contoh: Ivan Pratama (auto-create account)">
                                             </div>
                                         </div>
@@ -371,14 +544,14 @@
                                     {{-- Display new trainers from old data --}}
                                     @foreach($oldNewTrainers as $index => $trainerName)
                                         @if(!empty($trainerName))
-                                        <div class="trainer-dropdown-item p-3 bg-white border-2 border-purple-200 rounded-lg">
+                                        <div class="trainer-dropdown-item p-3 bg-white border-2 border-gray-200 rounded-lg">
                                             <div class="space-y-3">
                                                 <div>
                                                     <label class="block text-xs font-semibold text-gray-700 mb-1">
-                                                        <i class="fas fa-user-circle text-purple-600 mr-1"></i> Pilih Trainer yang Sudah Terdaftar
+                                                        <i class="fas fa-user-circle text-[#fe0000] mr-1"></i> Pilih Trainer yang Sudah Terdaftar
                                                     </label>
                                                     <select name="trainer_ids[]" 
-                                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] bg-white">
+                                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] bg-white">
                                                         <option value="">-- Pilih Trainer --</option>
                                                         @foreach($trainers as $trainer)
                                                             <option value="{{ $trainer->id }}">
@@ -394,7 +567,7 @@
                                                     <input type="text" 
                                                            name="new_trainers[]" 
                                                            value="{{ $trainerName }}"
-                                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf]"
+                                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000]"
                                                            placeholder="Contoh: Ivan Pratama (auto-create account)">
                                                 </div>
                                             </div>
@@ -408,14 +581,14 @@
                                     @endforeach
                                 @else
                                     {{-- Default first row --}}
-                                    <div class="trainer-dropdown-item p-3 bg-white border-2 border-purple-200 rounded-lg">
+                                    <div class="trainer-dropdown-item p-3 bg-white border-2 border-gray-200 rounded-lg">
                                         <div class="space-y-3">
                                             <div>
                                                 <label class="block text-xs font-semibold text-gray-700 mb-1">
-                                                    <i class="fas fa-user-circle text-purple-600 mr-1"></i> Pilih Trainer yang Sudah Terdaftar
+                                                    <i class="fas fa-user-circle text-[#fe0000] mr-1"></i> Pilih Trainer yang Sudah Terdaftar
                                                 </label>
                                                 <select name="trainer_ids[]" 
-                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] bg-white">
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] bg-white">
                                                     <option value="">-- Pilih Trainer --</option>
                                                     @forelse($trainers as $trainer)
                                                         <option value="{{ $trainer->id }}">
@@ -433,7 +606,7 @@
                                                 <input type="text" 
                                                        name="new_trainers[]" 
                                                        value=""
-                                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf]"
+                                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000]"
                                                        placeholder="Contoh: Ivan Pratama (auto-create account)">
                                             </div>
                                         </div>
@@ -443,11 +616,11 @@
                             
                             <button type="button" 
                                     onclick="addTrainerRow()"
-                                    class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                                    class="mt-3 px-4 py-2 bg-[#fe0000] text-white rounded-lg hover:bg-[#cc0000] shadow transition">
                                 <i class="fas fa-plus mr-2"></i>Tambah Trainer Lainnya
                             </button>
                             
-                            <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="mt-3 p-3 bg-[#e4ffd9] rounded-lg">
                                 <p class="text-xs text-green-800">
                                     <i class="fas fa-info-circle mr-1"></i> <strong>Cara Pakai:</strong><br>
                                     • Pilih dari dropdown untuk trainer yang sudah terdaftar<br>
@@ -465,199 +638,19 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-
-                    <!-- Target Pendapatan Kelas -->
-                    <div>
-                        <label for="target_revenue_display" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-bullseye text-emerald-600 mr-1"></i>
-                            Target Pendapatan Kelas
-                            <span class="text-gray-400 text-xs font-normal">(Opsional)</span>
-                        </label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">Rp</span>
-                            <input type="text"
-                                name="target_revenue_display"
-                                id="target_revenue_display"
-                                value="{{ old('target_revenue', $clas->target_revenue ?? '') ? number_format(old('target_revenue', $clas->target_revenue ?? 0), 0, ',', '.') : '' }}"
-                                class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('target_revenue') border-red-500 @enderror"
-                                placeholder="Contoh: 10.000.000"
-                                oninput="formatRupiah(this, 'target_revenue')">
-                            <input type="hidden" name="target_revenue" id="target_revenue"
-                                value="{{ old('target_revenue', $clas->target_revenue ?? 0) }}">
-                        </div>
-                        <p class="mt-1 text-xs text-gray-500">
-                            Target total pendapatan kelas ini. Progress bar di Kelas Berjalan akan menunjukkan persentase uang masuk vs target.
-                        </p>
-                        @error('target_revenue')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
-                    
-                    <!-- Pendapatan/Nilai Kelas (tetap ada, tapi label lebih jelas) -->
-                    <div>
-                        <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
-                            <span id="price-label">Pendapatan/Nilai Kelas</span>
-                            <span class="text-gray-400 text-xs font-normal">(untuk perhitungan pendapatan kelas)</span>
-                        </label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">Rp</span>
-                            <input type="text"
-                                name="price_display"
-                                id="price_display"
-                                value="{{ old('price', $clas->price ?? '') ? number_format(old('price', $clas->price ?? ''), 0, ',', '.') : '' }}"
-                                class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('price') border-red-500 @enderror"
-                                placeholder="5.000.000">
-                            <input type="hidden" name="price" id="price" value="{{ old('price', $clas->price ?? '') }}">
-                        </div>
-                        <p class="mt-1 text-xs text-gray-500">Harga satu siswa dikali jumlah siswa terdaftar.</p>
-                        @error('price')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Jumlah Siswa (tidak muncul untuk Private) -->
-                    <div id="amount-wrapper">
-                        <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-                            <span id="amount-label">Jumlah Siswa</span> <span class="text-gray-500 text-xs">(acuan kapasitas hanya untuk reguler)</span>
-                        </label>
-                        <input type="number" 
-                               name="amount" 
-                               id="amount" 
-                               value="{{ old('amount', $clas->amount ?? '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('amount') border-red-500 @enderror"
-                               placeholder="0"
-                               min="0">
-                        @error('amount')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Jumlah Pertemuan -->
-                    <div>
-                        <label for="meet" class="block text-sm font-medium text-gray-700 mb-2">
-                            Jumlah Pertemuan (hari) <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" 
-                               name="meet" 
-                               id="meet" 
-                               value="{{ old('meet', $clas->meet ?? '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('meet') border-red-500 @enderror"
-                               placeholder="0"
-                               min="1"
-                               required>
-                        @error('meet')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Durasi -->
-                    <div>
-                        <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">
-                            JPL dalam satu pertemuan <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" 
-                               name="duration" 
-                               id="duration" 
-                               value="{{ old('duration', $clas->duration ?? '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('duration') border-red-500 @enderror"
-                               placeholder="0"
-                               min="1"
-                               required>
-                        @error('duration')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Metode -->
-                    <div>
-                        <label for="method" class="block text-sm font-medium text-gray-700 mb-2">
-                            Metode Pembelajaran <span class="text-red-500">*</span>
-                        </label>
-                        <select name="method" 
-                                id="method" 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('method') border-red-500 @enderror"
-                                required>
-                            <option value="">Pilih Metode</option>
-                            <option value="online" {{ old('method', $clas->method ?? '') == 'online' ? 'selected' : '' }}>Online</option>
-                            <option value="offline" {{ old('method', $clas->method ?? '') == 'offline' ? 'selected' : '' }}>Offline</option>
-                            <option value="mix" {{ old('method', $clas->method ?? '') == 'mix' ? 'selected' : '' }}>Mix (Online & Offline)</option>
-                        </select>
-                        @error('method')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Tanggal Mulai -->
-                    <div>
-                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
-                            Tanggal Mulai <span class="text-red-500">*</span>
-                        </label>
-                        <input type="date" 
-                               name="start_date" 
-                               id="start_date" 
-                               value="{{ old('start_date', isset($clas) ? $clas->start_date->format('Y-m-d') : '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('start_date') border-red-500 @enderror"
-                               required>
-                        @error('start_date')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Tanggal Selesai -->
-                    <div>
-                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
-                            Tanggal Selesai <span class="text-red-500">*</span>
-                        </label>
-                        <input type="date" 
-                               name="end_date" 
-                               id="end_date" 
-                               value="{{ old('end_date', isset($clas) ? $clas->end_date->format('Y-m-d') : '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('end_date') border-red-500 @enderror"
-                               required>
-                        @error('end_date')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Jam Mulai -->
-                    <div>
-                        <label for="start_time" class="block text-sm font-medium text-gray-700 mb-2">
-                            Jam Mulai
-                        </label>
-                        <input type="time" 
-                               name="start_time" 
-                               id="start_time" 
-                               value="{{ old('start_time', isset($clas) && $clas->start_time ? $clas->start_time->format('H:i') : '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('start_time') border-red-500 @enderror">
-                        @error('start_time')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Jam Selesai -->
-                    <div>
-                        <label for="end_time" class="block text-sm font-medium text-gray-700 mb-2">
-                            Jam Selesai
-                        </label>
-                        <input type="time" 
-                               name="end_time" 
-                               id="end_time" 
-                               value="{{ old('end_time', isset($clas) && $clas->end_time ? $clas->end_time->format('H:i') : '') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('end_time') border-red-500 @enderror">
-                        @error('end_time')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
+                </section>
+                <section class="card-figma bg-white rounded-lg overflow-hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-5">
                     <!-- Deskripsi -->
                     <div class="md:col-span-2">
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="description" class="block text-sm font-medium text-gray-900 mb-2">
                             Deskripsi
                         </label>
                         <textarea name="description" 
                                   id="description" 
                                   rows="4"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] @error('description') border-red-500 @enderror"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] @error('description') border-red-500 @enderror"
                                   placeholder="Deskripsi kelas...">{{ old('description', $clas->description ?? '') }}</textarea>
                         @error('description')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -671,7 +664,7 @@
                                    id="sertifikasi_bnsp" 
                                    value="1"
                                    {{ old('sertifikasi_bnsp', $clas->sertifikasi_bnsp ?? false) ? 'checked' : '' }}
-                                   class="w-4 h-4 text-[#7b2cbf] bg-gray-100 border-gray-300 rounded focus:ring-[#7b2cbf] focus:ring-2">
+                                   class="w-4 h-4 text-[#fe0000] bg-gray-100 border-gray-300 rounded focus:ring-[#fe0000] focus:ring-2">
                             <label for="sertifikasi_bnsp" class="ml-2 text-sm font-medium text-gray-700">
                                 Sertifikasi BNSP
                             </label>
@@ -686,21 +679,21 @@
                     <div id="bnsp-details" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6" style="display: none;">
                         <!-- Tanggal Sertifikasi -->
                         <div>
-                            <label for="bnsp_tanggal_sertifikasi" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="bnsp_tanggal_sertifikasi" class="block text-sm font-medium text-gray-900 mb-2">
                                 Tanggal Sertifikasi <span class="text-red-500">*</span>
                             </label>
                             <input type="date" 
                                    name="bnsp_tanggal_sertifikasi" 
                                    id="bnsp_tanggal_sertifikasi"
                                    value="{{ old('bnsp_tanggal_sertifikasi', $clas->bnsp_tanggal_sertifikasi ?? '') }}"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#7b2cbf] focus:ring-[#7b2cbf] sm:text-sm">
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#fe0000] focus:ring-[#fe0000] sm:text-sm">
                             @error('bnsp_tanggal_sertifikasi')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
-                            <label for="bnsp_student_count" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="bnsp_student_count" class="block text-sm font-medium text-gray-900 mb-2">
                                 Jumlah Siswa Sertifikasi <span class="text-red-500">*</span>
                             </label>
                             <input type="number"
@@ -709,14 +702,14 @@
                                    min="1"
                                    value="{{ old('bnsp_student_count', $clas->bnsp_student_count ?? '') }}"
                                    placeholder="Contoh: 25"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#7b2cbf] focus:ring-[#7b2cbf] sm:text-sm">
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#fe0000] focus:ring-[#fe0000] sm:text-sm">
                             @error('bnsp_student_count')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
-                            <label for="bnsp_fee_per_student" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="bnsp_fee_per_student" class="block text-sm font-medium text-gray-900 mb-2">
                                 Biaya per Siswa <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
@@ -726,7 +719,7 @@
                                        id="bnsp_fee_per_student_display"
                                        value="{{ old('bnsp_fee_per_student', $clas->bnsp_fee_per_student ?? '') ? number_format(old('bnsp_fee_per_student', $clas->bnsp_fee_per_student ?? ''), 0, ',', '.') : '' }}"
                                        placeholder="150.000"
-                                       class="mt-1 block w-full pl-12 rounded-md border-gray-300 shadow-sm focus:border-[#7b2cbf] focus:ring-[#7b2cbf] sm:text-sm">
+                                       class="mt-1 block w-full pl-12 rounded-md border-gray-300 shadow-sm focus:border-[#fe0000] focus:ring-[#fe0000] sm:text-sm">
                                 <input type="hidden" name="bnsp_fee_per_student" id="bnsp_fee_per_student" value="{{ old('bnsp_fee_per_student', $clas->bnsp_fee_per_student ?? '') }}">
                             </div>
                             <p class="mt-1 text-xs text-gray-500">Gunakan titik sebagai pemisah ribuan. Contoh: 150.000</p>
@@ -736,18 +729,14 @@
                         </div>
 
                     </div>
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex gap-3 mt-6 pt-6 border-t border-gray-200">
-                    <a href="{{ route('admin.classes.index') }}" 
-                       class="flex-1 px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-center">
-                        Batal
-                    </a>
-                    <button type="submit" 
-                            class="flex-1 px-6 py-2.5 bg-gradient-to-r from-[#7b2cbf] to-[#9d4edd] text-white rounded-lg hover:shadow-lg transition">
-                        {{ isset($clas) ? 'Update Kelas' : 'Simpan Kelas' }}
-                    </button>
+                    <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+                        <a href="{{ route('admin.classes.index') }}" class="px-6 py-3 bg-white border border-[#fe0000] text-[#fe0000] font-semibold rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.2)] hover:bg-[#fed0d0]/40 transition text-center">Batal</a>
+                        <button type="submit" class="px-6 py-3 bg-[#fe0000] text-white font-semibold rounded-lg shadow-[0_3px_6px_rgba(0,0,0,0.25)] hover:bg-[#cc0000] transition">
+                            {{ isset($clas) ? 'Update Kelas' : 'Simpan Kelas' }}
+                        </button>
+                    </div>
+                    </div>
+                </section>
                 </div>
             </form>
         </div>
@@ -758,7 +747,7 @@
 <div id="quickAddTrainingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 rounded-t-xl">
+        <div class="bg-[#fe0000] px-6 py-4 rounded-t-xl">
             <h3 class="text-xl font-bold text-white">
                 <i class="fas fa-plus-circle mr-2"></i>Tambah Pelatihan Baru
             </h3>
@@ -768,7 +757,7 @@
         <!-- Body -->
         <form id="quickAddTrainingForm" class="p-6">
             <div class="mb-4">
-                <label for="quick_training_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                <label for="quick_training_name" class="block text-sm font-semibold text-gray-900 mb-2">
                     Nama Pelatihan <span class="text-red-500">*</span>
                 </label>
                 <input type="text" 
@@ -783,7 +772,7 @@
                 </p>
             </div>
 
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.15)] p-3 mb-4">
                 <p class="text-xs text-blue-700">
                     <i class="fas fa-lightbulb mr-1"></i>
                     <strong>Tips:</strong> Pelatihan akan langsung aktif dan bisa digunakan setelah dibuat.
@@ -993,7 +982,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function addTrainerRow() {
     const container = document.getElementById('trainers-container');
     const trainerItem = document.createElement('div');
-    trainerItem.className = 'trainer-dropdown-item p-3 bg-white border-2 border-purple-200 rounded-lg';
+    trainerItem.className = 'trainer-dropdown-item p-3 bg-white border-2 border-gray-200 rounded-lg';
     
     const trainersOptions = `
         <option value="">-- Pilih Trainer --</option>
@@ -1006,10 +995,10 @@ function addTrainerRow() {
         <div class="space-y-3">
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">
-                    <i class="fas fa-user-circle text-purple-600 mr-1"></i> Pilih Trainer yang Sudah Terdaftar
+                    <i class="fas fa-user-circle text-[#fe0000] mr-1"></i> Pilih Trainer yang Sudah Terdaftar
                 </label>
                 <select name="trainer_ids[]" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf] bg-white">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000] bg-white">
                     ${trainersOptions}
                 </select>
             </div>
@@ -1020,7 +1009,7 @@ function addTrainerRow() {
                 <input type="text" 
                        name="new_trainers[]" 
                        value=""
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#7b2cbf] focus:border-[#7b2cbf]"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000]"
                        placeholder="Contoh: Ivan Pratama (auto-create account)">
             </div>
         </div>

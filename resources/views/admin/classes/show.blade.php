@@ -14,17 +14,17 @@
         <div class="mb-6 space-y-4">
             <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div class="flex items-start gap-4">
-                    <a href="{{ route('admin.classes.index') }}" class="text-gray-600 hover:text-gray-900">
+                    <a href="{{ route('admin.classes.index') }}" class="text-gray-900 hover:text-[#fe0000] text-2xl mt-1">
                         <i class="fas fa-arrow-left"></i>
                     </a>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">{{ $clas->name }}</h1>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $clas->name }}</h1>
                         <div class="mt-1 flex flex-wrap items-center gap-2">
-                            <p class="text-gray-600">Detail kelas</p>
+                            <p class="text-gray-800">Detail Kelas</p>
                             @if($clas->status === 'done')
-                                <span class="px-2.5 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">Selesai</span>
+                                <span class="px-4 py-1 text-sm font-medium bg-[#e4ffd9] text-[#2e8b12] border border-[#43bf21] rounded-full">Selesai</span>
                             @elseif($clas->status === 'approved')
-                                <span class="px-2.5 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">Approved</span>
+                                <span class="px-4 py-1 text-sm font-medium bg-[#e4ffd9] text-[#2e8b12] border border-[#43bf21] rounded-full">Approved</span>
                             @elseif($clas->status === 'pending')
                                 <span class="px-2.5 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded-full">Pending</span>
                             @else
@@ -41,14 +41,14 @@
                               onsubmit="return confirm('Approve kelas ini?');">
                             @csrf
                             <button type="submit" 
-                                    class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-lg transition shadow-sm hover:shadow-md">
+                                    class="px-4 py-2 bg-[#43bf21] hover:bg-[#37a01b] text-white rounded-lg transition shadow-sm hover:shadow-md">
                                 <i class="fas fa-check mr-2"></i>Approve
                             </button>
                         </form>
                         <!-- Reject Button -->
                         <button type="button"
                                 onclick="showRejectModal({{ $clas->id }}, '{{ addslashes($clas->name) }}')"
-                                class="px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg transition shadow-sm hover:shadow-md">
+                                class="px-4 py-2 bg-[#fe0000] hover:bg-[#cc0000] text-white rounded-lg transition shadow-sm hover:shadow-md">
                             <i class="fas fa-times mr-2"></i>Tolak
                         </button>
                     @endif
@@ -79,8 +79,8 @@
                     @endif
                     @if(\Illuminate\Support\Facades\Auth::user()->canCreateEditClass())
                     <a href="{{ route('admin.classes.edit', $clas) }}" 
-                       class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
-                        <i class="fas fa-edit mr-2"></i>Edit
+                       class="px-5 py-2 bg-[#fdebd0] border border-[#e28100] text-[#e28100] font-semibold rounded-md hover:bg-[#ffe0b8] transition shadow">
+                        <i class="far fa-pen-to-square mr-2"></i>Edit
                     </a>
                     @endif
                     @if(\Illuminate\Support\Facades\Auth::user()->isAdmin())
@@ -90,8 +90,8 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" 
-                                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
-                            <i class="fas fa-trash mr-2"></i>Hapus
+                                class="px-5 py-2 bg-white border border-[#fe0000] text-[#fe0000] font-semibold rounded-md hover:bg-[#fed0d0]/50 transition shadow">
+                            <i class="far fa-trash-can mr-2"></i>Hapus
                         </button>
                     </form>
                     @endif
@@ -99,13 +99,13 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                <div class="bg-white border border-gray-200 rounded-xl p-4">
+                <div class="bg-[#fed0d0] rounded-lg p-4 shadow-[0_2px_4px_rgba(0,0,0,0.18)]">
                     <p class="text-xs text-gray-500 mb-1">Periode Kelas</p>
                     <p class="text-sm font-semibold text-gray-900">
                         {{ $clas->start_date ? $clas->start_date->format('d M Y') : '-' }} - {{ $clas->end_date ? $clas->end_date->format('d M Y') : '-' }}
                     </p>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-xl p-4">
+                <div class="bg-[#fed0d0] rounded-lg p-4 shadow-[0_2px_4px_rgba(0,0,0,0.18)]">
                     <p class="text-xs text-gray-500 mb-1">Total Peserta</p>
                     @php
                         $registeredStudents = $clas->registrants->whereIn('status', ['registered', 'paid', 'confirmed'])->count();
@@ -118,17 +118,17 @@
                     <p class="text-sm font-semibold text-gray-900">{{ $registeredStudents }}/{{ $classCapacity ?: '-' }} siswa</p>
                     <p class="text-xs text-gray-500 mt-1">{{ $capacityPercentage }}% kuota terisi</p>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-xl p-4">
+                <div class="bg-[#fed0d0] rounded-lg p-4 shadow-[0_2px_4px_rgba(0,0,0,0.18)]">
                     <p class="text-xs text-gray-500 mb-1">Pertemuan</p>
                     <p class="text-sm font-semibold text-gray-900">{{ $clas->meet ?? 0 }}x • {{ $clas->duration ?? 0 }} JPL</p>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-xl p-4">
+                <div class="bg-[#fed0d0] rounded-lg p-4 shadow-[0_2px_4px_rgba(0,0,0,0.18)]">
                     <p class="text-xs text-gray-500 mb-1">Pendapatan Kelas</p>
-                    <p class="text-sm font-semibold text-emerald-700">Rp {{ number_format((float) ($clas->price ?? 0), 0, ',', '.') }}</p>
+                    <p class="text-sm font-semibold text-gray-900">Rp {{ number_format((float) ($clas->price ?? 0), 0, ',', '.') }}</p>
                 </div>
             </div>
 
-            <div class="bg-white border border-gray-200 rounded-xl p-4">
+            <div class="bg-white rounded-lg p-4 shadow-[0_2px_6px_rgba(0,0,0,0.18)]">
                 <div class="flex items-center justify-between gap-3 mb-3">
                     <div>
                         <h2 class="text-base font-semibold text-gray-900">Siswa Terdaftar</h2>
@@ -142,7 +142,7 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm">
                             <thead>
-                                <tr class="border-b border-gray-200 text-left text-xs text-gray-500">
+                                <tr class="border-b border-gray-200 text-left text-xs font-semibold text-gray-900">
                                     <th class="py-2 pr-4">Nama</th>
                                     <th class="py-2 pr-4">Email</th>
                                     <th class="py-2 pr-4">Status</th>
@@ -169,7 +169,7 @@
             </div>
 
             <div class="sticky top-4 z-20">
-                <div class="bg-white/95 backdrop-blur border border-gray-200 rounded-xl p-3 shadow-sm">
+                <div class="bg-white/95 backdrop-blur rounded-lg p-3 shadow-[0_2px_6px_rgba(0,0,0,0.18)]">
                     <div class="flex flex-wrap gap-2">
                         <a href="#info-umum" class="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">Informasi Umum</a>
                         <a href="#jadwal-kelas" class="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">Jadwal</a>
@@ -186,9 +186,9 @@
             <!-- Left Column -->
             <div class="space-y-6 lg:col-span-8">
                 <!-- Informasi Umum -->
-                <div id="info-umum" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <i class="fas fa-circle-info text-sky-600"></i>Informasi Umum
+                <div id="info-umum" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fas fa-circle-info text-gray-800"></i>Informasi Umum
                     </h2>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -290,7 +290,7 @@
                                     @if($remainingSisa > 0 && \Illuminate\Support\Facades\Auth::user()->canManageClass())
                                     <button type="button" 
                                             onclick="openPaymentModal()"
-                                            class="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition">
+                                            class="w-full px-4 py-2 bg-[#fe0000] text-white rounded-lg hover:shadow-lg transition">
                                         <i class="fas fa-money-bill-wave mr-2"></i>Input Pelunasan (Termin 2)
                                     </button>
                                     @elseif($remainingSisa > 0)
@@ -340,7 +340,7 @@
                                             <i class="fas fa-user mr-1"></i> Mandiri
                                         </span>
                                     @else
-                                        <span class="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs">
+                                        <span class="px-2 py-1 bg-[#fed0d0] text-[#fe0000] rounded-full text-xs">
                                             <i class="fas fa-list mr-1"></i> Lain-lain
                                         </span>
                                     @endif
@@ -369,7 +369,7 @@
                                         <i class="fas fa-building mr-1"></i> Offline
                                     </span>
                                 @elseif($clas->method === 'mix')
-                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
+                                    <span class="px-2 py-1 bg-[#fed0d0] text-[#fe0000] rounded-full text-xs">
                                         <i class="fas fa-exchange-alt mr-1"></i> Mix (Online & Offline)
                                     </span>
                                 @endif
@@ -416,7 +416,7 @@
                             @if($clas->sertifikasi_bnsp)
                                 <div class="space-y-3">
                                     <p class="font-medium text-gray-900">
-                                        <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
+                                        <span class="px-2 py-1 bg-[#fed0d0] text-[#fe0000] rounded-full text-xs">
                                             <i class="fas fa-certificate mr-1"></i> Ya
                                         </span>
                                     </p>
@@ -466,7 +466,7 @@
                 </div>
 
                 <!-- Expenses -->
-                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">    
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">    
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-semibold text-gray-900">
                             <i class="fas fa-receipt text-orange-600 mr-2"></i>Biaya Tambahan / Expenses
@@ -489,7 +489,7 @@
                             <div class="flex items-center gap-4 mt-1 text-xs text-gray-500">
                                 <span><i class="fas fa-calendar text-orange-600"></i> {{ $expense->expense_date->format('d M Y') }}</span>
                                 @if($expense->category)
-                                <span class="px-2 py-0.5 rounded {{ in_array($expense->category, ['honor', 'trainer_honor']) ? 'bg-purple-100 text-purple-700' : ($expense->category === 'operational_cost' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700') }}">
+                                <span class="px-2 py-0.5 rounded {{ in_array($expense->category, ['honor', 'trainer_honor']) ? 'bg-purple-100 text-[#fe0000]' : ($expense->category === 'operational_cost' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700') }}">
                                     <i class="fas fa-tag mr-1"></i>{{ $expense->category_label }}
                                 </span>
                                 @endif
@@ -581,9 +581,9 @@
             <!-- Right Column -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6 lg:col-span-4">
                 <!-- Jadwal -->
-            <div id="jadwal-kelas" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 h-full">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <i class="fas fa-calendar-days text-violet-600"></i>Jadwal
+            <div id="jadwal-kelas" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 h-full">
+                <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <i class="fas fa-calendar-days text-gray-800"></i>Jadwal
                 </h2>
                    <div class="mb-4 flex justify-end">
                        @if(\Illuminate\Support\Facades\Auth::user()->canCreateEditClass())
@@ -597,7 +597,7 @@
                            data-end-time="{{ optional($clas->end_time)->format('H:i') ?? '' }}"
                            data-meet="{{ $clas->meet }}"
                            data-duration="{{ $clas->duration }}"
-                           class="relative z-20 pointer-events-auto px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition shadow-sm hover:shadow-md">
+                           class="relative z-20 pointer-events-auto px-4 py-2 bg-[#fe0000] hover:bg-[#cc0000] text-white rounded-lg transition shadow-sm hover:shadow-md">
                            <i class="fas fa-edit mr-2"></i>Edit Jadwal
                        </button>
                        @endif
@@ -636,7 +636,7 @@
                 <!-- Progress Status -->
                 <div class="mt-6 pt-6 border-t border-gray-200">
                     <h3 class="text-base font-semibold text-gray-900 mb-3">
-                        <i class="fas fa-tasks mr-2 text-purple-600"></i>Progress Kelas
+                        <i class="fas fa-tasks mr-2 text-[#fe0000]"></i>Progress Kelas
                     </h3>
                     
                     @php
@@ -656,13 +656,13 @@
                         } elseif($clas->status === 'approved') {
                             $progress = 50;
                             $progressText = 'Sedang Berjalan';
-                            $progressColor = 'bg-gradient-to-r from-yellow-400 to-amber-500';
+                            $progressColor = 'bg-[#fe0000]';
                             $iconClass = 'fa-spinner fa-pulse';
                             $statusBadgeColor = 'bg-green-100 text-green-800';
                         } elseif($clas->status === 'done') {
                             $progress = 100;
                             $progressText = 'Selesai';
-                            $progressColor = 'bg-gradient-to-r from-green-400 to-emerald-500';
+                            $progressColor = 'bg-[#43bf21]';
                             $iconClass = 'fa-check-circle';
                             $statusBadgeColor = 'bg-blue-100 text-blue-800';
                         } elseif($clas->status === 'rejected') {
@@ -700,7 +700,7 @@
             </div>
 
             <!-- Finansial -->
-            <div id="finansial-kelas" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 h-full">
+            <div id="finansial-kelas" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 h-full">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-sack-dollar mr-2 text-green-600"></i>Finansial</h2>
                 @if($isCorporate && $clas->status === 'approved' && \Illuminate\Support\Facades\Auth::user()->canManageClass())
                 <form action="{{ route('admin.classes.update-revenue', $clas) }}" method="POST" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -710,10 +710,10 @@
                     <div class="flex flex-col md:flex-row gap-2">
                         <div class="relative flex-1">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">Rp</span>
-                            <input type="text" name="price_display" id="price_display" value="{{ old('price', $clas->price) ? number_format(old('price', $clas->price), 0, ',', '.') : '' }}" class="w-full pl-10 pr-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Isi pendapatan kelas">
+                            <input type="text" name="price_display" id="price_display" value="{{ old('price', $clas->price) ? number_format(old('price', $clas->price), 0, ',', '.') : '' }}" class="w-full pl-10 pr-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-[#fe0000] focus:border-[#fe0000]" placeholder="Isi pendapatan kelas">
                             <input type="hidden" name="price" id="price" value="{{ old('price', $clas->price) }}">
                         </div>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        <button type="submit" class="px-4 py-2 bg-[#fe0000] text-white rounded-lg hover:bg-[#cc0000] transition">
                             <i class="fas fa-save mr-1"></i>Simpan
                         </button>
                     </div>
@@ -829,7 +829,7 @@
                         @endif
                     </div>
                     
-                    <div class="flex justify-between items-center pt-2 bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-3 rounded-lg">
+                    <div class="flex justify-between items-center pt-2 bg-[#f9f0f1] px-3 py-3 rounded-lg">
                         <span class="text-sm font-bold text-gray-900">Income Bersih (Setelah Biaya Approved)</span>
                         <span class="font-bold text-green-600 text-lg">Rp {{ number_format($incomeBersih, 0, ',', '.') }}</span>
                     </div>
@@ -841,7 +841,7 @@
                     </div>
                     @endif
                     
-                    <div class="flex justify-between items-center pt-2 px-3 py-3 rounded-lg {{ $finalProfit >= 0 ? 'bg-gradient-to-r from-emerald-50 to-green-50' : 'bg-gradient-to-r from-red-50 to-orange-50' }}">
+                    <div class="flex justify-between items-center pt-2 px-3 py-3 rounded-lg {{ $finalProfit >= 0 ? 'bg-[#f9f0f1]' : 'bg-[#f9f0f1]' }}">
                         <span class="text-sm font-bold text-gray-900">Profit Akhir</span>
                         <span class="font-bold {{ $finalProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }} text-lg">Rp {{ number_format($finalProfit, 0, ',', '.') }}</span>
                     </div>
@@ -849,7 +849,7 @@
             </div>
 
             <!-- Team Trainer -->
-            <div id="team-trainer" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 h-full">
+            <div id="team-trainer" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 h-full">
                     <h2 class="text-lg font-semibold text-gray-900 mb-4">
                         <i class="fas fa-chalkboard-teacher text-green-600 mr-2"></i>Team Trainer
                     </h2>
@@ -861,7 +861,7 @@
                     @else
                         <div class="grid grid-cols-1 gap-4">
                             @foreach($clas->trainers as $trainer)
-                            <div class="flex items-start gap-3 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200 hover:shadow-md transition">
+                            <div class="flex items-start gap-3 p-4 bg-[#f9f0f1] rounded-lg border border-green-200 hover:shadow-md transition">
                                 <div class="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center flex-shrink-0">
                                     <i class="fas fa-user text-green-700 text-lg"></i>
                                 </div>
@@ -924,7 +924,7 @@
             </div>
 
         <!-- Penutupan Kelas -->
-        <div id="penutupan-kelas" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+        <div id="penutupan-kelas" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 space-y-4">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 class="text-lg font-semibold text-gray-900">
                     <i class="fas fa-flag-checkered text-emerald-600 mr-2"></i>Penutupan Kelas
@@ -1004,7 +1004,7 @@
             <!-- File Nilai Siswa -->
             <div class="bg-slate-50 rounded-xl border border-slate-200 p-6">
                 <h3 class="text-base font-semibold text-gray-900 mb-4">
-                    <i class="fas fa-file-signature text-indigo-600 mr-2"></i>File Nilai Siswa
+                    <i class="fas fa-file-signature text-[#fe0000] mr-2"></i>File Nilai Siswa
                 </h3>
 
                 @if(!$activeGradeFile)
@@ -1033,7 +1033,7 @@
 
                     <div class="flex gap-2 mb-4">
                         <a href="{{ route('admin.classes.download-grade-file', ['clas' => $clas->id, 'gradeFile' => $activeGradeFile->id]) }}"
-                           class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm">
+                           class="px-4 py-2 bg-[#fe0000] text-white rounded-lg hover:bg-[#cc0000] transition text-sm">
                             <i class="fas fa-download mr-1"></i>Download File Nilai
                         </a>
                     </div>
@@ -1099,7 +1099,7 @@
             </div>
         </div>
 
-        <div id="absensi-pengajar" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mt-6">
+        <div id="absensi-pengajar" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 mt-6">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-900">
                     <i class="fas fa-user-check text-green-600 mr-2"></i>Absensi Pengajar (Read Only)
@@ -1225,7 +1225,7 @@
                                    id="settlement_amount_display" 
                                    value="{{ number_format($remainingPayment, 0, ',', '.') }}"
                                    placeholder="0" 
-                                   class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                   class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000]"
                                    required>
                             <input type="hidden" name="settlement_amount" id="settlement_amount" value="{{ $remainingPayment }}">
                         </div>
@@ -1241,7 +1241,7 @@
                                name="payment_date" 
                                id="payment_date" 
                                value="{{ date('Y-m-d') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000]"
                                required>
                     </div>
 
@@ -1253,7 +1253,7 @@
                         <textarea name="payment_note" 
                                   id="payment_note" 
                                   rows="3"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#fe0000] focus:border-[#fe0000]"
                                   placeholder="Contoh: Transfer via BCA tanggal ...">{{ $clas->payment_notes ?? '' }}</textarea>
                     </div>
                 </div>
@@ -1266,7 +1266,7 @@
                         Batal
                     </button>
                     <button type="submit" 
-                            class="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition">
+                            class="flex-1 px-4 py-2.5 bg-[#fe0000] text-white rounded-lg hover:shadow-lg transition">
                         <i class="fas fa-save mr-2"></i>Simpan Pelunasan
                     </button>
                 </div>
@@ -1298,13 +1298,13 @@
                         <!-- Tanggal Mulai -->
                         <div>
                             <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal Mulai <span class="text-red-500">*</span></label>
-                            <input type="date" name="start_date" id="start_date" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <input type="date" name="start_date" id="start_date" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fe0000] focus:border-[#fe0000] transition">
                             <p class="text-xs text-gray-500 mt-1">Format: YYYY-MM-DD</p>
                         </div>
                         <!-- Tanggal Selesai -->
                         <div>
                             <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal Selesai <span class="text-red-500">*</span></label>
-                            <input type="date" name="end_date" id="end_date" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <input type="date" name="end_date" id="end_date" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fe0000] focus:border-[#fe0000] transition">
                             <p class="text-xs text-gray-500 mt-1">Harus >= Tanggal Mulai</p>
                         </div>
                     </div>
@@ -1312,13 +1312,13 @@
                         <!-- Jam Mulai -->
                         <div>
                             <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1.5">Jam Mulai</label>
-                            <input type="time" name="start_time" id="start_time" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <input type="time" name="start_time" id="start_time" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fe0000] focus:border-[#fe0000] transition">
                             <p class="text-xs text-gray-500 mt-1">Format: HH:MM (24 jam)</p>
                         </div>
                         <!-- Jam Selesai -->
                         <div>
                             <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1.5">Jam Selesai</label>
-                            <input type="time" name="end_time" id="end_time" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <input type="time" name="end_time" id="end_time" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fe0000] focus:border-[#fe0000] transition">
                             <p class="text-xs text-gray-500 mt-1">Harus > Jam Mulai (jika diisi)</p>
                         </div>
                     </div>
@@ -1326,13 +1326,13 @@
                         <!-- Jumlah Pertemuan -->
                         <div>
                             <label for="meet" class="block text-sm font-medium text-gray-700 mb-1.5">Jumlah Pertemuan <span class="text-red-500">*</span></label>
-                            <input type="number" name="meet" id="meet" required min="1" max="999" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <input type="number" name="meet" id="meet" required min="1" max="999" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fe0000] focus:border-[#fe0000] transition">
                             <p class="text-xs text-gray-500 mt-1">Minimal 1 pertemuan</p>
                         </div>
                         <!-- JPL per Pertemuan -->
                         <div>
                             <label for="duration" class="block text-sm font-medium text-gray-700 mb-1.5">JPL per Pertemuan <span class="text-red-500">*</span></label>
-                            <input type="number" name="duration" id="duration" required min="1" max="999" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <input type="number" name="duration" id="duration" required min="1" max="999" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fe0000] focus:border-[#fe0000] transition">
                             <p class="text-xs text-gray-500 mt-1">Jam Pelajaran Lomba per pertemuan</p>
                         </div>
                     </div>
@@ -1345,7 +1345,7 @@
                         Batal
                     </button>
                     <button type="submit" 
-                            class="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition shadow-sm hover:shadow-md">
+                            class="flex-1 px-4 py-2.5 bg-[#fe0000] hover:bg-[#cc0000] text-white rounded-lg transition shadow-sm hover:shadow-md">
                         <i class="fas fa-save mr-2"></i>Simpan Perubahan
                     </button>
                 </div>
@@ -1453,7 +1453,7 @@ document.getElementById('paymentModal')?.addEventListener('click', function(e) {
                         Batal
                     </button>
                     <button type="submit" 
-                            class="flex-1 px-4 py-2.5 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white rounded-lg transition shadow-sm hover:shadow-md">
+                            class="flex-1 px-4 py-2.5 bg-[#fe0000] hover:bg-[#cc0000] text-white rounded-lg transition shadow-sm hover:shadow-md">
                         <i class="fas fa-times mr-2"></i>Tolak Kelas
                     </button>
                 </div>
@@ -1577,7 +1577,7 @@ document.getElementById('editScheduleModal')?.addEventListener('click', function
         closeEditScheduleModal();
     }
 });
-
+cd
 // Close modal on ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && !document.getElementById('editScheduleModal').classList.contains('hidden')) {
