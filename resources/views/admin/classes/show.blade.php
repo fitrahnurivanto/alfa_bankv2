@@ -48,7 +48,7 @@
                         <!-- Reject Button -->
                         <button type="button"
                                 onclick="showRejectModal({{ $clas->id }}, '{{ addslashes($clas->name) }}')"
-                                class="px-4 py-2 bg-[#fe0000] hover:bg-[#cc0000] text-white rounded-lg transition shadow-sm hover:shadow-md">
+                                class="px-3 py-1.5 text-sm font-medium bg-[#fe0000] hover:bg-[#cc0000] text-white rounded-md transition shadow-sm hover:shadow-md">
                             <i class="fas fa-times mr-2"></i>Tolak
                         </button>
                     @endif
@@ -128,45 +128,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg p-4 shadow-[0_2px_6px_rgba(0,0,0,0.18)]">
-                <div class="flex items-center justify-between gap-3 mb-3">
-                    <div>
-                        <h2 class="text-base font-semibold text-gray-900">Siswa Terdaftar</h2>
-                        <p class="text-xs text-gray-500">Data diterima dari CI4 setelah verifikasi pendaftaran.</p>
-                    </div>
-                    <span class="text-sm font-bold text-emerald-700">{{ $registeredStudents }}/{{ $classCapacity ?: '-' }}</span>
-                </div>
-                @if($clas->registrants->isEmpty())
-                    <p class="text-sm text-gray-500">Belum ada siswa yang dikirim ke kelas ini.</p>
-                @else
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-sm">
-                            <thead>
-                                <tr class="border-b border-gray-200 text-left text-xs font-semibold text-gray-900">
-                                    <th class="py-2 pr-4">Nama</th>
-                                    <th class="py-2 pr-4">Email</th>
-                                    <th class="py-2 pr-4">Status</th>
-                                    <th class="py-2">Terdaftar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($clas->registrants as $registrant)
-                                    <tr class="border-b border-gray-100 last:border-0">
-                                        <td class="py-2 pr-4 font-medium text-gray-900">{{ $registrant->full_name }}</td>
-                                        <td class="py-2 pr-4 text-gray-600">{{ $registrant->email }}</td>
-                                        <td class="py-2 pr-4">
-                                            <span class="rounded-full px-2 py-1 text-xs font-semibold {{ in_array($registrant->status, ['registered', 'paid', 'confirmed'], true) ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                                                {{ ucfirst($registrant->status) }}
-                                            </span>
-                                        </td>
-                                        <td class="py-2 text-gray-600">{{ $registrant->registered_at?->format('d M Y H:i') ?? '-' }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
-            </div>
+            
 
             <div class="sticky top-4 z-20">
                 <div class="bg-white/95 backdrop-blur rounded-lg p-3 shadow-[0_2px_6px_rgba(0,0,0,0.18)]">
@@ -175,17 +137,41 @@
                         <a href="#jadwal-kelas" class="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">Jadwal</a>
                         <a href="#finansial-kelas" class="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">Finansial</a>
                         <a href="#penutupan-kelas" class="px-3 py-1.5 text-xs font-medium bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition">Penutupan</a>
-                        <a href="#absensi-pengajar" class="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">Absensi</a>
+                        <a href="#absensi-pengajar" class="px-3 py-1.5 text-xs font-medium bg-[#fed0d0] text-[#fe0000] rounded-lg hover:bg-[#fcb5b5] transition">Absensi</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Left Column -->
-            <div class="space-y-6 lg:col-span-8">
-                <!-- Informasi Umum -->
+        <style>
+    /* Layout detail kelas: CSS biasa (tidak bergantung pada utility Tailwind) */
+    .cls-layout { display:grid; grid-template-columns:minmax(0,1fr); gap:1.5rem; margin-bottom:1.5rem; }
+    .cls-top { display:grid; grid-template-columns:minmax(0,1fr); gap:1.5rem; }
+    .cls-right { display:flex; flex-direction:column; gap:1.5rem; }
+    .cls-right > :last-child { flex:1 1 auto; }
+    .cls-students > div, .cls-exp > div { display:flex; flex-direction:column; overflow:hidden; }
+    .cls-students .stu-scroll { overflow:auto; flex:1 1 auto; min-height:0; }
+    .cls-exp { display:flex; flex-direction:column; }
+    .cls-exp > div { flex:1 1 auto; }
+    .cls-exp > div > :last-child { flex:0 1 auto; min-height:0; overflow-y:auto; }
+    @media (min-width:768px) {
+        .cls-top { grid-template-columns:repeat(3,minmax(0,1fr)); }
+        .cls-top > :first-child { grid-column:span 2; }
+    }
+    @media (min-width:1024px) {
+        .cls-layout { grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:auto auto 1fr; }
+        .cls-top { grid-column:1 / span 2; grid-row:1; height:330px; }
+        .cls-top > div { min-height:0; overflow-y:auto; }
+        .cls-students { grid-column:1 / span 2; grid-row:2; height:230px; }
+        .cls-students > div { height:100%; }
+        .cls-right { grid-column:3; grid-row:1 / span 3; }
+        .cls-exp { grid-column:1 / span 2; grid-row:3; min-height:240px; }
+    }
+</style>
+        <div class="cls-layout">
+            <!-- Kiri atas: Informasi Umum (2/3) | Team Trainer (1/3) -->
+            <div class="cls-top">
                 <div id="info-umum" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">
                     <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <i class="fas fa-circle-info text-gray-800"></i>Informasi Umum
@@ -465,123 +451,81 @@
                     @endif
                 </div>
 
-                <!-- Expenses -->
-                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">    
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-900">
-                            <i class="fas fa-receipt text-orange-600 mr-2"></i>Biaya Tambahan / Expenses
-                        </h2>
-                        @if(in_array(\Illuminate\Support\Facades\Auth::user()->role, ['admin', 'superadmin', 'marketing', 'akademik']))
-                        <button type="button" 
-                                onclick="document.getElementById('addExpenseModal').classList.remove('hidden')"
-                                class="px-4 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition shadow-md">
-                            <i class="fas fa-plus mr-2"></i>Tambah Expense
-                        </button>
-                        @endif
-                    </div>
-
-                    @if($clas->expenses()->count() > 0)
-                    <div class="space-y-3">
-                        @foreach($clas->expenses()->with('user', 'approvedBy')->latest()->get() as $expense)
-                        <div class="flex justify-between items-start pb-3 border-b hover:bg-orange-50 transition px-2 py-2 rounded">
-                        <div class="flex-1">
-                                <p class="font-medium text-gray-900">{{ $expense->description }}</p>
-                            <div class="flex items-center gap-4 mt-1 text-xs text-gray-500">
-                                <span><i class="fas fa-calendar text-orange-600"></i> {{ $expense->expense_date->format('d M Y') }}</span>
-                                @if($expense->category)
-                                <span class="px-2 py-0.5 rounded {{ in_array($expense->category, ['honor', 'trainer_honor']) ? 'bg-purple-100 text-[#fe0000]' : ($expense->category === 'operational_cost' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700') }}">
-                                    <i class="fas fa-tag mr-1"></i>{{ $expense->category_label }}
-                                </span>
-                                @endif
-                                <span><i class="fas fa-user text-orange-600"></i> {{ $expense->user?->name ?? 'Unknown' }}</span>
-                                
-                                <!-- Approval Status Badge -->
-                                @if($expense->approval_status === 'approved')
-                                    <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-semibold">
-                                        <i class="fas fa-check-circle mr-1"></i>Approved
-                                    </span>
-                                @elseif($expense->approval_status === 'rejected')
-                                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-semibold">
-                                        <i class="fas fa-times-circle mr-1"></i>Rejected
-                                    </span>
-                                @else
-                                    <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">
-                                        <i class="fas fa-clock mr-1"></i>Pending
-                                    </span>
-                                @endif
-                            </div>
-                            
-                            <!-- Rejection Reason -->
-                            @if($expense->approval_status === 'rejected' && $expense->rejection_reason)
-                            <p class="text-xs text-red-600 mt-2 italic">
-                                <i class="fas fa-info-circle mr-1"></i>Ditolak: {{ $expense->rejection_reason }}
-                            </p>
-                            @endif
+                <!-- Team Trainer -->
+                <div id="team-trainer" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fas fa-chalkboard-user text-gray-800"></i>Team Trainer
+                    </h2>
+                    @if($clas->trainers->isEmpty())
+                        <div class="text-center py-8">
+                            <i class="fas fa-user-slash text-gray-300 text-4xl mb-3"></i>
+                            <p class="text-gray-500">Belum ada trainer yang ditugaskan</p>
                         </div>
-                        <div class="flex items-center gap-3">
-                                <span class="font-bold text-orange-600">Rp {{ number_format($expense->amount, 0, ',', '.') }}</span>
-                            @php
-                                $isHonorExpense = in_array($expense->category, ['trainer_honor', 'honor']);
-                                $canEditDeleteExpense = \Illuminate\Support\Facades\Auth::user()->isAdmin()
-                                    || (\Illuminate\Support\Facades\Auth::user()->role === 'marketing' && !$isHonorExpense)
-                                    || (\Illuminate\Support\Facades\Auth::user()->role === 'akademik' && $isHonorExpense);
-                                
-                                // Non-honor dapat edit/delete kapan saja, honor hanya saat pending
-                                $canPerformAction = $canEditDeleteExpense && (!$isHonorExpense || $expense->approval_status === 'pending');
-                            @endphp
-                            @if($canPerformAction)
-                            <a href="{{ route('admin.class-expenses.edit', $expense) }}" class="text-blue-600 hover:text-blue-800 transition">
-                                <i class="fas fa-pencil-alt"></i>
-                            </a>
-                            <form action="{{ route('admin.class-expenses.destroy', $expense) }}" method="POST" 
-                                  onsubmit="return confirm('Yakin ingin menghapus expense ini?')" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 transition">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                            @endif
-                            </div>
-                        </div>
-                        @endforeach
-                        
-                        <div class="flex justify-between items-center pt-3 mt-3 border-t-2 border-gray-300 bg-orange-50 px-3 py-2 rounded-lg">
-                            <span class="text-sm font-bold text-gray-900">TOTAL EXPENSES (Approved)</span>
-                            <span class="font-bold text-orange-600 text-lg">Rp {{ number_format($clas->expenses()->where('approval_status', 'approved')->sum('amount'), 0, ',', '.') }}</span>
-                        </div>
-
-                        <div class="mt-3 pt-3 border-t border-gray-200 space-y-2 text-sm">
-                        <div class="flex justify-between items-center">
-                                <span class="text-gray-600">Income Budget</span>
-                            <span class="font-medium text-gray-900">Rp {{ number_format($clas->income, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Actual Income (Profit)</span>
-                            <span class="font-semibold text-green-600">Rp {{ number_format($clas->income - $clas->expenses()->where('approval_status', 'approved')->sum('amount'), 0, ',', '.') }}</span>
-                        </div>
-                        </div>
-                    </div>
                     @else
-                    <div class="text-center py-8 bg-gray-50 rounded-lg">
-                        <i class="fas fa-receipt text-gray-300 text-4xl mb-3"></i>
-                        <p class="text-gray-500 mb-4">Belum ada expense tercatat</p>
-                        @if(in_array(\Illuminate\Support\Facades\Auth::user()->role, ['admin', 'superadmin', 'marketing', 'akademik']))
-                        <button type="button" 
-                                onclick="document.getElementById('addExpenseModal').classList.remove('hidden')"
-                                class="text-orange-600 hover:text-orange-800 font-semibold">
-                            <i class="fas fa-plus mr-1"></i>Tambah Expense Pertama
-                        </button>
+                        <div class="grid grid-cols-1 gap-4">
+                            @foreach($clas->trainers as $trainer)
+                            <div class="flex items-start gap-3 p-4 bg-[#f9f0f1] rounded-lg border border-green-200 hover:shadow-md transition">
+                                <div class="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-user text-green-700 text-lg"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-gray-900 truncate">{{ $trainer->name }}</h4>
+                                    <p class="text-sm text-gray-600 truncate">{{ $trainer->email }}</p>
+                                    @if($trainer->phone)
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            <i class="fas fa-phone"></i> {{ $trainer->phone }}
+                                        </p>
+                                    @endif
+                                    <span class="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                                        <i class="fas fa-check-circle"></i> Aktif
+                                    </span>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p class="text-sm text-blue-800">
+                                <i class="fas fa-info-circle"></i> 
+                                <strong>Total: {{ $clas->trainers->count() }} trainer</strong> ditugaskan untuk kelas ini
+                            </p>
+                        </div>
+                        
+                        <!-- Honor Payment Status -->
+                        @if(($clas->status === 'done' || $clas->status === 'approved') && in_array(auth()->user()->role, ['admin', 'akademik', 'marketing', 'finance']))
+                        <div class="mt-4 p-4 rounded-lg border-2 border-green-200 bg-white">
+                            <p class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <i class="fas fa-credit-card text-green-600"></i>Status Pembayaran Honor
+                            </p>
+                            @php
+                                $honorStatus = $clas->getHonorStatus();
+                                $statusLabel = [
+                                    'pending' => 'Belum Diajukan',
+                                    'submitted' => 'Pengajuan',
+                                    'paid' => 'Sudah Dibayar'
+                                ][$honorStatus] ?? 'Unknown';
+                                
+                                $statusColor = [
+                                    'pending' => ['bg' => 'bg-red-100', 'text' => 'text-red-800', 'icon' => 'fa-circle'],
+                                    'submitted' => ['bg' => 'bg-yellow-100', 'text' => 'text-yellow-800', 'icon' => 'fa-hourglass-half'],
+                                    'paid' => ['bg' => 'bg-green-100', 'text' => 'text-green-800', 'icon' => 'fa-check-circle']
+                                ][$honorStatus] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-800', 'icon' => 'fa-question-circle'];
+                            @endphp
+                            <div class="flex items-center justify-center p-3 rounded-lg {{ $statusColor['bg'] }}">
+                                <div class="text-center">
+                                    <i class="fas {{ $statusColor['icon'] }} {{ $statusColor['text'] }} text-2xl mb-2"></i>
+                                    <p class="text-sm font-semibold {{ $statusColor['text'] }}">{{ $statusLabel }}</p>
+                                </div>
+                            </div>
+                        </div>
                         @endif
-                    </div>
                     @endif
                 </div>
             </div>
 
-            <!-- Right Column -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6 lg:col-span-4">
+            <!-- Kanan: Jadwal + Finansial (melintang 2 baris) -->
+            <div class="cls-right">
                 <!-- Jadwal -->
-            <div id="jadwal-kelas" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 h-full">
+                <div id="jadwal-kelas" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">
                 <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <i class="fas fa-calendar-days text-gray-800"></i>Jadwal
                 </h2>
@@ -597,8 +541,8 @@
                            data-end-time="{{ optional($clas->end_time)->format('H:i') ?? '' }}"
                            data-meet="{{ $clas->meet }}"
                            data-duration="{{ $clas->duration }}"
-                           class="relative z-20 pointer-events-auto px-4 py-2 bg-[#fe0000] hover:bg-[#cc0000] text-white rounded-lg transition shadow-sm hover:shadow-md">
-                           <i class="fas fa-edit mr-2"></i>Edit Jadwal
+                           class="relative z-20 pointer-events-auto px-3 py-1.5 text-sm font-medium bg-[#fe0000] hover:bg-[#cc0000] text-white rounded-md transition shadow-sm hover:shadow-md">
+                           <i class="far fa-pen-to-square mr-2"></i>Edit Jadwal
                        </button>
                        @endif
                    </div>
@@ -699,9 +643,9 @@
                 </div>
             </div>
 
-            <!-- Finansial -->
-            <div id="finansial-kelas" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 h-full">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-sack-dollar mr-2 text-green-600"></i>Finansial</h2>
+                <!-- Finansial -->
+                <div id="finansial-kelas" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i class="fas fa-sack-dollar text-gray-800"></i>Finansial</h2>
                 @if($isCorporate && $clas->status === 'approved' && \Illuminate\Support\Facades\Auth::user()->canManageClass())
                 <form action="{{ route('admin.classes.update-revenue', $clas) }}" method="POST" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     @csrf
@@ -847,87 +791,173 @@
                     </div>
                 </div>
             </div>
+            </div>
 
-            <!-- Team Trainer -->
-            <div id="team-trainer" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 h-full">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">
-                        <i class="fas fa-chalkboard-teacher text-green-600 mr-2"></i>Team Trainer
-                    </h2>
-                    @if($clas->trainers->isEmpty())
-                        <div class="text-center py-8">
-                            <i class="fas fa-user-slash text-gray-300 text-4xl mb-3"></i>
-                            <p class="text-gray-500">Belum ada trainer yang ditugaskan</p>
-                        </div>
-                    @else
-                        <div class="grid grid-cols-1 gap-4">
-                            @foreach($clas->trainers as $trainer)
-                            <div class="flex items-start gap-3 p-4 bg-[#f9f0f1] rounded-lg border border-green-200 hover:shadow-md transition">
-                                <div class="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-user text-green-700 text-lg"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="font-semibold text-gray-900 truncate">{{ $trainer->name }}</h4>
-                                    <p class="text-sm text-gray-600 truncate">{{ $trainer->email }}</p>
-                                    @if($trainer->phone)
-                                        <p class="text-xs text-gray-500 mt-1">
-                                            <i class="fas fa-phone"></i> {{ $trainer->phone }}
-                                        </p>
-                                    @endif
-                                    <span class="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                                        <i class="fas fa-check-circle"></i> Aktif
-                                    </span>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                        <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                            <p class="text-sm text-blue-800">
-                                <i class="fas fa-info-circle"></i> 
-                                <strong>Total: {{ $clas->trainers->count() }} trainer</strong> ditugaskan untuk kelas ini
-                            </p>
-                        </div>
-                        
-                        <!-- Honor Payment Status -->
-                        @if(($clas->status === 'done' || $clas->status === 'approved') && in_array(auth()->user()->role, ['admin', 'akademik', 'marketing', 'finance']))
-                        <div class="mt-4 p-4 rounded-lg border-2 border-green-200 bg-white">
-                            <p class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                <i class="fas fa-credit-card text-green-600"></i>Status Pembayaran Honor
-                            </p>
-                            @php
-                                $honorStatus = $clas->getHonorStatus();
-                                $statusLabel = [
-                                    'pending' => 'Belum Diajukan',
-                                    'submitted' => 'Pengajuan',
-                                    'paid' => 'Sudah Dibayar'
-                                ][$honorStatus] ?? 'Unknown';
-                                
-                                $statusColor = [
-                                    'pending' => ['bg' => 'bg-red-100', 'text' => 'text-red-800', 'icon' => 'fa-circle'],
-                                    'submitted' => ['bg' => 'bg-yellow-100', 'text' => 'text-yellow-800', 'icon' => 'fa-hourglass-half'],
-                                    'paid' => ['bg' => 'bg-green-100', 'text' => 'text-green-800', 'icon' => 'fa-check-circle']
-                                ][$honorStatus] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-800', 'icon' => 'fa-question-circle'];
-                            @endphp
-                            <div class="flex items-center justify-center p-3 rounded-lg {{ $statusColor['bg'] }}">
-                                <div class="text-center">
-                                    <i class="fas {{ $statusColor['icon'] }} {{ $statusColor['text'] }} text-2xl mb-2"></i>
-                                    <p class="text-sm font-semibold {{ $statusColor['text'] }}">{{ $statusLabel }}</p>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Kiri tengah: Siswa Terdaftar (di bawah Informasi Umum & Trainer) -->
+            <div class="cls-students">
+                <div class="bg-white rounded-lg p-4 shadow-[0_2px_6px_rgba(0,0,0,0.18)]">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <div>
+                        <h2 class="text-base font-semibold text-gray-900">Siswa Terdaftar</h2>
+                        <p class="text-xs text-gray-500">Data diterima dari CI4 setelah verifikasi pendaftaran.</p>
+                    </div>
+                    <span class="text-sm font-bold text-emerald-700">{{ $registeredStudents }}/{{ $classCapacity ?: '-' }}</span>
+                </div>
+                @if($clas->registrants->isEmpty())
+                    <p class="text-sm text-gray-500">Belum ada siswa yang dikirim ke kelas ini.</p>
+                @else
+                    <div class="stu-scroll overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-200 text-left text-xs font-semibold text-gray-900">
+                                    <th class="py-2 pr-4">Nama</th>
+                                    <th class="py-2 pr-4">Email</th>
+                                    <th class="py-2 pr-4">Status</th>
+                                    <th class="py-2">Terdaftar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($clas->registrants as $registrant)
+                                    <tr class="border-b border-gray-100 last:border-0">
+                                        <td class="py-2 pr-4 font-medium text-gray-900">{{ $registrant->full_name }}</td>
+                                        <td class="py-2 pr-4 text-gray-600">{{ $registrant->email }}</td>
+                                        <td class="py-2 pr-4">
+                                            <span class="rounded-full px-2 py-1 text-xs font-semibold {{ in_array($registrant->status, ['registered', 'paid', 'confirmed'], true) ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                                                {{ ucfirst($registrant->status) }}
+                                            </span>
+                                        </td>
+                                        <td class="py-2 text-gray-600">{{ $registrant->registered_at?->format('d M Y H:i') ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+            </div>
+
+            <!-- Kiri bawah: Biaya Tambahan - garis bawah sama persis dengan Finansial -->
+            <div class="cls-exp">
+                <!-- Expenses -->
+                            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">    
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            <i class="fas fa-receipt text-orange-600 mr-2"></i>Biaya Tambahan / Expenses
+                        </h2>
+                        @if(in_array(\Illuminate\Support\Facades\Auth::user()->role, ['admin', 'superadmin', 'marketing', 'akademik']))
+                        <button type="button" 
+                                onclick="document.getElementById('addExpenseModal').classList.remove('hidden')"
+                                class="px-4 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition shadow-md">
+                            <i class="fas fa-plus mr-2"></i>Tambah Expense
+                        </button>
                         @endif
+                    </div>
+
+                    @if($clas->expenses()->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($clas->expenses()->with('user', 'approvedBy')->latest()->get() as $expense)
+                        <div class="flex justify-between items-start pb-3 border-b hover:bg-orange-50 transition px-2 py-2 rounded">
+                        <div class="flex-1">
+                                <p class="font-medium text-gray-900">{{ $expense->description }}</p>
+                            <div class="flex items-center gap-4 mt-1 text-xs text-gray-500">
+                                <span><i class="fas fa-calendar text-orange-600"></i> {{ $expense->expense_date->format('d M Y') }}</span>
+                                @if($expense->category)
+                                <span class="px-2 py-0.5 rounded {{ in_array($expense->category, ['honor', 'trainer_honor']) ? 'bg-purple-100 text-[#fe0000]' : ($expense->category === 'operational_cost' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700') }}">
+                                    <i class="fas fa-tag mr-1"></i>{{ $expense->category_label }}
+                                </span>
+                                @endif
+                                <span><i class="fas fa-user text-orange-600"></i> {{ $expense->user?->name ?? 'Unknown' }}</span>
+                                
+                                <!-- Approval Status Badge -->
+                                @if($expense->approval_status === 'approved')
+                                    <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-semibold">
+                                        <i class="fas fa-check-circle mr-1"></i>Approved
+                                    </span>
+                                @elseif($expense->approval_status === 'rejected')
+                                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-semibold">
+                                        <i class="fas fa-times-circle mr-1"></i>Rejected
+                                    </span>
+                                @else
+                                    <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">
+                                        <i class="fas fa-clock mr-1"></i>Pending
+                                    </span>
+                                @endif
+                            </div>
+                            
+                            <!-- Rejection Reason -->
+                            @if($expense->approval_status === 'rejected' && $expense->rejection_reason)
+                            <p class="text-xs text-red-600 mt-2 italic">
+                                <i class="fas fa-info-circle mr-1"></i>Ditolak: {{ $expense->rejection_reason }}
+                            </p>
+                            @endif
+                        </div>
+                        <div class="flex items-center gap-3">
+                                <span class="font-bold text-orange-600">Rp {{ number_format($expense->amount, 0, ',', '.') }}</span>
+                            @php
+                                $isHonorExpense = in_array($expense->category, ['trainer_honor', 'honor']);
+                                $canEditDeleteExpense = \Illuminate\Support\Facades\Auth::user()->isAdmin()
+                                    || (\Illuminate\Support\Facades\Auth::user()->role === 'marketing' && !$isHonorExpense)
+                                    || (\Illuminate\Support\Facades\Auth::user()->role === 'akademik' && $isHonorExpense);
+                                
+                                // Non-honor dapat edit/delete kapan saja, honor hanya saat pending
+                                $canPerformAction = $canEditDeleteExpense && (!$isHonorExpense || $expense->approval_status === 'pending');
+                            @endphp
+                            @if($canPerformAction)
+                            <a href="{{ route('admin.class-expenses.edit', $expense) }}" class="text-blue-600 hover:text-blue-800 transition">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <form action="{{ route('admin.class-expenses.destroy', $expense) }}" method="POST" 
+                                  onsubmit="return confirm('Yakin ingin menghapus expense ini?')" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-800 transition">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                            @endif
+                            </div>
+                        </div>
+                        @endforeach
+                        
+                        <div class="flex justify-between items-center pt-3 mt-3 border-t-2 border-gray-300 bg-orange-50 px-3 py-2 rounded-lg">
+                            <span class="text-sm font-bold text-gray-900">TOTAL EXPENSES (Approved)</span>
+                            <span class="font-bold text-orange-600 text-lg">Rp {{ number_format($clas->expenses()->where('approval_status', 'approved')->sum('amount'), 0, ',', '.') }}</span>
+                        </div>
+
+                        <div class="mt-3 pt-3 border-t border-gray-200 space-y-2 text-sm">
+                        <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Income Budget</span>
+                            <span class="font-medium text-gray-900">Rp {{ number_format($clas->income, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Actual Income (Profit)</span>
+                            <span class="font-semibold text-green-600">Rp {{ number_format($clas->income - $clas->expenses()->where('approval_status', 'approved')->sum('amount'), 0, ',', '.') }}</span>
+                        </div>
+                        </div>
+                    </div>
+                    @else
+                    <div class="text-center py-8 bg-gray-50 rounded-lg">
+                        <i class="fas fa-receipt text-gray-300 text-4xl mb-3"></i>
+                        <p class="text-gray-500 mb-4">Belum ada expense tercatat</p>
+                        @if(in_array(\Illuminate\Support\Facades\Auth::user()->role, ['admin', 'superadmin', 'marketing', 'akademik']))
+                        <button type="button" 
+                                onclick="document.getElementById('addExpenseModal').classList.remove('hidden')"
+                                class="text-orange-600 hover:text-orange-800 font-semibold">
+                            <i class="fas fa-plus mr-1"></i>Tambah Expense Pertama
+                        </button>
+                        @endif
+                    </div>
                     @endif
                 </div>
-
-
-        </div>
-
+            
             </div>
+        </div>
 
         <!-- Penutupan Kelas -->
         <div id="penutupan-kelas" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 space-y-4">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-flag-checkered text-emerald-600 mr-2"></i>Penutupan Kelas
+                    <i class="fas fa-flag-checkered text-gray-800 mr-2"></i>Penutupan Kelas
                 </h2>
                 <p class="text-xs text-gray-500">Lengkapi rekap kelulusan dan validasi file nilai sebelum kelas diselesaikan.</p>
             </div>
@@ -1102,7 +1132,7 @@
         <div id="absensi-pengajar" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 mt-6">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-user-check text-green-600 mr-2"></i>Absensi Pengajar (Read Only)
+                    <i class="fas fa-user-check text-gray-800 mr-2"></i>Absensi Pengajar (Read Only)
                 </h2>
                 <span class="text-xs text-gray-500">Real-time server time, tidak bisa input manual jam/tanggal</span>
             </div>
@@ -1577,7 +1607,7 @@ document.getElementById('editScheduleModal')?.addEventListener('click', function
         closeEditScheduleModal();
     }
 });
-cd
+
 // Close modal on ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && !document.getElementById('editScheduleModal').classList.contains('hidden')) {
