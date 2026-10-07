@@ -151,7 +151,10 @@
     .cls-right { display:flex; flex-direction:column; gap:1.5rem; }
     .cls-right > :last-child { flex:1 1 auto; }
     .cls-students > div, .cls-exp > div { display:flex; flex-direction:column; overflow:hidden; }
+    /* Siswa Terdaftar: tinggi mengikuti jumlah siswa, maksimal setara 5 baris lalu isi tabel digulir */
+    .cls-students > div { max-height:310px; }
     .cls-students .stu-scroll { overflow:auto; flex:1 1 auto; min-height:0; }
+    .cls-students .stu-scroll thead th { position:sticky; top:0; background:#fff; z-index:1; }
     .cls-exp { display:flex; flex-direction:column; }
     .cls-exp > div { flex:1 1 auto; }
     .cls-exp > div > :last-child { flex:0 1 auto; min-height:0; overflow-y:auto; }
@@ -161,10 +164,8 @@
     }
     @media (min-width:1024px) {
         .cls-layout { grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:auto auto 1fr; }
-        .cls-top { grid-column:1 / span 2; grid-row:1; height:330px; }
-        .cls-top > div { min-height:0; overflow-y:auto; }
-        .cls-students { grid-column:1 / span 2; grid-row:2; height:230px; }
-        .cls-students > div { height:100%; }
+        .cls-top { grid-column:1 / span 2; grid-row:1; }
+        .cls-students { grid-column:1 / span 2; grid-row:2; }
         .cls-right { grid-column:3; grid-row:1 / span 3; }
         .cls-exp { grid-column:1 / span 2; grid-row:3; min-height:240px; }
     }
