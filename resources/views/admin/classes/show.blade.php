@@ -192,6 +192,11 @@
                             $isCorporate = str_contains($kategoriName, 'corporate');
                             $isPrivate = str_contains($kategoriName, 'private');
                             $isRegular = str_contains($kategoriName, 'regular');
+                            // Kelas private dari CI4 memiliki registrant hasil sinkronisasi API.
+                            $isCi4Private = $isPrivate && $clas->registrants->contains(function ($registrant) {
+                                return !empty($registrant->external_registration_id);
+                            });
+                            $isManualPrivate = $isPrivate && !$isCi4Private;
                             $usesTerminFlow = $isCorporate || $isPrivate;
                         @endphp
                         
@@ -647,11 +652,13 @@
                 <!-- Finansial -->
                 <div id="finansial-kelas" class="scroll-mt-24 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">
                 <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i class="fas fa-sack-dollar text-gray-800"></i>Finansial</h2>
-                @if($isCorporate && $clas->status === 'approved' && \Illuminate\Support\Facades\Auth::user()->canManageClass())
+                @if(($isCorporate || $isManualPrivate) && $clas->status === 'approved' && \Illuminate\Support\Facades\Auth::user()->canManageClass())
                 <form action="{{ route('admin.classes.update-revenue', $clas) }}" method="POST" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     @csrf
                     @method('PATCH')
-                    <label for="price_display" class="block text-sm font-medium text-blue-900 mb-2">Pendapatan Kelas</label>
+                    <label for="price_display" class="block text-sm font-medium text-blue-900 mb-2">
+                        {{ $isManualPrivate ? 'Pendapatan Kelas (Input Manual)' : 'Pendapatan Kelas' }}
+                    </label>
                     <div class="flex flex-col md:flex-row gap-2">
                         <div class="relative flex-1">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">Rp</span>
@@ -662,7 +669,11 @@
                             <i class="fas fa-save mr-1"></i>Simpan
                         </button>
                     </div>
-                    <p class="text-xs text-blue-700 mt-2">Isi nilai pendapatan saat kelas akan diselesaikan.</p>
+                    <p class="text-xs text-blue-700 mt-2">
+                        {{ $isManualPrivate
+                            ? 'Kelas private manual tidak memiliki transaksi CI4. Isi pendapatan kelas secara manual.'
+                            : 'Isi nilai pendapatan saat kelas akan diselesaikan.' }}
+                    </p>
                 </form>
                 @endif
                 <div class="space-y-3">
@@ -671,6 +682,12 @@
                         <div class="flex justify-between items-center pb-3 border-b">
                             <span class="text-sm text-gray-600">Harga Kontrak (Total)</span>
                             <span class="font-medium text-gray-900">Rp {{ number_format($clas->price, 0, ',', '.') }}</span>
+                        </div>
+                    @elseif($isManualPrivate)
+                        <!-- Private manual: Pendapatan diisi oleh Admin/Akademik -->
+                        <div class="flex justify-between items-center pb-3 border-b bg-blue-50 px-3 py-2 rounded-lg">
+                            <span class="text-sm font-medium text-blue-900">Pendapatan Kelas (Manual)</span>
+                            <span class="font-semibold text-blue-600">Rp {{ number_format($clas->price, 0, ',', '.') }}</span>
                         </div>
                     @else
                         <!-- Reguler/Private: Pendapatan kelas -->

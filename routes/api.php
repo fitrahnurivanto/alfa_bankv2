@@ -10,6 +10,7 @@ Route::middleware('api.key')->group(function () {
     Route::get('/classes/{class}', [ClassApiController::class, 'show']);
     Route::post('/classes/{class}/registrants', [ClassApiController::class, 'storeRegistrant']);
     Route::post('/private-class-requests', [ClassApiController::class, 'storePrivateClassRequest']);
+    Route::get('/private-class-requests/{externalRegistrationId}', [ClassApiController::class, 'privateClassRequest']);
     Route::get('/trainers', [MasterDataApiController::class, 'trainers']);
     Route::get('/trainers/{trainer}', [MasterDataApiController::class, 'showTrainer']);
     Route::get('/trainings', [MasterDataApiController::class, 'trainings']);

@@ -29,6 +29,7 @@ class AttendanceController extends Controller
         $selectedClassId = (int) ($request->get('class_id') ?: ($classes->first()->id ?? 0));
 
         $selectedClass = null;
+        $isCi4Class = false;
         $todayAttendance = null;
     $currentAttendance = null;
     $todayAttendances = collect();
@@ -55,6 +56,10 @@ class AttendanceController extends Controller
             $selectedClass = $classes->firstWhere('id', $selectedClassId);
 
             if ($selectedClass) {
+                $selectedClass->load('registrants');
+                $isCi4Class = $selectedClass->registrants->contains(function ($registrant) {
+                    return !empty($registrant->external_registration_id);
+                });
                 $todayAttendances = TrainerAttendance::query()
                     ->where('clas_id', $selectedClassId)
                     ->where('trainer_id', $trainer->id)
@@ -97,7 +102,8 @@ class AttendanceController extends Controller
             'selectedClassId',
             'period',
             'year',
-            'availableYears'
+            'availableYears',
+            'isCi4Class'
         ));
     }
 
@@ -107,6 +113,7 @@ class AttendanceController extends Controller
 
         $validated = $request->validate([
             'class_id' => ['required', 'integer', 'exists:clas,id'],
+            'material_covered' => ['required', 'string', 'min:3'],
             'check_in_latitude' => ['required', 'numeric', 'between:-90,90'],
             'check_in_longitude' => ['required', 'numeric', 'between:-180,180'],
             'check_in_accuracy' => ['required', 'numeric', 'min:0'],
@@ -123,6 +130,13 @@ class AttendanceController extends Controller
         if (!$class) {
             return back()->with('error', 'Kelas tidak valid atau bukan kelas berjalan yang Anda ajar.');
         }
+
+        $isCi4Class = $class->registrants()
+            ->whereNotNull('external_registration_id')
+            ->exists();
+        $ci4StudentCount = $isCi4Class
+            ? $class->registrants()->active()->count()
+            : null;
 
         $today = now()->toDateString();
 
@@ -156,6 +170,8 @@ class AttendanceController extends Controller
         $attendance->check_in_latitude = $validated['check_in_latitude'];
         $attendance->check_in_longitude = $validated['check_in_longitude'];
         $attendance->check_in_accuracy = $validated['check_in_accuracy'];
+        $attendance->material_covered = $validated['material_covered'];
+        $attendance->students_present = $ci4StudentCount;
         $attendance->save();
 
         ClassSession::firstOrCreate(
@@ -181,8 +197,7 @@ class AttendanceController extends Controller
 
         $validated = $request->validate([
             'class_id' => ['required', 'integer', 'exists:clas,id'],
-            'material_covered' => ['required', 'string', 'min:3'],
-            'students_present' => ['required', 'integer', 'min:0'],
+            'students_present' => ['nullable', 'integer', 'min:0'],
             'check_out_latitude' => ['required', 'numeric', 'between:-90,90'],
             'check_out_longitude' => ['required', 'numeric', 'between:-180,180'],
             'check_out_accuracy' => ['required', 'numeric', 'min:0'],
@@ -198,6 +213,14 @@ class AttendanceController extends Controller
 
         if (!$class) {
             return back()->with('error', 'Kelas tidak valid atau bukan kelas berjalan yang Anda ajar.');
+        }
+
+        $isCi4Class = $class->registrants()
+            ->whereNotNull('external_registration_id')
+            ->exists();
+
+        if (!$isCi4Class && $request->input('students_present') === null) {
+            return back()->with('error', 'Jumlah siswa hadir wajib diisi untuk kelas manual.');
         }
 
         $attendance = TrainerAttendance::query()
@@ -221,8 +244,9 @@ class AttendanceController extends Controller
         $attendance->check_out_latitude = $validated['check_out_latitude'];
         $attendance->check_out_longitude = $validated['check_out_longitude'];
         $attendance->check_out_accuracy = $validated['check_out_accuracy'];
-        $attendance->material_covered = $validated['material_covered'];
-        $attendance->students_present = $validated['students_present'];
+        if (!$isCi4Class) {
+            $attendance->students_present = $validated['students_present'];
+        }
         $attendance->save();
 
         return back()->with('success', 'Absen pulang berhasil dicatat. Materi dan jumlah siswa hadir sudah tersimpan.');

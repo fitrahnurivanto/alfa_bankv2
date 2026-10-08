@@ -151,7 +151,7 @@
                     <div class="mb-5 flex items-start justify-between gap-4">
                         <div>
                             <h2 class="text-lg font-bold text-slate-900">Absen Berangkat</h2>
-                            <p class="mt-1 text-sm leading-6 text-slate-600">Lokasi wajib diambil dari browser dan waktu dicatat otomatis oleh server.</p>
+                            <p class="mt-1 text-sm leading-6 text-slate-600">Isi materi yang disampaikan. Lokasi diambil dari browser dan waktu dicatat otomatis oleh server.</p>
                         </div>
                         <div class="rounded-xl bg-emerald-50 px-3 py-2 text-right text-xs font-medium text-emerald-700">
                             <div class="uppercase tracking-wide text-emerald-500">Mode</div>
@@ -177,6 +177,11 @@
                         <input type="hidden" name="check_in_longitude" id="check_in_longitude">
                         <input type="hidden" name="check_in_accuracy" id="check_in_accuracy">
 
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">Materi yang Disampaikan</label>
+                            <textarea name="material_covered" rows="4" required class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-500 focus:ring-4 focus:ring-slate-200" placeholder="Contoh: Pembahasan modul komunikasi efektif, roleplay, evaluasi akhir.">{{ old('material_covered') }}</textarea>
+                        </div>
+
                         <button type="button" id="checkin-btn" class="inline-flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition {{ $hasOpenSession ? 'cursor-not-allowed bg-slate-400' : 'bg-emerald-600 hover:bg-emerald-700' }}" {{ $hasOpenSession ? 'disabled' : '' }}>
                             <i class="fas fa-sign-in-alt mr-2"></i>{{ $hasOpenSession ? 'Sudah Berangkat untuk Sesi Ini' : 'Klik Absen Masuk' }}
                         </button>
@@ -193,7 +198,7 @@
                     <div class="mb-5 flex items-start justify-between gap-4">
                         <div>
                             <h2 class="text-lg font-bold text-slate-900">Absen Pulang</h2>
-                            <p class="mt-1 text-sm leading-6 text-slate-600">Isi materi, jumlah siswa hadir, lalu tandai lokasi saat pulang.</p>
+                            <p class="mt-1 text-sm leading-6 text-slate-600">Tandai lokasi saat pulang{{ $isCi4Class ? '. Jumlah siswa diambil otomatis dari data CI4.' : ' dan isi jumlah siswa hadir.' }} </p>
                         </div>
                         <div class="rounded-xl bg-blue-50 px-3 py-2 text-right text-xs font-medium text-blue-700">
                             <div class="uppercase tracking-wide text-blue-500">Syarat</div>
@@ -212,15 +217,16 @@
                         <input type="hidden" name="check_out_longitude" id="check_out_longitude">
                         <input type="hidden" name="check_out_accuracy" id="check_out_accuracy">
 
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-slate-700">Materi yang Disampaikan</label>
-                            <textarea name="material_covered" rows="4" required class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-500 focus:ring-4 focus:ring-slate-200" placeholder="Contoh: Pembahasan modul komunikasi efektif, roleplay, evaluasi akhir."></textarea>
-                        </div>
-
+                        @if(!$isCi4Class)
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Jumlah Siswa Hadir</label>
                             <input type="number" name="students_present" min="0" required class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-500 focus:ring-4 focus:ring-slate-200" placeholder="Contoh: 24">
                         </div>
+                        @else
+                        <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+                            Jumlah siswa hadir untuk kelas CI4 akan dihitung otomatis dari peserta yang terdaftar.
+                        </div>
+                        @endif
 
                         <button type="button" id="checkout-btn" class="inline-flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition {{ $canCheckout ? 'bg-sky-600 hover:bg-sky-700' : 'cursor-not-allowed bg-slate-400' }}" {{ $canCheckout ? '' : 'disabled' }}>
                             <i class="fas fa-sign-out-alt mr-2"></i>{{ $todayAttendance && $todayAttendance->check_out_at ? 'Sudah Pulang Hari Ini' : 'Klik Absen Pulang' }}

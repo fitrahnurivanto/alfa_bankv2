@@ -271,6 +271,44 @@ class ClassApiController extends Controller
         ], 201);
     }
 
+    public function privateClassRequest(string $externalRegistrationId): JsonResponse
+    {
+        $registrant = ClassRegistrant::query()
+            ->where('external_registration_id', $externalRegistrationId)
+            ->with([
+                'class:id,name,status,start_date,end_date,training_id,kategori_id',
+                'class.training:id,name,type',
+                'class.kategori:id,nama_kategori,slug',
+            ])
+            ->first();
+
+        if (!$registrant || !$registrant->class) {
+            return response()->json([
+                'message' => 'Permintaan kelas private belum ditemukan.',
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => [
+                'class_id' => $registrant->class->id,
+                'status' => $registrant->class->status,
+                'external_registration_id' => $registrant->external_registration_id,
+                'class' => [
+                    'id' => $registrant->class->id,
+                    'name' => $registrant->class->name,
+                    'status' => $registrant->class->status,
+                    'start_date' => $registrant->class->start_date?->toDateString(),
+                    'end_date' => $registrant->class->end_date?->toDateString(),
+                    'training' => $registrant->class->training ? [
+                        'id' => $registrant->class->training->id,
+                        'name' => $registrant->class->training->name,
+                        'type' => $registrant->class->training->type,
+                    ] : null,
+                ],
+            ],
+        ]);
+    }
+
     private function syncClassSummary(Clas $class): void
     {
         $activeStudents = $class->registrants()->active()->count();
