@@ -15,22 +15,20 @@
     @endphp
 
     <!-- Header -->
-    <div class="mb-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Kelas Berjalan</h1>
-                <p class="text-gray-600">Daftar semua kelas (diurutkan berdasarkan pembuatan terbaru)</p>
-                <div class="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-sm font-semibold">
-                    <i class="fas fa-calendar-check"></i>
-                    Menampilkan Data: {{ $periodLabel }}
-                </div>
+    <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Kelas Berjalan</h1>
+            <p class="text-gray-800">Daftar semua kelas (diurutkan berdasarkan pembuatan terbaru)</p>
+            <div class="mt-3 inline-flex items-center gap-2 px-4 py-1.5 bg-[#fff4e5] text-[#e28100] border border-[#e28100] rounded-md text-sm font-medium">
+                <i class="far fa-pen-to-square"></i>
+                Menampilkan Data: {{ $periodLabel }}
             </div>
-            <a href="{{ route('admin.classes.index') }}" 
-               class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition">
-                <i class="fas fa-arrow-left"></i>
-                Kembali ke Semua Kelas
-            </a>
         </div>
+        <a href="{{ route('admin.classes.index') }}"
+           class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#fe0000] text-white font-semibold rounded-lg shadow-[0_3px_6px_rgba(0,0,0,0.25)] hover:bg-[#cc0000] transition">
+            <i class="fas fa-arrow-left"></i>
+            Kembali ke Semua Kelas
+        </a>
     </div>
 
     <!-- Statistics Cards -->
@@ -58,74 +56,57 @@
         })->count();
     @endphp
     
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-            <div class="p-4 md:p-6">
-                <div class="flex justify-between items-center">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Total Semua Kelas</p>
-                        <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-gray-900 break-words">{{ $totalClassesCount }}</h4>
-                        <p class="text-gray-400 text-xs mt-1 truncate">Semua kelas sesuai filter</p>
-                    </div>
-                    <div class="bg-slate-100 p-3 rounded-xl">
-                        <i class="fas fa-layer-group text-3xl text-slate-600"></i>
-                    </div>
+    <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+            <div class="bg-white rounded-lg shadow-[0_2px_5px_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+                <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                    <i class="fas fa-chalkboard-user text-2xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-gray-900">Total Semua Kelas</p>
+                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ $totalClassesCount }}</p>
+                    <p class="text-[11px] text-gray-700">Semua kelas sesuai filter</p>
                 </div>
             </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-            <div class="p-4 md:p-6">
-                <div class="flex justify-between items-center">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Total Kelas Reguler</p>
-                        <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-blue-700 break-words">{{ $regularClassesCount }}</h4>
-                        <p class="text-gray-400 text-xs mt-1 truncate">Kategori reguler</p>
-                    </div>
-                    <div class="bg-blue-100 p-3 rounded-xl">
-                        <i class="fas fa-book-open text-3xl text-blue-600"></i>
-                    </div>
+            <div class="bg-white rounded-lg shadow-[0_2px_5px_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+                <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                    <i class="fas fa-book-open text-2xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-gray-900">Total Kelas Reguler</p>
+                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ $regularClassesCount }}</p>
+                    <p class="text-[11px] text-gray-700">Kategori reguler</p>
                 </div>
             </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-            <div class="p-4 md:p-6">
-                <div class="flex justify-between items-center">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Total Kelas Corporate</p>
-                        <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-indigo-700 break-words">{{ $corporateClassesCount }}</h4>
-                        <p class="text-gray-400 text-xs mt-1 truncate">Kategori corporate</p>
-                    </div>
-                    <div class="bg-indigo-100 p-3 rounded-xl">
-                        <i class="fas fa-building text-3xl text-indigo-600"></i>
-                    </div>
+            <div class="bg-white rounded-lg shadow-[0_2px_5px_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+                <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                    <i class="fas fa-building text-2xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-gray-900">Total Kelas Corporate</p>
+                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ $corporateClassesCount }}</p>
+                    <p class="text-[11px] text-gray-700">Kategori corporate</p>
                 </div>
             </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-            <div class="p-4 md:p-6">
-                <div class="flex justify-between items-center">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Total Kelas Private</p>
-                        <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-amber-700 break-words">{{ $privateClassesCount }}</h4>
-                        <p class="text-gray-400 text-xs mt-1 truncate">Kategori private</p>
-                    </div>
-                    <div class="bg-amber-100 p-3 rounded-xl">
-                        <i class="fas fa-user text-3xl text-amber-600"></i>
-                    </div>
+            <div class="bg-white rounded-lg shadow-[0_2px_5px_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+                <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                    <i class="fas fa-user text-2xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-gray-900">Total Kelas Private</p>
+                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ $privateClassesCount }}</p>
+                    <p class="text-[11px] text-gray-700">Kategori private</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Filter Section -->
-    <div class="bg-white rounded-xl shadow-sm p-4 mb-6 space-y-3">
+    <div class="mb-6 space-y-3">
         <form method="GET" action="{{ route('admin.classes.showclas') }}" class="flex flex-wrap gap-2 w-full justify-end">
             <div class="flex-1 sm:flex-none min-w-[170px]">
                 <label for="filter-status" class="sr-only">Status</label>
-                <select id="filter-status" name="status" class="w-full px-3 md:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" onchange="this.form.submit()">
+                <select id="filter-status" name="status" class="w-full px-4 py-2.5 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:border-[#fe0000] bg-white" onchange="this.form.submit()">
                     <option value="" {{ !request('status') ? 'selected' : '' }}>Semua Status</option>
                     <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
                     <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Active</option>
@@ -136,7 +117,7 @@
 
             <div class="flex-1 sm:flex-none min-w-[190px]">
                 <label for="filter-kategori" class="sr-only">Kategori</label>
-                <select id="filter-kategori" name="kategori" class="w-full px-3 md:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" onchange="this.form.submit()">
+                <select id="filter-kategori" name="kategori" class="w-full px-4 py-2.5 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:border-[#fe0000] bg-white" onchange="this.form.submit()">
                     <option value="" {{ !request('kategori') ? 'selected' : '' }}>Semua Kategori</option>
                     @foreach($categories as $category)
                         <option value="{{ $category->id }}" {{ (string) request('kategori') === (string) $category->id ? 'selected' : '' }}>{{ $category->nama_kategori }}</option>
@@ -146,7 +127,7 @@
 
             <div class="flex-1 sm:flex-none min-w-[190px]">
                 <label for="filter-period" class="sr-only">Waktu</label>
-                <select id="filter-period" name="period" class="w-full px-3 md:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" onchange="this.form.submit()">
+                <select id="filter-period" name="period" class="w-full px-4 py-2.5 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:border-[#fe0000] bg-white" onchange="this.form.submit()">
                     <option value="all" {{ ($period ?? '') === 'all' ? 'selected' : '' }}>Semua Waktu</option>
                     <option value="month_01" {{ ($period ?? '') === 'month_01' ? 'selected' : '' }}>Januari</option>
                     <option value="month_02" {{ ($period ?? '') === 'month_02' ? 'selected' : '' }}>Februari</option>
@@ -166,7 +147,7 @@
         
         <!-- Active Filters Info -->
         @if(request('status') || request('kategori') || (($period ?? 'this_month') !== 'this_month'))
-        <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+        <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)]">
             <div class="flex items-center gap-2 text-sm text-gray-600">
                 <i class="fas fa-info-circle"></i>
                 <span>Filter aktif:
@@ -198,7 +179,7 @@
                 </span>
             </div>
             <a href="{{ route('admin.classes.showclas') }}" 
-               class="text-sm px-3 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition">
+               class="text-sm px-3 py-1 bg-[#fed0d0] text-[#fe0000] hover:bg-[#fcb5b5] rounded-lg transition">
                 <i class="fas fa-times mr-1"></i> Reset Filter
             </a>
         </div>
@@ -215,58 +196,59 @@
     <!-- Classes Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($approvedClasses as $class)
-            <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all border border-gray-100">
-                <div class="p-6">
+            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] hover:shadow-lg transition-all overflow-hidden">
+                <div class="p-5">
                     <!-- Header -->
-                    <div class="flex justify-between items-start mb-4">
+                    <div class="flex justify-between items-start -mx-5 -mt-5 mb-3 px-6 py-4 border-b border-gray-300">
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900 line-clamp-2">{{ $class->name }}</h3>
+                            <h3 class="text-xl font-semibold text-gray-900 line-clamp-2">{{ $class->name }}</h3>
                             @if($class->instansi)
                             <p class="text-xs text-gray-500 mt-1"><i class="fas fa-building mr-1"></i>{{ $class->instansi }}</p>
                             @endif
                             @if(str_contains(strtolower($class->kategori->nama_kategori ?? ''), 'private') && !empty($class->private_student_name))
-                            <p class="text-xs text-purple-700 mt-1"><i class="fas fa-user mr-1"></i>{{ $class->private_student_name }}</p>
+                            <p class="text-xs text-gray-700 mt-1"><i class="fas fa-user mr-1"></i>{{ $class->private_student_name }}</p>
                             @endif
                         </div>
                         @if($class->status === 'pending')
-                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold whitespace-nowrap ml-2">
-                                <i class="fas fa-clock mr-1"></i>Pending
+                            <span class="px-3 py-1 bg-[#fff08a] text-[#8a6d00] rounded-full text-xs font-medium whitespace-nowrap ml-2">
+                                <i class="fas fa-check mr-1"></i>Pending
                             </span>
                         @elseif($class->status === 'done')
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold whitespace-nowrap ml-2">
-                                <i class="fas fa-check-double mr-1"></i>Selesai
+                            <span class="px-3 py-1 bg-[#cfdcff] text-[#344bfd] rounded-full text-xs font-medium whitespace-nowrap ml-2">
+                                <i class="fas fa-check mr-1"></i>Selesai
                             </span>
                         @elseif($class->status === 'rejected')
-                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold whitespace-nowrap ml-2">
+                            <span class="px-3 py-1 bg-[#fed0d0] text-[#fe0000] rounded-full text-xs font-medium whitespace-nowrap ml-2">
                                 <i class="fas fa-times-circle mr-1"></i>Rejected
                             </span>
                         @else
-                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold whitespace-nowrap ml-2">
-                                <i class="fas fa-check-circle mr-1"></i>Aktif
+                            <span class="px-3 py-1 bg-[#c8f7b4] text-[#2e8b12] rounded-full text-xs font-medium whitespace-nowrap ml-2">
+                                <i class="fas fa-check mr-1"></i>Aktif
                             </span>
                         @endif
                     </div>
 
+                    <div class="flex flex-wrap items-center gap-1.5 mb-3">
                     <!-- Kategori -->
                     @if($class->kategori)
-                    <div class="mb-3">
+                    <div class="contents">
                         @php
                             $kategoriLower = strtolower($class->kategori->nama_kategori);
                         @endphp
                         @if(str_contains($kategoriLower, 'private'))
-                            <span class="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-lg text-xs font-semibold">
+                            <span class="inline-flex items-center px-2.5 py-1 bg-[#fed0d0] text-[#fe0000] rounded-full text-xs font-medium">
                                 <i class="fas fa-user mr-1"></i>{{ $class->kategori->nama_kategori }}
                             </span>
                         @elseif(str_contains($kategoriLower, 'reguler'))
-                            <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-xs font-semibold">
-                                <i class="fas fa-users mr-1"></i>{{ $class->kategori->nama_kategori }}
+                            <span class="inline-flex items-center px-2.5 py-1 bg-[#fed0d0] text-[#fe0000] rounded-full text-xs font-medium">
+                                <i class="fas fa-users"></i>{{ $class->kategori->nama_kategori }}
                             </span>
                         @elseif(str_contains($kategoriLower, 'corporate'))
-                            <span class="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-xs font-semibold">
+                            <span class="inline-flex items-center px-2.5 py-1 bg-[#fed0d0] text-[#fe0000] rounded-full text-xs font-medium">
                                 <i class="fas fa-building mr-1"></i>{{ $class->kategori->nama_kategori }}
                             </span>
                         @else
-                            <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-xs font-semibold">
+                            <span class="inline-flex items-center px-2.5 py-1 bg-[#fed0d0] text-[#fe0000] rounded-full text-xs font-medium">
                                 <i class="fas fa-tag mr-1"></i>{{ $class->kategori->nama_kategori }}
                             </span>
                         @endif
@@ -274,40 +256,61 @@
                     @endif
 
                     <!-- Trainer -->
-                    <div class="mb-3">
-                        <div class="flex flex-wrap gap-1">
+                    <div class="contents">
+                        <div class="contents">
                             @if($class->trainers && $class->trainers->count() > 0)
                                 @foreach($class->trainers as $trainerUser)
-                                    <span class="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                                        <i class="fas fa-user-tie mr-1"></i>{{ $trainerUser->name }}
+                                    <span class="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded-full text-xs">
+                                        <i class="fas fa-user-group mr-1"></i>{{ $trainerUser->name }}
                                     </span>
                                 @endforeach
                             @elseif(is_array($class->trainer))
                                 @foreach($class->trainer as $trainer)
-                                    <span class="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                                        <i class="fas fa-user-tie mr-1"></i>{{ $trainer }}
+                                    <span class="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded-full text-xs">
+                                        <i class="fas fa-user-group mr-1"></i>{{ $trainer }}
                                     </span>
                                 @endforeach
                             @elseif(!empty($class->trainer))
-                                <span class="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                                    <i class="fas fa-user-tie mr-1"></i>{{ $class->trainer }}
+                                <span class="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded-full text-xs">
+                                    <i class="fas fa-user-group mr-1"></i>{{ $class->trainer }}
                                 </span>
                             @else
-                                <span class="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                                    <i class="fas fa-user-tie mr-1"></i>Trainer belum ditentukan
+                                <span class="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded-full text-xs">
+                                    <i class="fas fa-user-group mr-1"></i>Trainer belum ditentukan
                                 </span>
                             @endif
                         </div>
                     </div>
 
-                    <!-- Jadwal -->
-                    <div class="mb-3 text-sm text-gray-600">
-                        <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
+                    
+                    <!-- Metode -->
+                    <div class="contents">
+                        @if($class->method === 'online')
+                            <span class="inline-flex items-center px-2.5 py-1 bg-[#cfdcff] text-[#344bfd] border border-[#344bfd]/30 rounded-full text-xs">
+                                <i class="fas fa-laptop mr-1"></i>Online
+                            </span>
+                        @elseif($class->method === 'offline')
+                            <span class="inline-flex items-center px-2.5 py-1 bg-[#fdebd0] text-[#8a4b00] border border-[#e28100]/50 rounded-full text-xs">
+                                <i class="fas fa-building mr-1"></i>Offline
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-1 bg-[#fed0d0] text-[#fe0000] border border-[#fe0000]/30 rounded-full text-xs">
+                                <i class="fas fa-exchange-alt mr-1"></i>Mix
+                            </span>
+                        @endif
+                    </div>
+            
+                    
+                </div>
+
+                <!-- Jadwal -->
+                    <div class="flex items-center py-2.5 border-t border-gray-200 text-base text-gray-900">
+                        <i class="far fa-calendar w-5 text-center text-gray-800 mr-3"></i>
                         {{ $class->start_date?->format('d M Y') ?? '-' }} - {{ $class->end_date?->format('d M Y') ?? '-' }}
                     </div>
 
                     <!-- Summary -->
-                    <div class="flex justify-between text-sm text-gray-600 mb-4 pb-4 border-b border-gray-100">
+                    <div class="flex flex-col text-base text-gray-900 mb-4 border-b border-gray-200">
                         @php
                             $kategoriName = strtolower($class->kategori->nama_kategori ?? '');
                             $isCorporate = str_contains($kategoriName, 'corporate');
@@ -315,34 +318,17 @@
                         @endphp
                         
                         @if($isCorporate)
-                            <span><i class="fas fa-building mr-1 text-gray-400"></i>{{ $class->instansi ?? 'Corporate' }}</span>
+                            <span class="flex items-center py-2.5 border-t border-gray-200"><i class="fas fa-building w-5 text-center text-gray-800 mr-3"></i>{{ $class->instansi ?? 'Corporate' }}</span>
                         @elseif($isPrivate)
-                            <span><i class="fas fa-user mr-1 text-gray-400"></i>{{ $class->private_student_name ?: '1 peserta' }}</span>
+                            <span class="flex items-center py-2.5 border-t border-gray-200"><i class="fas fa-user w-5 text-center text-gray-800 mr-3"></i>{{ $class->private_student_name ?: '1 peserta' }}</span>
                         @else
-                            <span><i class="fas fa-users mr-1 text-gray-400"></i>{{ $class->amount }} peserta</span>
+                            <span class="flex items-center py-2.5 border-t border-gray-200"><i class="fas fa-users w-5 text-center text-gray-800 mr-3"></i>{{ $class->amount }} peserta</span>
                         @endif
                         
-                        <span><i class="fas fa-clock mr-1 text-gray-400"></i>{{ $class->duration }} JPL</span>
-                        <span><i class="fas fa-book mr-1 text-gray-400"></i>{{ $class->meet }}x</span>
+                        <span class="flex items-center py-2.5 border-t border-gray-200"><i class="fas fa-clock w-5 text-center text-gray-800 mr-3"></i>{{ $class->duration }} JPL</span>
+                        <span class="flex items-center py-2.5 border-t border-gray-200"><i class="fas fa-book w-5 text-center text-gray-800 mr-3"></i>{{ $class->meet }}x</span>
                     </div>
 
-                    <!-- Metode -->
-                    <div class="mb-4">
-                        @if($class->method === 'online')
-                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                                <i class="fas fa-laptop mr-1"></i>Online
-                            </span>
-                        @elseif($class->method === 'offline')
-                            <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">
-                                <i class="fas fa-building mr-1"></i>Offline
-                            </span>
-                        @else
-                            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                                <i class="fas fa-exchange-alt mr-1"></i>Mix
-                            </span>
-                        @endif
-                    </div>
-            
                     <!-- Progress Bar: Target Pendapatan -->
                     <div class="mb-4">
                         @php
@@ -353,12 +339,12 @@
                             if ($targetRevenue > 0) {
                                 $revenueProgress     = min(100, round($paidAmount / $targetRevenue * 100));
                                 $revenueProgressColor = $revenueProgress >= 100
-                                    ? 'bg-gradient-to-r from-green-400 to-emerald-500'
+                                    ? 'bg-[#43bf21]'
                                     : ($revenueProgress >= 60
-                                        ? 'bg-gradient-to-r from-blue-400 to-blue-500'
+                                        ? 'bg-[#344bfd]'
                                         : ($revenueProgress >= 30
-                                            ? 'bg-gradient-to-r from-yellow-400 to-amber-500'
-                                            : 'bg-gradient-to-r from-red-400 to-rose-500'));
+                                            ? 'bg-[#e28100]'
+                                            : 'bg-[#fe0000]'));
                             } else {
                                 $revenueProgress      = null;
                                 $revenueProgressColor = 'bg-gray-300';
@@ -372,11 +358,11 @@
                             if ($class->status === 'approved') {
                                 $statusProgress = 50;
                                 $progressText   = 'Sedang Berjalan';
-                                $progressColor  = 'bg-gradient-to-r from-yellow-400 to-amber-500';
+                                $progressColor  = 'bg-[#e28100]';
                             } elseif ($class->status === 'done') {
                                 $statusProgress = 100;
                                 $progressText   = 'Selesai';
-                                $progressColor  = 'bg-gradient-to-r from-green-400 to-emerald-500';
+                                $progressColor  = 'bg-[#43bf21]';
                             } elseif ($class->status === 'rejected') {
                                 $statusProgress = 0;
                                 $progressText   = 'Ditolak';
@@ -387,11 +373,11 @@
                         {{-- Progress status kelas --}}
                         <div class="flex items-center justify-between text-xs text-gray-600 mb-1">
                             <span class="font-semibold"><i class="fas fa-tasks mr-1"></i>{{ $progressText }}</span>
-                            <span class="font-bold {{ $statusProgress >= 100 ? 'text-green-600' : ($statusProgress >= 50 ? 'text-amber-600' : 'text-gray-500') }}">
+                            <span class="font-bold {{ $statusProgress >= 100 ? 'text-green-600' : ($statusProgress >= 50 ? 'text-gray-900' : 'text-gray-500') }}">
                                 {{ $statusProgress }}%
                             </span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden shadow-inner mb-3">
+                        <div class="w-full bg-[#d9d9d9] rounded-full h-2.5 overflow-hidden mb-3">
                             <div class="{{ $progressColor }} h-2.5 rounded-full transition-all duration-500"
                                 style="width: {{ $statusProgress }}%"></div>
                         </div>
@@ -402,11 +388,11 @@
                                 <span class="font-semibold">
                                     <i class="fas fa-bullseye mr-1 text-emerald-600"></i>Target Pendapatan
                                 </span>
-                                <span class="font-bold {{ $revenueProgress >= 100 ? 'text-green-600' : ($revenueProgress >= 60 ? 'text-blue-600' : 'text-amber-600') }}">
+                                <span class="font-bold {{ $revenueProgress >= 100 ? 'text-green-600' : ($revenueProgress >= 60 ? 'text-gray-900' : 'text-gray-900') }}">
                                     {{ $revenueProgress }}%
                                 </span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden shadow-inner mb-1">
+                            <div class="w-full bg-[#d9d9d9] rounded-full h-2.5 overflow-hidden mb-1">
                                 <div class="{{ $revenueProgressColor }} h-2.5 rounded-full transition-all duration-500"
                                     style="width: {{ $revenueProgress }}%"></div>
                             </div>
@@ -429,34 +415,34 @@
                                 @if($class->activeGradeFile && $class->activeGradeFile->status === 'approved')
                                     <form action="{{ route('admin.classes.mark-as-done', $class) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menyelesaikan kelas ini?');">
                                         @csrf
-                                        <button type="submit" class="w-full px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-xs">
-                                            <i class="fas fa-check-double mr-1"></i>Selesaikan
+                                        <button type="submit" class="w-full px-3 py-2.5 bg-[#43bf21] text-white rounded-md hover:bg-[#37a01b] transition text-sm font-semibold">
+                                            <i class="fas fa-lock-open mr-1"></i>Selesaikan
                                         </button>
                                     </form>
                                 @else
-                                    <button type="button" disabled class="w-full px-3 py-2 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed text-xs" title="Butuh file nilai disetujui admin">
+                                    <button type="button" disabled class="w-full px-3 py-2.5 bg-[#fed0d0] text-[#fe0000] rounded-md cursor-not-allowed text-sm font-semibold" title="Butuh file nilai disetujui admin">
                                         <i class="fas fa-lock mr-1"></i>Selesaikan
                                     </button>
                                 @endif
                                 <form action="{{ route('admin.classes.reject', $class) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin reject kelas ini?');">
                                     @csrf
-                                    <button type="submit" class="w-full px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-xs">
-                                        <i class="fas fa-times mr-1"></i>Reject
+                                    <button type="submit" class="w-full px-3 py-2.5 bg-white border border-[#fe0000] text-[#fe0000] rounded-md hover:bg-[#fed0d0]/50 transition text-sm font-semibold">
+                                        <i class="far fa-circle-xmark mr-1"></i>Reject
                                     </button>
                                 </form>
                             </div>
                         @endif
                         <a href="{{ route('admin.classes.show', $class) }}"
-                           class="block w-full text-center px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-md transition">
-                            <i class="fas fa-eye mr-2"></i>Detail Kelas
+                           class="block w-full text-center px-4 py-2.5 bg-[#fe0000] text-white font-semibold rounded-md hover:bg-[#cc0000] transition">
+                            <i class="far fa-eye mr-2"></i>Detail Kelas
                         </a>
                     </div>
                 </div>
             </div>
         @empty
             <div class="col-span-full">
-                <div class="bg-white rounded-xl shadow-sm p-12 text-center">
-                    <i class="fas fa-chalkboard-teacher text-6xl text-gray-300 mb-4"></i>
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-12 text-center">
+                    <i class="fas fa-chalkboard-user text-6xl text-[#fed0d0] mb-4"></i>
                     @if(request('status'))
                         @if(request('status') == 'pending')
                             <p class="text-gray-500 text-lg mb-4">Tidak ada kelas dengan status Pending</p>
