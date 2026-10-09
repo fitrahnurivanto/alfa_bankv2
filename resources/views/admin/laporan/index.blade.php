@@ -1,132 +1,108 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-900 flex items-center">
-                        <i class="fas fa-chart-line mr-3 {{ $activeDivision === 'training' ? 'text-green-600' : 'text-indigo-600' }}"></i>
-                        Laporan {{ $activeDivision === 'training' ? 'Pelatihan' : 'Project' }}
-                    </h1>
-                    <p class="mt-2 text-sm text-gray-600">
-                        Export data {{ $activeDivision === 'training' ? 'kelas pelatihan' : 'project' }} dalam format Excel
-                    </p>
-                </div>
-                @if($activeDivision === 'training')
-                <span class="px-4 py-2 bg-green-100 text-green-800 rounded-lg font-semibold">
-                    <i class="fas fa-graduation-cap mr-2"></i>Pelatihan
-                </span>
-                @else
-                <span class="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-lg font-semibold">
-                    <i class="fas fa-briefcase mr-2"></i>Agency
-                </span>
-                @endif
+<div class="p-1 sm:p-2">
+    <!-- Header -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Laporan {{ $activeDivision === 'training' ? 'Pelatihan' : 'Project' }}</h1>
+            <p class="text-gray-800">Pilih filter untuk mengexport data {{ $activeDivision === 'training' ? 'kelas pelatihan' : 'project' }}</p>
+        </div>
+        @if($activeDivision === 'training')
+        <span class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#fed0d0] border border-[#fe0000] text-[#fe0000] rounded-lg text-lg font-semibold">
+            <i class="fas fa-graduation-cap"></i> Pelatihan
+        </span>
+        @else
+        <span class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#fed0d0] border border-[#fe0000] text-[#fe0000] rounded-lg text-lg font-semibold">
+            <i class="fas fa-briefcase"></i> Agency
+        </span>
+        @endif
+    </div>
+
+    <!-- Export Form Card -->
+    <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-5 sm:p-6 mb-6">
+        <div class="flex items-center gap-4 mb-5">
+            <div class="w-14 h-14 shrink-0 bg-[#13a100] rounded-lg flex items-center justify-center">
+                <i class="far fa-file-lines text-white text-2xl"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Export Data ke Excel</h2>
+                <p class="text-gray-800">Pilih filter untuk mengexport data {{ $activeDivision === 'training' ? 'kelas pelatihan' : 'project' }}</p>
             </div>
         </div>
 
-        <!-- Export Form Card -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-            <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4">
-                    <i class="fas fa-file-excel text-white text-xl"></i>
-                </div>
+        <form action="{{ route('admin.laporan.index') }}" method="GET" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                <!-- Period Filter -->
                 <div>
-                    <h2 class="text-xl font-bold text-gray-900">Export Data ke Excel</h2>
-                    <p class="text-sm text-gray-600">
-                        Pilih filter untuk mengexport data {{ $activeDivision === 'training' ? 'kelas pelatihan' : 'project' }}
-                    </p>
+                    <label for="period" class="block text-xs font-medium uppercase text-gray-900 mb-1">Periode</label>
+                    <select name="period" id="period" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#fe0000]">
+                        <option value="all">Semua Periode</option>
+                        @php
+                            $months = [
+                                '01' => 'Januari', '02' => 'Februari', '03' => 'Maret',
+                                '04' => 'April', '05' => 'Mei', '06' => 'Juni',
+                                '07' => 'Juli', '08' => 'Agustus', '09' => 'September',
+                                '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+                            ];
+                        @endphp
+                        @foreach($months as $num => $name)
+                        <option value="month_{{ $num }}" {{ $period == 'month_' . $num ? 'selected' : '' }}>
+                            {{ $name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Year Filter -->
+                <div>
+                    <label for="year" class="block text-xs font-medium uppercase text-gray-900 mb-1">Tahun</label>
+                    <select name="year" id="year" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#fe0000]">
+                        <option value="">Semua Tahun</option>
+                        @php
+                            $currentYear = date('Y');
+                            for ($y = $currentYear; $y >= $currentYear - 5; $y--) {
+                                $selected = $year == $y ? 'selected' : '';
+                                echo "<option value=\"$y\" $selected>$y</option>";
+                            }
+                        @endphp
+                    </select>
+                </div>
+
+                <!-- Start Date (Optional Detail Filter) -->
+                <div>
+                    <label for="start_date" class="block text-xs font-medium uppercase text-gray-900 mb-1">Tanggal Mulai (Opsional)</label>
+                    <input type="date" name="start_date" id="start_date" value="{{ $filters['start_date'] ?? '' }}" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#fe0000]">
+                </div>
+
+                <!-- End Date (Optional Detail Filter) -->
+                <div>
+                    <label for="end_date" class="block text-xs font-medium uppercase text-gray-900 mb-1">Tanggal Akhir (Opsional)</label>
+                    <input type="date" name="end_date" id="end_date" value="{{ $filters['end_date'] ?? '' }}" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#fe0000]">
                 </div>
             </div>
 
-            <form action="{{ route('admin.laporan.index') }}" method="GET" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <!-- Period Filter -->
-                    <div>
-                        <label for="period" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-calendar-alt mr-2 text-indigo-600"></i>Filter Bulan
-                        </label>
-                        <select name="period" id="period" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            <option value="all">Semua Bulan</option>
-                            @php
-                                $months = [
-                                    '01' => 'Januari', '02' => 'Februari', '03' => 'Maret',
-                                    '04' => 'April', '05' => 'Mei', '06' => 'Juni',
-                                    '07' => 'Juli', '08' => 'Agustus', '09' => 'September',
-                                    '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
-                                ];
-                            @endphp
-                            @foreach($months as $num => $name)
-                                <option value="month_{{ $num }}" {{ $period == 'month_' . $num ? 'selected' : '' }}>
-                                    {{ $name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+            <!-- Buttons -->
+            <div class="flex flex-wrap items-center justify-end gap-3">
+                <a href="{{ route('admin.laporan.index') }}" class="px-6 py-2.5 bg-[#e5e5e5] text-gray-700 rounded-lg hover:bg-[#d4d4d4] transition font-medium">
+                    Reset
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-white border border-[#fe0000] text-[#fe0000] rounded-lg hover:bg-[#fed0d0]/40 transition font-semibold flex items-center">
+                    <i class="fas fa-filter mr-2"></i>Terapkan Filter
+                </button>
+                <button type="submit" formaction="{{ route('admin.laporan.export') }}" formmethod="GET" class="px-6 py-2.5 bg-[#13a100] text-white rounded-lg hover:bg-[#0f8000] transition font-semibold flex items-center shadow">
+                    <i class="far fa-file-lines mr-2"></i>Export ke Excel
+                </button>
+            </div>
+        </form>
+    </div>
 
-                    <!-- Year Filter -->
-                    <div>
-                        <label for="year" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-calendar-alt mr-2 text-indigo-600"></i>Filter Tahun
-                        </label>
-                        <select name="year" id="year" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            <option value="">Semua Tahun</option>
-                            @php
-                                $currentYear = date('Y');
-                                for ($y = $currentYear; $y >= $currentYear - 5; $y--) {
-                                    $selected = $year == $y ? 'selected' : '';
-                                    echo "<option value=\"$y\" $selected>$y</option>";
-                                }
-                            @endphp
-                        </select>
-                    </div>
-
-                    <!-- Start Date (Optional Detail Filter) -->
-                    <div>
-                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-calendar-check mr-2 text-indigo-600"></i>Tanggal Mulai (Opsional)
-                        </label>
-                        <input type="date" name="start_date" id="start_date" value="{{ $filters['start_date'] ?? '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    </div>
-
-                    <!-- End Date (Optional Detail Filter) -->
-                    <div>
-                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-calendar-times mr-2 text-indigo-600"></i>Tanggal Akhir (Opsional)
-                        </label>
-                        <input type="date" name="end_date" id="end_date" value="{{ $filters['end_date'] ?? '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    </div>
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex items-center justify-end space-x-4 pt-4">
-                    <a href="{{ route('admin.laporan.index') }}" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 flex items-center">
-                        <i class="fas fa-redo mr-2"></i>Reset
-                    </a>
-                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                        <i class="fas fa-filter mr-2"></i>Terapkan Filter
-                    </button>
-                    <button
-                        type="submit"
-                        formaction="{{ route('admin.laporan.export') }}"
-                        formmethod="GET"
-                        class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                    >
-                        <i class="fas fa-file-excel mr-2"></i>Export ke Excel
-                    </button>
-                </div>
-            </form>
-        </div>
-
-
-        <!-- Statistics Cards -->
-        <div class="mt-8">
-            @if($activeDivision === 'training')
-                @php
+    <!-- Statistics Cards -->
+    @if($activeDivision === 'training')
+    @php
                     // Build query with filters
                     $query = \App\Models\Clas::query();
+                    $hasDateRange = !empty($filters['start_date']) && !empty($filters['end_date']);
                     
                     if (!empty($filters['year'])) {
                         $query->whereYear('start_date', $filters['year']);
@@ -143,19 +119,21 @@
                         ->with('kategori')
                         ->get();
 
-                    $paymentRevenueQuery = \App\Models\Payment::whereNotNull('confirmed_at');
+                    $paymentRevenueQuery = \App\Models\InboundPayment::query()
+                        ->where('status', 'verified')
+                        ->whereNotNull('paid_at');
 
                     if ($hasDateRange) {
-                        $paymentRevenueQuery->whereBetween('confirmed_at', [$filters['start_date'], $filters['end_date']]);
+                        $paymentRevenueQuery->whereBetween('paid_at', [$filters['start_date'], $filters['end_date']]);
                     } else {
                         if (!empty($filters['year'])) {
-                            $paymentRevenueQuery->whereYear('confirmed_at', $filters['year']);
+                            $paymentRevenueQuery->whereYear('paid_at', $filters['year']);
                         }
                         if (!empty($filters['start_date'])) {
-                            $paymentRevenueQuery->whereDate('confirmed_at', '>=', $filters['start_date']);
+                            $paymentRevenueQuery->whereDate('paid_at', '>=', $filters['start_date']);
                         }
                         if (!empty($filters['end_date'])) {
-                            $paymentRevenueQuery->whereDate('confirmed_at', '<=', $filters['end_date']);
+                            $paymentRevenueQuery->whereDate('paid_at', '<=', $filters['end_date']);
                         }
                     }
 
@@ -174,13 +152,13 @@
                     // Samakan cakupan Total Kelas dengan 3 card kategori agar sinkron.
                     $totalClasses = $regularClasses + $corporateClasses + $privateClasses;
 
-                    $regularRevenue = (clone $paymentRevenueQuery)->whereHas('invoice.registration.training', function ($q) {
+                    $regularRevenue = (clone $paymentRevenueQuery)->whereHas('clas.training', function ($q) {
                         $q->where('type', 'reguler');
                     })->sum('amount');
-                    $corporateRevenue = (clone $paymentRevenueQuery)->whereHas('invoice.registration.training', function ($q) {
+                    $corporateRevenue = (clone $paymentRevenueQuery)->whereHas('clas.training', function ($q) {
                         $q->where('type', 'corporate');
                     })->sum('amount');
-                    $privateRevenue = (clone $paymentRevenueQuery)->whereHas('invoice.registration.training', function ($q) {
+                    $privateRevenue = (clone $paymentRevenueQuery)->whereHas('clas.training', function ($q) {
                         $q->where('type', 'private');
                     })->sum('amount');
 
@@ -193,174 +171,125 @@
                             return ((int) ($item->bnsp_student_count ?? 0)) * ((float) ($item->bnsp_fee_per_student ?? 0));
                         });
                 @endphp
-                <div class="space-y-3 md:space-y-4 mb-4 md:mb-5">
-                    <div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Reguler</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-blue-600 break-words">Rp {{ number_format($regularRevenue, 0, ',', '.') }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori reguler</p>
-                                        </div>
-                                        <div class="bg-blue-100 p-3 rounded-xl">
-                                            <i class="fas fa-book-open text-3xl text-blue-500"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Corporate</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-indigo-600 break-words">Rp {{ number_format($corporateRevenue, 0, ',', '.') }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori corporate</p>
-                                        </div>
-                                        <div class="bg-indigo-100 p-3 rounded-xl">
-                                            <i class="fas fa-building text-3xl text-indigo-500"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Private</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-amber-600 break-words">Rp {{ number_format($privateRevenue, 0, ',', '.') }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk kategori private</p>
-                                        </div>
-                                        <div class="bg-amber-100 p-3 rounded-xl">
-                                            <i class="fas fa-user text-3xl text-amber-500"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omzet Masuk</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-gray-800 break-words">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total Omzet Masuk semua kategori</p>
-                                        </div>
-                                        <div class="bg-purple-100 p-3 rounded-xl">
-                                            <i class="fas fa-money-bill-wave text-3xl text-purple-500"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+        <section class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Daftar Omset</h3>
+            <div class="space-y-4">
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-book-open text-2xl text-[#fe0000]"></i>
                     </div>
-
-                    <div>
-                        <div class="mb-2 text-xs md:text-sm text-gray-500">
-                            Total kelas dihitung dari data yang lolos filter bulan/tahun/tanggal.
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Total Kelas</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-gray-900 break-words">{{ $totalClasses }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total kelas approved + selesai (reguler, corporate, private)</p>
-                                        </div>
-                                        <div class="bg-slate-100 p-3 rounded-xl">
-                                            <i class="fas fa-layer-group text-3xl text-slate-600"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Total Kelas Reguler</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-blue-700 break-words">{{ $regularClasses }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Jumlah kelas kategori reguler</p>
-                                        </div>
-                                        <div class="bg-blue-100 p-3 rounded-xl">
-                                            <i class="fas fa-book-open text-3xl text-blue-600"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Total Kelas Corporate</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-indigo-700 break-words">{{ $corporateClasses }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Jumlah kelas kategori corporate</p>
-                                        </div>
-                                        <div class="bg-indigo-100 p-3 rounded-xl">
-                                            <i class="fas fa-building text-3xl text-indigo-600"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300 sm:col-span-2 xl:col-span-1">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Total Kelas Private</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-amber-700 break-words">{{ $privateClasses }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Jumlah kelas kategori private</p>
-                                        </div>
-                                        <div class="bg-amber-100 p-3 rounded-xl">
-                                            <i class="fas fa-user text-3xl text-amber-600"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Omset Sertifikasi</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-emerald-700 break-words">Rp {{ number_format($certificationRevenue, 0, ',', '.') }}</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Dari {{ $certificationClassCount }} kelas sertifikasi</p>
-                                        </div>
-                                        <div class="bg-emerald-100 p-3 rounded-xl">
-                                            <i class="fas fa-certificate text-3xl text-emerald-600"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white rounded-2xl shadow-sm hover:-translate-y-1 transition-transform duration-300">
-                                <div class="p-4 md:p-6">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-gray-500 text-xs md:text-sm mb-1 truncate">Data Sertifikasi</p>
-                                            <h4 class="text-lg md:text-xl xl:text-2xl font-bold text-cyan-700 break-words">{{ number_format($certificationStudentCount, 0, ',', '.') }} siswa</h4>
-                                            <p class="text-gray-400 text-xs mt-1 truncate">Total peserta program sertifikasi</p>
-                                        </div>
-                                        <div class="bg-cyan-100 p-3 rounded-xl">
-                                            <i class="fas fa-user-check text-3xl text-cyan-600"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Omset Reguler</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($regularRevenue, 0, ',', '.') }}</p>
+                        <p class="text-xs text-gray-700 leading-tight">Total pendapatan kotor kategori reguler</p>
                     </div>
                 </div>
-            @else
-                @php
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-building text-2xl text-[#fe0000]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Omset Corporate</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($corporateRevenue, 0, ',', '.') }}</p>
+                        <p class="text-xs text-gray-700 leading-tight">Total pendapatan kotor kategori corporate</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-user text-2xl text-[#fe0000]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Omset Private</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($privateRevenue, 0, ',', '.') }}</p>
+                        <p class="text-xs text-gray-700 leading-tight">Total pendapatan kotor kategori private</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-money-bill-wave text-2xl text-[#fe0000]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Pendapatan Kotor (Bruto)</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+                        <p class="text-xs text-gray-700 leading-tight">Total pendapatan kotor semua kategori</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Total Semua Kelas</h3>
+            <div class="space-y-4">
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-book-open text-2xl text-[#fe0000]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Total Kelas Reguler</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">{{ $regularClasses }}</p>
+                        <p class="text-xs text-gray-700 leading-tight">Jumlah kelas kategori reguler</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-building text-2xl text-[#fe0000]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Total Kelas Corporate</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">{{ $corporateClasses }}</p>
+                        <p class="text-xs text-gray-700 leading-tight">Jumlah kelas kategori corporate</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-user text-2xl text-[#fe0000]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Total Kelas Private</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">{{ $privateClasses }}</p>
+                        <p class="text-xs text-gray-700 leading-tight">Jumlah kelas kategori private</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-layer-group text-2xl text-[#fe0000]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Total Kelas</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">{{ $totalClasses }}</p>
+                        <p class="text-xs text-gray-700 leading-tight">Total kelas approved + selesai (reguler, corporate, private)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Program Sertifikasi</h3>
+            <div class="space-y-4">
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-certificate text-2xl text-[#fe0000]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Omset Sertifikasi</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($certificationRevenue, 0, ',', '.') }}</p>
+                        <p class="text-xs text-gray-700 leading-tight">Dari {{ $certificationClassCount }} kelas sertifikasi</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-3 flex items-center gap-3">
+                    <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                        <i class="fas fa-id-card text-2xl text-[#fe0000]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base text-gray-900 leading-tight">Data Sertifikasi</p>
+                        <p class="text-xl md:text-2xl font-bold text-gray-900 leading-tight break-words">{{ number_format($certificationStudentCount, 0, ',', '.') }} Siswa</p>
+                        <p class="text-xs text-gray-700 leading-tight">Total peserta program sertifikasi</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    @else
+    @php
                     // Agency stats - with filters (use project start_date if order_date is null)
                     $projectQuery = \App\Models\Project::whereHas('order.orderItems.service.category', function($q) {
                         $q->where('division', 'agency');
@@ -429,63 +358,46 @@
                     
                     $totalRevenue = $revenueQuery->sum('paid_amount');
                 @endphp
-
-                <!-- Total Projects -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Total Project</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ $totalProjects }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-project-diagram text-blue-600 text-xl"></i>
-                        </div>
-                    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-4 flex items-center gap-3">
+                <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                    <i class="fas fa-diagram-project text-2xl text-[#fe0000]"></i>
                 </div>
-
-                <!-- Completed Projects -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Project Selesai</p>
-                            <p class="text-2xl font-bold text-green-600">{{ $completedProjects }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                        </div>
-                    </div>
+                <div class="min-w-0">
+                    <p class="text-base text-gray-900">Total Project</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $totalProjects }}</p>
                 </div>
-
-                <!-- Active Projects -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Project Aktif</p>
-                            <p class="text-2xl font-bold text-yellow-600">{{ $activeProjects }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-spinner text-yellow-600 text-xl"></i>
-                        </div>
-                    </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-4 flex items-center gap-3">
+                <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                    <i class="fas fa-circle-check text-2xl text-[#fe0000]"></i>
                 </div>
-
-                <!-- Total Revenue -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Total Pendapatan</p>
-                            <p class="text-xl font-bold text-purple-600">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-money-bill-wave text-purple-600 text-xl"></i>
-                        </div>
-                    </div>
+                <div class="min-w-0">
+                    <p class="text-base text-gray-900">Project Selesai</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $completedProjects }}</p>
                 </div>
-            @endif
-        </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-4 flex items-center gap-3">
+                <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                    <i class="fas fa-spinner text-2xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-base text-gray-900">Project Aktif</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $activeProjects }}</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-4 flex items-center gap-3">
+                <div class="w-14 h-14 shrink-0 rounded-lg bg-[#fed0d0] border border-[#fe0000] flex items-center justify-center">
+                    <i class="fas fa-money-bill-wave text-2xl text-[#fe0000]"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-base text-gray-900">Total Pendapatan</p>
+                    <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+                </div>
+            </div>
     </div>
+    @endif
 </div>
-
 @endsection
 
 @push('scripts')

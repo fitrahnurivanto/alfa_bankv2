@@ -3,23 +3,21 @@
 @section('title', 'Detail Barang - ' . $inventaris->nama_barang)
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <!-- Back Button -->
-    <div class="mb-6">
-        <a href="{{ route('admin.inventaris.index') }}" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium">
-            <i class="fas fa-arrow-left"></i> Kembali ke List
-        </a>
-    </div>
-
+<div class="p-4 sm:p-6 max-w-6xl mx-auto">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">{{ $inventaris->nama_barang }}</h1>
-            <p class="text-gray-600 mt-1">Kode: <span class="font-mono text-blue-600">{{ $inventaris->kode_barang }}</span></p>
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div class="flex items-start gap-4">
+            <a href="{{ route('admin.inventaris.index') }}" class="text-gray-900 hover:text-[#fe0000] text-2xl mt-1.5">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $inventaris->nama_barang }}</h1>
+                <p class="text-gray-800">Kode: <span class="font-mono text-[#344bfd]">{{ $inventaris->kode_barang }}</span></p>
+            </div>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('admin.inventaris.edit', $inventaris->id) }}" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                <i class="fas fa-edit"></i> Edit
+            <a href="{{ route('admin.inventaris.edit', $inventaris->id) }}" class="bg-[#fdebd0] border border-[#e28100] text-[#e28100] hover:bg-[#ffe0b8] px-5 py-2 rounded-md flex items-center gap-2 font-semibold shadow transition">
+                <i class="far fa-pen-to-square"></i> Edit
             </a>
         </div>
     </div>
@@ -28,7 +26,7 @@
         <!-- Main Content -->
         <div class="lg:col-span-2">
             <!-- Foto Gallery -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] overflow-hidden mb-6">
                 @php
                     $photos = $inventaris->photos ?? collect();
                 @endphp
@@ -58,7 +56,7 @@
                         <button 
                             type="button"
                             onclick="document.getElementById('addPhotoInput').click()"
-                            class="text-blue-600 hover:text-blue-900 flex items-center gap-2 text-sm font-medium"
+                            class="text-[#fe0000] hover:text-[#cc0000] flex items-center gap-2 text-sm font-medium"
                         >
                             <i class="fas fa-plus"></i> Tambah Foto
                         </button>
@@ -78,7 +76,7 @@
                             <button 
                                 type="button"
                                 onclick="document.getElementById('addPhotoInput').click()"
-                                class="text-blue-600 hover:text-blue-900 mt-2 text-sm font-medium"
+                                class="text-[#fe0000] hover:text-[#cc0000] mt-2 text-sm font-medium"
                             >
                                 Tambah Foto Pertama
                             </button>
@@ -95,7 +93,7 @@
             </div>
 
             <!-- Informasi Barang -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 mb-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Informasi Barang</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -144,17 +142,17 @@
             </div>
 
             <!-- Status Barang -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 mb-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Status Barang</h2>
                 <div class="grid grid-cols-3 gap-4">
-                    <div class="border rounded-lg p-4 text-center">
+                    <div class="bg-[#fed0d0]/50 rounded-lg p-4 text-center">
                         <p class="text-sm text-gray-600 mb-2">Posisi</p>
                         <p class="text-lg font-bold text-gray-900 mb-2">{{ ucfirst($inventaris->posisi) }}</p>
-                        <a href="{{ route('admin.inventaris.edit-posisi', $inventaris->id) }}" class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+                        <a href="{{ route('admin.inventaris.edit-posisi', $inventaris->id) }}" class="text-[#fe0000] hover:text-[#cc0000] text-sm font-medium">
                             Ubah Posisi
                         </a>
                     </div>
-                    <div class="border rounded-lg p-4 text-center">
+                    <div class="bg-[#fed0d0]/50 rounded-lg p-4 text-center">
                         <p class="text-sm text-gray-600 mb-2">Kondisi</p>
                         @php
                             $kondisiColors = [
@@ -168,11 +166,11 @@
                         <p class="text-lg font-bold mb-2 px-3 py-1 rounded {{ $kondisiColors[$inventaris->kondisi] ?? 'text-gray-600 bg-gray-50' }}">
                             {{ ucfirst(str_replace('_', ' ', $inventaris->kondisi)) }}
                         </p>
-                        <a href="{{ route('admin.inventaris.edit-kondisi', $inventaris->id) }}" class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+                        <a href="{{ route('admin.inventaris.edit-kondisi', $inventaris->id) }}" class="text-[#fe0000] hover:text-[#cc0000] text-sm font-medium">
                             Ubah Kondisi
                         </a>
                     </div>
-                    <div class="border rounded-lg p-4 text-center">
+                    <div class="bg-[#fed0d0]/50 rounded-lg p-4 text-center">
                         <p class="text-sm text-gray-600 mb-2">Status</p>
                         <span class="text-lg font-bold px-3 py-1 rounded {{ $inventaris->status === 'aktif' ? 'text-green-600 bg-green-50' : 'text-gray-600 bg-gray-50' }}">
                             {{ ucfirst($inventaris->status) }}
@@ -183,7 +181,7 @@
 
             <!-- Catatan -->
             @if($inventaris->catatan)
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 mb-6">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Catatan</h2>
                     <p class="text-gray-700 whitespace-pre-wrap">{{ $inventaris->catatan }}</p>
                 </div>
@@ -191,11 +189,11 @@
 
             <!-- Riwayat Perubahan -->
             @if($inventaris->movements->count() > 0)
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Riwayat Perubahan</h2>
                     <div class="space-y-4">
                         @foreach($inventaris->movements->sortByDesc('waktu_perubahan') as $movement)
-                            <div class="border-l-4 {{ $movement->tipe_perubahan === 'posisi_change' ? 'border-blue-500' : 'border-orange-500' }} pl-4 py-2">
+                            <div class="border-l-4 {{ $movement->tipe_perubahan === 'posisi_change' ? 'border-[#344bfd]' : 'border-[#e28100]' }} pl-4 py-2">
                                 <p class="text-sm font-semibold text-gray-900">
                                     @if($movement->tipe_perubahan === 'posisi_change')
                                         Perubahan Posisi
@@ -222,7 +220,7 @@
         <!-- Sidebar -->
         <div class="lg:col-span-1">
             <!-- Info Card -->
-            <div class="bg-white rounded-lg shadow-md p-6 sticky top-20">
+            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 sticky top-20">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Informasi Tambahan</h3>
 
                 <div class="mb-4">
@@ -246,14 +244,14 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <a href="{{ route('admin.inventaris.edit', $inventaris->id) }}" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-lg text-center text-sm font-medium">
-                        <i class="fas fa-edit mr-1"></i> Edit
+                    <a href="{{ route('admin.inventaris.edit', $inventaris->id) }}" class="flex-1 bg-[#fdebd0] border border-[#e28100] text-[#e28100] hover:bg-[#ffe0b8] py-2 rounded-md text-center text-sm font-semibold">
+                        <i class="far fa-pen-to-square mr-1"></i> Edit
                     </a>
                     <button 
                         onclick="confirmDelete({{ $inventaris->id }})" 
-                        class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm font-medium"
+                        class="flex-1 bg-white border border-[#fe0000] text-[#fe0000] hover:bg-[#fed0d0]/50 py-2 rounded-md text-sm font-semibold"
                     >
-                        <i class="fas fa-trash mr-1"></i> Hapus
+                        <i class="far fa-trash-can mr-1"></i> Hapus
                     </button>
                 </div>
             </div>

@@ -1,177 +1,91 @@
 @extends('layouts.app')
 
-@section('page-title', 'Edit Trainer')
-
 @section('content')
-<div class="mb-6">
-    <a href="{{ route('admin.trainers.index') }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition">
-        <i class="fas fa-arrow-left"></i> Kembali
-    </a>
-</div>
-
-<h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Data Trainer</h2>
-
-@if($errors->any())
-    <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6">
-        <ul class="list-disc list-inside mb-0">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+<div class="p-4 sm:p-6 max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6 flex items-start gap-4">
+        <a href="{{ route('admin.trainers.index') }}" class="text-gray-900 hover:text-[#fe0000] text-2xl mt-1.5">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Edit Data Trainer</h1>
+            <p class="text-gray-800">Perbarui data trainer {{ $trainer->name }}</p>
+        </div>
     </div>
-@endif
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <form action="{{ route('admin.trainers.update', $trainer) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
-
-        <!-- Name -->
-        <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Nama Lengkap <span class="text-red-500">*</span>
-            </label>
-            <input type="text" 
-                   name="name" 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-                   value="{{ old('name', $trainer->name) }}"
-                   placeholder="Masukkan nama lengkap trainer"
-                   required>
-        </div>
-
-        <!-- Email -->
-        <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Email <span class="text-red-500">*</span>
-            </label>
-            <input type="email" 
-                   name="email" 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-                   value="{{ old('email', $trainer->email) }}"
-                   placeholder="trainer@example.com"
-                   required>
-            <p class="text-sm text-gray-600 mt-1">Email akan digunakan untuk login</p>
-        </div>
-
-        <!-- Phone -->
-        <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                No. Telepon
-            </label>
-            <input type="text" 
-                   name="phone" 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-                   value="{{ old('phone', $trainer->phone) }}"
-                   placeholder="08xxxxxxxxxx">
-        </div>
-
-        <!-- Address -->
-        <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Alamat
-            </label>
-            <textarea name="address" 
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-                      rows="3"
-                      placeholder="Masukkan alamat lengkap">{{ old('address', $trainer->address) }}</textarea>
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Spesialisasi</label>
-            <input type="text" name="specialization" value="{{ old('specialization', $trainer->specialization) }}"
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                   placeholder="Contoh: Laravel, UI/UX, Digital Marketing">
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Bio</label>
-            <textarea name="bio" rows="4"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Profil dan pengalaman trainer">{{ old('bio', $trainer->bio) }}</textarea>
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-            <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                <option value="active" {{ old('status', $trainer->status) === 'active' ? 'selected' : '' }}>Active</option>
-                <option value="inactive" {{ old('status', $trainer->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
-            </select>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <!-- Form -->
+    <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] p-6 sm:p-8">
+        <form action="{{ route('admin.trainers.update', $trainer) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
+            <div class="">
+                <label for="name" class="block text-base text-gray-900 mb-1.5">Nama Lengkap <span class="text-[#fe0000]">*</span></label>
+                <input type="text" name="name" id="name" value="{{ old('name', $trainer->name) }}" class="w-full px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 border border-gray-300 rounded-md focus:outline-none focus:border-[#fe0000] focus:ring-1 focus:ring-[#fe0000] @error('name') border-red-500 @enderror" placeholder="Masukkan nama lengkap trainer">
+                @error('name')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="">
+                <label for="email" class="block text-base text-gray-900 mb-1.5">Email <span class="text-[#fe0000]">*</span></label>
+                <input type="email" name="email" id="email" value="{{ old('email', $trainer->email) }}" class="w-full px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 border border-gray-300 rounded-md focus:outline-none focus:border-[#fe0000] focus:ring-1 focus:ring-[#fe0000] @error('email') border-red-500 @enderror" placeholder="trainer@example.com">
+                @error('email')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="">
+                <label for="phone" class="block text-base text-gray-900 mb-1.5">No. Telepon / WhatsApp</label>
+                <input type="text" name="phone" id="phone" value="{{ old('phone', $trainer->phone) }}" class="w-full px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 border border-gray-300 rounded-md focus:outline-none focus:border-[#fe0000] focus:ring-1 focus:ring-[#fe0000] @error('phone') border-red-500 @enderror" placeholder="08xxxxxxxxxx">
+                @error('phone')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="">
+                <label for="expertise" class="block text-base text-gray-900 mb-1.5">Spesialisasi <span class="text-[#fe0000]">*</span></label>
+                <input type="text" name="expertise" id="expertise" value="{{ old('expertise', $trainer->expertise) }}" class="w-full px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 border border-gray-300 rounded-md focus:outline-none focus:border-[#fe0000] focus:ring-1 focus:ring-[#fe0000] @error('expertise') border-red-500 @enderror" placeholder="Contoh: Laravel, UI/UX, Digital Marketing">
+                @error('expertise')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Ganti Foto</label>
-                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                @if($trainer->photo_path)
-                    <p class="text-xs text-gray-500 mt-1">Foto saat ini tersedia. Upload baru untuk mengganti.</p>
+                <label for="status" class="block text-base text-gray-900 mb-1.5">Status <span class="text-[#fe0000]">*</span></label>
+                <select name="status" id="status" class="w-full px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 border border-gray-300 rounded-md focus:outline-none focus:border-[#fe0000] focus:ring-1 focus:ring-[#fe0000] @error('status') border-red-500 @enderror">
+                    <option value="active" {{ old('status', $trainer->status) == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ old('status', $trainer->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                </select>
+                @error('status')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="md:col-span-2">
+                <label for="bio" class="block text-base text-gray-900 mb-1.5">Bio / Profil Singkat</label>
+                <textarea name="bio" id="bio" rows="3" class="w-full px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 border border-gray-300 rounded-md focus:outline-none focus:border-[#fe0000] focus:ring-1 focus:ring-[#fe0000] @error('bio') border-red-500 @enderror" placeholder="Profil dan pengalaman trainer">{{ old('bio', $trainer->bio) }}</textarea>
+                @error('bio')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            </div>
+
+        <div class="mt-6 bg-[#ffeed9] border border-[#8a4b00] rounded-lg p-5 text-[#8a4b00]">
+            <p class="text-xl font-semibold flex items-center gap-2 mb-2"><i class="far fa-circle-info"></i> Informasi</p>
+            <ul class="list-disc pl-8 space-y-1 text-base">
+                <li>Trainer ID: <strong>{{ $trainer->id }}</strong></li>
+                @if(isset($trainer->classes_count))
+                <li>Jumlah Kelas: <strong>{{ $trainer->classes_count }} kelas</strong></li>
                 @endif
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Ganti CV</label>
-                <input type="file" name="cv" accept="application/pdf,.doc,.docx"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                @if($trainer->cv_path)
-                    <p class="text-xs text-gray-500 mt-1">CV saat ini tersedia. Upload baru untuk mengganti.</p>
-                    <a href="{{ route('admin.trainers.cv', $trainer) }}" class="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800 mt-2">
-                        <i class="fas fa-download"></i> Download CV saat ini
-                    </a>
-                @endif
-            </div>
+                <li>Terdaftar sejak: <strong>{{ $trainer->created_at->format('d/m/Y') }}</strong></li>
+            </ul>
         </div>
 
-        <!-- Password (Optional) -->
-        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <p class="text-sm font-semibold text-yellow-800 mb-3">
-                <i class="fas fa-lock mr-1"></i> Ubah Password (Opsional)
-            </p>
-            
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Password Baru
-                </label>
-                <input type="password" 
-                       name="password" 
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" 
-                       placeholder="Kosongkan jika tidak ingin mengubah password">
-                <p class="text-xs text-gray-600 mt-1">Minimal 8 karakter</p>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Konfirmasi Password Baru
-                </label>
-                <input type="password" 
-                       name="password_confirmation" 
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" 
-                       placeholder="Ulangi password baru">
-            </div>
-        </div>
-
-        <!-- Info Box -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div class="flex items-start gap-3">
-                <i class="fas fa-info-circle text-blue-600 text-lg mt-0.5"></i>
-                <div class="text-sm text-blue-800">
-                    <p class="font-semibold mb-1">Informasi:</p>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li>Trainer ID: <strong>{{ $trainer->id }}</strong></li>
-                        <li>Jumlah Kelas: <strong>{{ $trainer->classes()->count() }} kelas</strong></li>
-                        <li>Terdaftar sejak: <strong>{{ $trainer->created_at->format('d/m/Y') }}</strong></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Buttons -->
-        <div class="flex gap-3">
-            <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold flex items-center gap-2">
-                <i class="fas fa-save"></i> Update Trainer
+        <div class="flex flex-wrap gap-4 mt-8">
+            <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-[#fe0000] text-white font-semibold rounded-lg shadow-[0_3px_6px_rgba(0,0,0,0.25)] hover:bg-[#cc0000] transition">
+                <i class="far fa-floppy-disk"></i> Update Trainer
             </button>
-            <a href="{{ route('admin.trainers.index') }}" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold">
+            <a href="{{ route('admin.trainers.index') }}" class="inline-flex items-center px-6 py-3 bg-white border border-[#fe0000] text-[#fe0000] font-semibold rounded-lg hover:bg-[#fed0d0]/40 transition">
                 Batal
             </a>
         </div>
-    </form>
+        </form>
+    </div>
 </div>
 @endsection
