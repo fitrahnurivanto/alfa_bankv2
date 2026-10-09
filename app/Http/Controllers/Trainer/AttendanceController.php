@@ -134,9 +134,10 @@ class AttendanceController extends Controller
         $isCi4Class = $class->registrants()
             ->whereNotNull('external_registration_id')
             ->exists();
-        $ci4StudentCount = $isCi4Class
-            ? $class->registrants()->active()->count()
-            : null;
+
+        // Jumlah siswa SIM disinkronkan setelah siswa melakukan presensi.
+        // Jangan gunakan jumlah peserta terdaftar sebagai jumlah hadir.
+        $ci4StudentCount = $isCi4Class ? 0 : null;
 
         $today = now()->toDateString();
 
@@ -170,7 +171,7 @@ class AttendanceController extends Controller
         $attendance->check_in_latitude = $validated['check_in_latitude'];
         $attendance->check_in_longitude = $validated['check_in_longitude'];
         $attendance->check_in_accuracy = $validated['check_in_accuracy'];
-        $attendance->material_covered = $validated['material_covered'];
+        $attendance->material_covered = trim($validated['material_covered']);
         $attendance->students_present = $ci4StudentCount;
         $attendance->save();
 

@@ -178,8 +178,8 @@
                         <input type="hidden" name="check_in_accuracy" id="check_in_accuracy">
 
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-slate-700">Materi yang Disampaikan</label>
-                            <textarea name="material_covered" rows="4" required class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-500 focus:ring-4 focus:ring-slate-200" placeholder="Contoh: Pembahasan modul komunikasi efektif, roleplay, evaluasi akhir.">{{ old('material_covered') }}</textarea>
+                            <label class="block text-sm font-semibold text-slate-700">Materi yang Disampaikan <span class="text-red-500">*</span></label>
+                            <textarea name="material_covered" rows="4" required minlength="3" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-slate-500 focus:ring-4 focus:ring-slate-200" placeholder="Contoh: Pembahasan modul komunikasi efektif, roleplay, evaluasi akhir.">{{ old('material_covered') }}</textarea>
                         </div>
 
                         <button type="button" id="checkin-btn" class="inline-flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition {{ $hasOpenSession ? 'cursor-not-allowed bg-slate-400' : 'bg-emerald-600 hover:bg-emerald-700' }}" {{ $hasOpenSession ? 'disabled' : '' }}>
@@ -224,7 +224,9 @@
                         </div>
                         @else
                         <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
-                            Jumlah siswa hadir untuk kelas CI4 akan dihitung otomatis dari peserta yang terdaftar.
+                            Jumlah siswa hadir dari SIM:
+                            <span class="font-bold">{{ $currentAttendance->students_present ?? 0 }} siswa</span>.
+                            Angka diperbarui sesuai peserta yang berstatus hadir.
                         </div>
                         @endif
 

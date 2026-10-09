@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassRegistrant;
+use App\Models\ClassSession;
 use App\Models\Clas;
 use App\Models\InboundPayment;
 use App\Models\SsoToken;
@@ -54,6 +55,40 @@ class IntegrationApiController extends Controller
             'check_in_at' => $item->check_in_at?->toIso8601String(),
             'check_out_at' => $item->check_out_at?->toIso8601String(),
         ])->values()]);
+    }
+
+    public function studentAttendanceCount(Request $request, Clas $class, ClassSession $session): JsonResponse
+    {
+        $validated = $request->validate([
+            'present_count' => ['required', 'integer', 'min:0'],
+        ]);
+
+        if ((int) $session->class_id !== (int) $class->id) {
+            return response()->json(['message' => 'Sesi tidak sesuai dengan kelas.'], 422);
+        }
+
+        $attendance = TrainerAttendance::query()
+            ->where('clas_id', $class->id)
+            ->where('session_number', $session->session_number)
+            ->whereDate('attendance_date', $session->session_date ?: now()->toDateString())
+            ->whereNotNull('check_in_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$attendance) {
+            return response()->json(['message' => 'Absensi trainer untuk sesi ini belum dibuka.'], 409);
+        }
+
+        $attendance->update(['students_present' => $validated['present_count']]);
+
+        return response()->json([
+            'message' => 'Jumlah siswa hadir berhasil disinkronkan.',
+            'data' => [
+                'class_id' => $class->id,
+                'session_number' => $session->session_number,
+                'students_present' => (int) $attendance->students_present,
+            ],
+        ]);
     }
 
     public function gradeFile(Request $request, Clas $class): JsonResponse

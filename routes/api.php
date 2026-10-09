@@ -16,6 +16,7 @@ Route::middleware('api.key')->group(function () {
     Route::get('/trainings', [MasterDataApiController::class, 'trainings']);
     Route::get('/classes/{class}/sessions', [IntegrationApiController::class, 'sessions']);
     Route::get('/classes/{class}/trainer-attendance', [IntegrationApiController::class, 'trainerAttendance']);
+    Route::post('/classes/{class}/sessions/{session}/student-attendance-count', [IntegrationApiController::class, 'studentAttendanceCount']);
     Route::get('/classes/{class}/grade-file', [IntegrationApiController::class, 'gradeFile']);
     Route::post('/payments', [IntegrationApiController::class, 'payment']);
     Route::post('/sso/consume', [IntegrationApiController::class, 'consumeSso']);
