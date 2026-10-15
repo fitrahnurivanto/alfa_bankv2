@@ -197,7 +197,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($approvedClasses as $class)
             <div class="h-full bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] hover:shadow-lg transition-all overflow-hidden flex flex-col">
-                <div class="p-5">
+                <div class="p-5 flex flex-col h-full">
                     <!-- Header -->
                     <div class="flex justify-between items-start -mx-5 -mt-5 mb-3 px-6 py-4 border-b border-gray-300">
                         <div class="flex-1">
