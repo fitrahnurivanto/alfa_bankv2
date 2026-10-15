@@ -160,7 +160,7 @@
                         <div class="flex items-start gap-3">
                             <!-- Nama Kelas -->
                             <div>
-                                <a href="{{ route('admin.classes.show', $class) }}" class="text-sm font-medium text-gray-900 underline hover:text-[#fe0000]">{{ $class->name }}</a>
+                                <a href="{{ route('admin.classes.show', $class) }}" class="text-sm font-medium text-gray-900 hover:text-[#fe0000]">{{ $class->name }}</a>
                                 @if($class->instansi)
                                 <div class="text-xs text-gray-500"><i class="fas fa-building mr-1"></i>{{ $class->instansi }}</div>
                                 @endif
