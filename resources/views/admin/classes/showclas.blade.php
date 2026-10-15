@@ -420,13 +420,13 @@
                                         </button>
                                     </form>
                                 @else
-                                    <button type="button" disabled class="w-full px-3 py-2.5 bg-[#fed0d0] text-[#fe0000] rounded-md cursor-not-allowed text-sm font-semibold" title="Butuh file nilai disetujui admin">
+                                    <button type="button" disabled class="w-full px-3 py-2.5 bg-gray-200 text-gray-500 rounded-md cursor-not-allowed text-sm font-semibold" title="Butuh file nilai disetujui admin">
                                         <i class="fas fa-lock mr-1"></i>Selesaikan
                                     </button>
                                 @endif
                                 <form action="{{ route('admin.classes.reject', $class) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin reject kelas ini?');">
                                     @csrf
-                                    <button type="submit" class="w-full px-3 py-2.5 bg-white border border-[#fe0000] text-[#fe0000] rounded-md hover:bg-[#fed0d0]/50 transition text-sm font-semibold">
+                                    <button type="submit" class="w-full px-3 py-2.5 bg-[#fe0000] text-white rounded-md hover:bg-[#cc0000] transition text-sm font-semibold">
                                         <i class="far fa-circle-xmark mr-1"></i>Reject
                                     </button>
                                 </form>
