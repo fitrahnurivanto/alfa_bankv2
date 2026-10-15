@@ -168,6 +168,9 @@
                                 <div class="text-xs text-gray-700 mt-1"><i class="fas fa-user mr-1"></i>{{ $class->private_student_name }}</div>
                                 @endif
                                 <div class="text-sm text-gray-500">{{ $class->meet }}x pertemuan • {{ $class->duration }} JPL</div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-tag mr-1"></i>Kategori: {{ $class->kategori->nama_kategori ?? 'Tidak ada kategori' }}
+                                </div>
                                 
                                 <!-- Pendapatan Kelas (Gross Income) -->
                                 @php
@@ -342,6 +345,9 @@
                 @if(str_contains(strtolower($class->kategori->nama_kategori ?? ''), 'private') && !empty($class->private_student_name))
                 <p class="text-xs text-gray-700 mt-1"><i class="fas fa-user mr-1"></i>{{ $class->private_student_name }}</p>
                 @endif
+                <p class="text-xs text-gray-600 mt-1">
+                    <i class="fas fa-tag mr-1"></i>Kategori: {{ $class->kategori->nama_kategori ?? 'Tidak ada kategori' }}
+                </p>
             </div>
 
             <!-- Card Body -->
