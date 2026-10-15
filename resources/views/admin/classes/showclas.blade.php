@@ -196,7 +196,7 @@
     <!-- Classes Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($approvedClasses as $class)
-            <div class="bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] hover:shadow-lg transition-all overflow-hidden">
+            <div class="h-full bg-white rounded-lg shadow-[0_2px_6px_rgba(0,0,0,0.18)] hover:shadow-lg transition-all overflow-hidden flex flex-col">
                 <div class="p-5">
                     <!-- Header -->
                     <div class="flex justify-between items-start -mx-5 -mt-5 mb-3 px-6 py-4 border-b border-gray-300">
@@ -409,7 +409,7 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="space-y-2">
+                    <div class="mt-auto min-h-[116px] pt-4 flex flex-col justify-end space-y-2">
                         @if($class->status === 'approved' && \Illuminate\Support\Facades\Auth::user()->canManageClass())
                             <div class="grid grid-cols-2 gap-2">
                                 @if($class->activeGradeFile && $class->activeGradeFile->status === 'approved')
