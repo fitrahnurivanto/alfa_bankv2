@@ -147,7 +147,7 @@
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Nama Kelas</th>
                     <th class="px-6 py-3 text-center text-xs font-semibold text-gray-900 uppercase tracking-wider w-48">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Trainer</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-900 uppercase tracking-wider w-48">Trainer</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Metode</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Tanggal</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Aksi</th>
@@ -207,21 +207,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="flex flex-wrap gap-1.5">
-                            @if($class->trainers && $class->trainers->count() > 0)
-                                @foreach($class->trainers as $trainer)
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-900 bg-white text-gray-900 rounded-lg text-xs font-medium">
-                                        <i class="fas fa-user-group"></i>
-                                        {{ $trainer->name }}
-                                    </span>
-                                @endforeach
-                            @else
-                                <span class="text-xs text-gray-400 italic">Belum ada trainer</span>
-                            @endif
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 w-48">
                         <div class="flex flex-col items-center space-y-2 max-w-[180px] mx-auto">
                             <!-- Status Badge -->
                             @if($class->status === 'done')
@@ -274,6 +260,20 @@
                                     </p>
                                 </div>
                                 @endif
+                            @endif
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col items-center gap-1.5 w-48 mx-auto">
+                            @if($class->trainers && $class->trainers->count() > 0)
+                                @foreach($class->trainers as $trainer)
+                                    <span class="flex items-center justify-center gap-1.5 w-full min-h-[42px] px-3 py-1.5 border border-gray-900 bg-white text-gray-900 rounded-lg text-xs font-medium text-center break-words">
+                                        <i class="fas fa-user-group shrink-0"></i>
+                                        <span class="min-w-0 flex-1">{{ $trainer->name }}</span>
+                                    </span>
+                                @endforeach
+                            @else
+                                <span class="text-xs text-gray-400 italic">Belum ada trainer</span>
                             @endif
                         </div>
                     </td>
