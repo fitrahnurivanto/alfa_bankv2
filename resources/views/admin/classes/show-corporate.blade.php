@@ -1191,8 +1191,70 @@
                     </div>
                 </div>
 
-        <!-- Penutupan Kelas -->
-        <div id="penutupan-kelas" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+                <div id="absensi-pengajar" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mt-6">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            <i class="fas fa-user-check text-gray-800 mr-2"></i>Absensi Pengajar (Read Only)
+                        </h2>
+                        <span class="text-xs text-gray-500">Real-time server time, tidak bisa input manual jam/tanggal</span>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-gray-700">
+                                    <th class="text-left py-2">Tanggal</th>
+                                    <th class="text-left py-2">Trainer</th>
+                                    <th class="text-left py-2">Jam Berangkat</th>
+                                    <th class="text-left py-2">Lokasi Berangkat</th>
+                                    <th class="text-left py-2">Akurasi Berangkat (m)</th>
+                                    <th class="text-left py-2">Jam Pulang</th>
+                                    <th class="text-left py-2">Lokasi Pulang</th>
+                                    <th class="text-left py-2">Akurasi Pulang (m)</th>
+                                    <th class="text-left py-2">Siswa Hadir</th>
+                                    <th class="text-left py-2">Materi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($clas->trainerAttendances->take(30) as $attendance)
+                                    <tr class="border-b border-gray-100 align-top">
+                                        <td class="py-2">{{ $attendance->attendance_date ? $attendance->attendance_date->format('d M Y') : '-' }}</td>
+                                        <td class="py-2">{{ $attendance->trainer->name ?? '-' }}</td>
+                                        <td class="py-2">{{ $attendance->check_in_at ? $attendance->check_in_at->format('H:i:s') : '-' }}</td>
+                                        <td class="py-2 text-xs">
+                                            @if($attendance->check_in_latitude && $attendance->check_in_longitude)
+                                                <a class="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" href="https://maps.google.com/?q={{ $attendance->check_in_latitude }},{{ $attendance->check_in_longitude }}">Lihat Maps</a>
+                                                <div class="text-gray-500 mt-1">{{ $attendance->check_in_latitude }}, {{ $attendance->check_in_longitude }}</div>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="py-2">{{ $attendance->check_in_accuracy !== null ? number_format((float) $attendance->check_in_accuracy, 0, ',', '.') : '-' }}</td>
+                                        <td class="py-2">{{ $attendance->check_out_at ? $attendance->check_out_at->format('H:i:s') : '-' }}</td>
+                                        <td class="py-2 text-xs">
+                                            @if($attendance->check_out_latitude && $attendance->check_out_longitude)
+                                                <a class="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" href="https://maps.google.com/?q={{ $attendance->check_out_latitude }},{{ $attendance->check_out_longitude }}">Lihat Maps</a>
+                                                <div class="text-gray-500 mt-1">{{ $attendance->check_out_latitude }}, {{ $attendance->check_out_longitude }}</div>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="py-2">{{ $attendance->check_out_accuracy !== null ? number_format((float) $attendance->check_out_accuracy, 0, ',', '.') : '-' }}</td>
+                                        <td class="py-2">{{ $attendance->students_present ?? '-' }}</td>
+                                        <td class="py-2 max-w-sm">{{ $attendance->material_covered ?: '-' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="10" class="py-4 text-center text-gray-500">Belum ada data absensi pengajar untuk kelas ini.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Penutupan Kelas -->
+                <div id="penutupan-kelas" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 class="text-lg font-semibold text-gray-900">
                     <i class="fas fa-flag-checkered text-emerald-600 mr-2"></i>Penutupan Kelas
