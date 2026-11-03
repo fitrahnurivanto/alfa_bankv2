@@ -113,7 +113,6 @@ class AttendanceController extends Controller
 
         $validated = $request->validate([
             'class_id' => ['required', 'integer', 'exists:clas,id'],
-            'material_covered' => ['required', 'string', 'min:3'],
             'check_in_latitude' => ['required', 'numeric', 'between:-90,90'],
             'check_in_longitude' => ['required', 'numeric', 'between:-180,180'],
             'check_in_accuracy' => ['required', 'numeric', 'min:0'],
@@ -167,7 +166,6 @@ class AttendanceController extends Controller
         $attendance->check_in_latitude = $validated['check_in_latitude'];
         $attendance->check_in_longitude = $validated['check_in_longitude'];
         $attendance->check_in_accuracy = $validated['check_in_accuracy'];
-        $attendance->material_covered = trim($validated['material_covered']);
         // Jumlah hadir CI4 hanya boleh berasal dari sinkronisasi presensi SIM.
         // Jangan menghitung peserta terdaftar atau membawa nilai lama saat check-in.
         $attendance->students_present = null;
@@ -197,6 +195,7 @@ class AttendanceController extends Controller
         $validated = $request->validate([
             'class_id' => ['required', 'integer', 'exists:clas,id'],
             'students_present' => ['nullable', 'integer', 'min:0'],
+            'material_covered' => ['required', 'string', 'min:3'],
             'check_out_latitude' => ['required', 'numeric', 'between:-90,90'],
             'check_out_longitude' => ['required', 'numeric', 'between:-180,180'],
             'check_out_accuracy' => ['required', 'numeric', 'min:0'],
@@ -243,6 +242,7 @@ class AttendanceController extends Controller
         $attendance->check_out_latitude = $validated['check_out_latitude'];
         $attendance->check_out_longitude = $validated['check_out_longitude'];
         $attendance->check_out_accuracy = $validated['check_out_accuracy'];
+        $attendance->material_covered = trim($validated['material_covered']);
         if (!$isCi4Class) {
             $attendance->students_present = $validated['students_present'];
         }
