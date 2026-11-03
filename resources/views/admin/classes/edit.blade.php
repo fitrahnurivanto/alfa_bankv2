@@ -815,6 +815,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const privateStudentInput = document.getElementById('private_student_name');
     const corporateFieldsWrapper = document.getElementById('corporate-fields-wrapper');
     const trainerSection = document.getElementById('trainer-section');
+    const scheduleFieldIds = ['target_revenue_display', 'price_display', 'amount', 'meet', 'duration', 'method', 'status', 'start_date', 'end_date', 'start_time', 'end_time'];
     const jenisRegulerWrapper = document.getElementById('jenis-reguler-wrapper');
     const jenisRegulerInput = document.getElementById('jenis_reguler');
     
@@ -830,6 +831,13 @@ document.addEventListener('DOMContentLoaded', function() {
         trainerSection.style.display = isCorporate ? 'none' : '';
         trainerSection.querySelectorAll('input, select, textarea, button').forEach(function (element) {
             element.disabled = isCorporate;
+        });
+        scheduleFieldIds.forEach(function (fieldId) {
+            const field = document.getElementById(fieldId);
+            if (!field) return;
+            const wrapper = field.closest('.md\\:col-span-1') || field.closest('.md\\:col-span-2') || field.parentElement;
+            if (wrapper) wrapper.style.display = isCorporate ? 'none' : '';
+            field.disabled = isCorporate;
         });
 
         // Toggle instansi khusus Corporate Training

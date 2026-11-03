@@ -284,7 +284,7 @@
                     </div>
                     </div>
                 </section>
-                <section class="card-figma bg-white rounded-lg overflow-hidden">
+                <section id="schedule-section" class="card-figma bg-white rounded-lg overflow-hidden">
                     <div class="px-5 py-3 border-b border-gray-300"><h2 class="text-xl font-bold text-gray-900">Jadwal &amp; Operasional</h2></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-5">
                     <!-- Target Pendapatan Kelas -->
@@ -827,6 +827,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const privateStudentInput = document.getElementById('private_student_name');
     const corporateFieldsWrapper = document.getElementById('corporate-fields-wrapper');
     const trainerSection = document.getElementById('trainer-section');
+    const scheduleSection = document.getElementById('schedule-section');
     
     function toggleFields() {
         const selectedOption = kategoriSelect.options[kategoriSelect.selectedIndex];
@@ -838,6 +839,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const useTerminFlow = isCorporate || isPrivate;
         corporateFieldsWrapper.classList.toggle('hidden', !isCorporate);
         trainerSection.style.display = isCorporate ? 'none' : '';
+        scheduleSection.style.display = isCorporate ? 'none' : '';
+        scheduleSection.querySelectorAll('input, select, textarea, button').forEach(function (element) {
+            element.disabled = isCorporate;
+        });
         trainerSection.querySelectorAll('input, select, textarea, button').forEach(function (element) {
             element.disabled = isCorporate;
         });
