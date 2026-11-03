@@ -195,6 +195,41 @@
             </div>
         </div>
     </section>
+    <section class="card-figma rounded-lg p-4 mb-5">
+        <h5 class="text-base font-bold text-gray-900 mb-3">Pipeline Corporate</h5>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="border-b text-gray-600">
+                    <tr>
+                        <th class="px-3 py-2">Proposal</th>
+                        <th class="px-3 py-2">Instansi</th>
+                        <th class="px-3 py-2">Nilai</th>
+                        <th class="px-3 py-2">Dibayar</th>
+                        <th class="px-3 py-2">Status</th>
+                        <th class="px-3 py-2"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    @forelse($corporatePipeline as $proposal)
+                        <tr>
+                            <td class="px-3 py-2 font-semibold">{{ $proposal->proposal_name }}</td>
+                            <td class="px-3 py-2">{{ $proposal->institution_name }}</td>
+                            <td class="px-3 py-2">Rp {{ number_format((float) $proposal->training_fee, 0, ',', '.') }}</td>
+                            <td class="px-3 py-2">Rp {{ number_format((float) $proposal->paid_amount, 0, ',', '.') }}</td>
+                            <td class="px-3 py-2">{{ ucfirst(str_replace('_', ' ', $proposal->status)) }}</td>
+                            <td class="px-3 py-2">
+                                @if($proposal->clas)
+                                    <a class="text-blue-600 hover:underline" href="{{ route('admin.classes.corporate', $proposal->clas) }}">Detail</a>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="6" class="px-3 py-4 text-gray-500">Belum ada proposal corporate aktif.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
     <section class="card-figma rounded-lg p-4">
         <h5 class="text-base font-bold text-gray-900 mb-3">Rekap Honor</h5>
         <div class="grid grid-cols-1 gap-3">

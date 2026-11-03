@@ -77,7 +77,9 @@
                             </button>
                         @endif
                     @endif
-                    @if(\Illuminate\Support\Facades\Auth::user()->canCreateEditClass())
+                    @if(str_contains(strtolower((string)($clas->kategori->nama_kategori ?? '')), 'corporate'))
+                    <a href="{{ route('admin.classes.corporate', $clas) }}" class="px-5 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition shadow">Corporate Flow</a>
+                    @endif                    @if(\Illuminate\Support\Facades\Auth::user()->canCreateEditClass())
                     <a href="{{ route('admin.classes.edit', $clas) }}" 
                        class="px-5 py-2 bg-[#fdebd0] border border-[#e28100] text-[#e28100] font-semibold rounded-md hover:bg-[#ffe0b8] transition shadow">
                         <i class="far fa-pen-to-square mr-2"></i>Edit
@@ -120,7 +122,7 @@
                 </div>
                 <div class="bg-[#fed0d0] rounded-lg p-4 shadow-[0_2px_4px_rgba(0,0,0,0.18)]">
                     <p class="text-xs text-gray-500 mb-1">Pertemuan</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $clas->meet ?? 0 }}x • {{ $clas->duration ?? 0 }} JPL</p>
+                    <p class="text-sm font-semibold text-gray-900">{{ $clas->meet ?? 0 }}x â€¢ {{ $clas->duration ?? 0 }} JPL</p>
                 </div>
                 <div class="bg-[#fed0d0] rounded-lg p-4 shadow-[0_2px_4px_rgba(0,0,0,0.18)]">
                     <p class="text-xs text-gray-500 mb-1">Pendapatan Kelas</p>

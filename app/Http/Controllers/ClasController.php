@@ -286,6 +286,10 @@ class ClasController extends Controller
             unset($validated['trainer']);  // Remove old trainer field if exists
             
             $class = Clas::create($validated);
+
+            if (str_contains(strtolower((string) ($selectedKategori->nama_kategori ?? '')), 'corporate')) {
+                \App\Http\Controllers\Admin\CorporateProposalController::ensureForClass($class);
+            }
             
             // Create accounts for new trainers and collect their IDs
             foreach ($newTrainers as $trainerName) {

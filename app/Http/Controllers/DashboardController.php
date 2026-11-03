@@ -8,6 +8,8 @@ use App\Models\PaymentRequest;
 use App\Models\ClassExpense;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\CorporateProposalInstallment;
+use App\Models\CorporateProposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -174,12 +176,26 @@ $classValueRevenue = $totalRevenue;
     })
     ->sum('price');
 
-$corporateRevenue = (clone $classQuery)
-    ->whereIn('status', ['approved', 'done'])
-    ->whereHas('kategori', function ($query) {
-        $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
-    })
-    ->sum('price');
+$corporateRevenue = 0;
+if (Schema::hasTable('corporate_proposal_installments')) {
+    $corporateRevenue = (float) CorporateProposalInstallment::query()
+        ->whereIn('payment_status', ['paid', 'partial'])
+        ->whereNotNull('paid_at')
+        ->whereHas('proposal.clas', function ($query) use ($classQuery) {
+            $query->whereIn('status', ['approved', 'done'])
+                ->whereHas('kategori', function ($categoryQuery) {
+                    $categoryQuery->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
+                });
+        })
+        ->when($period !== 'all', function ($query) use ($period, $year) {
+            $actualYear = ($year !== 'all') ? (int) $year : (int) date('Y');
+            $query->whereBetween('paid_at', $this->getDateFilter($period, $actualYear));
+        })
+        ->when($period === 'all' && $year !== 'all', function ($query) use ($year) {
+            $query->whereYear('paid_at', $year);
+        })
+        ->sum('confirmed_amount');
+}
 
 $privateRevenue = (clone $classQuery)
     ->whereIn('status', ['approved', 'done'])
@@ -187,6 +203,15 @@ $privateRevenue = (clone $classQuery)
         $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%private%']);
     })
     ->sum('price');
+
+        $corporatePipeline = collect();
+        if (Schema::hasTable('corporate_proposals')) {
+            $corporatePipeline = CorporateProposal::with('clas')
+                ->whereIn('status', ['submitted', 'under_review', 'deal', 'running'])
+                ->latest()
+                ->limit(20)
+                ->get();
+        }
 
         // Rekap Kelas section (period/year-aware, independent from status filter dropdown)
         $runningRegularClasses = (clone $classQueryByPeriodYear)
@@ -727,6 +752,7 @@ foreach ($monthlyClasses as $month => $classesInMonth) {
             'regularRevenue',
             'corporateRevenue',
             'privateRevenue',
+            'corporatePipeline',
             'runningRegularClasses',
             'runningCorporateClasses',
             'runningPrivateClasses',

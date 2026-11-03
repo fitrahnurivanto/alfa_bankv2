@@ -30,6 +30,7 @@ class Clas extends Model
         'client_id',
         'trainer_id',
         'kategori_id',
+        'corporate_proposal_id', 'letter_date', 'letter_number', 'proposal_name', 'institution_name', 'institution_address', 'pic_name', 'pic_phone', 'offered_scheme', 'proposal_file_path', 'corporate_status', 'cancelled_reason', 'deal_date', 'training_date', 'training_date_end', 'certification_date_start', 'certification_date_end', 'training_scheme', 'trainer_name', 'assessor_name', 'training_fee', 'payment_start_date', 'installment_count', 'corporate_training_price', 'corporate_certification_price', 'certification_price',
         'training_id',
         'name',
         'private_student_name',
@@ -103,7 +104,7 @@ class Clas extends Model
         'failed_students' => 'integer',
         'meet' => 'integer',
         'duration' => 'integer',
-        'start_date' => 'date',
+        'letter_date' => 'date', 'deal_date' => 'date', 'training_date' => 'date', 'training_date_end' => 'date', 'certification_date_start' => 'date', 'certification_date_end' => 'date', 'payment_start_date' => 'date',        'start_date' => 'date',
         'end_date' => 'date',
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
@@ -122,6 +123,8 @@ class Clas extends Model
     /**
      * Get the category for the class
      */
+    public function corporateProposal() { return $this->belongsTo(CorporateProposal::class, 'corporate_proposal_id'); }
+
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'kategori_id');
@@ -341,4 +344,6 @@ class Clas extends Model
         };
     }
 }
+
+
 

@@ -96,6 +96,11 @@ Route::middleware(['auth', \App\Http\Middleware\NoCacheHeaders::class])->group(f
         Route::get('/classes/approved', [ClasController::class, 'showclas'])->name('classes.showclas');
         Route::post('/classes', [ClasController::class, 'store'])->name('classes.store');
         Route::get('/classes/{clas}', [ClasController::class, 'show'])->name('classes.show');
+        Route::get('/classes/{clas}/corporate', [\App\Http\Controllers\Admin\CorporateProposalController::class, 'showForClass'])->name('classes.corporate');
+        Route::post('/classes/{clas}/corporate/status', [\App\Http\Controllers\Admin\CorporateProposalController::class, 'updateStatus'])->name('classes.corporate.status');
+        Route::post('/corporate-proposals/{corporateProposal}/installments', [\App\Http\Controllers\Admin\CorporateProposalController::class, 'updateInstallmentScheme'])->name('corporate-proposals.installments.update');
+        Route::post('/corporate-proposal-installments/{installment}/detail', [\App\Http\Controllers\Admin\CorporateProposalController::class, 'updateInstallmentDetail'])->name('corporate-proposals.installments.detail');
+        Route::post('/corporate-proposal-installments/{installment}/confirm', [\App\Http\Controllers\Admin\CorporateProposalController::class, 'confirmInstallment'])->name('corporate-proposals.installments.confirm');
         Route::get('/classes/{clas}/edit', [ClasController::class, 'edit'])->name('classes.edit');
         Route::put('/classes/{clas}', [ClasController::class, 'update'])->name('classes.update');
         Route::delete('/classes/{clas}', [ClasController::class, 'destroy'])->name('classes.destroy');
@@ -254,3 +259,4 @@ Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->gr
     Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
     Route::delete('/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
 });
+
