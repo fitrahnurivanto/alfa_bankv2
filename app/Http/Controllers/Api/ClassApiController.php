@@ -54,7 +54,8 @@ class ClassApiController extends Controller
             'meta' => [
                 'total' => $classes->count(),
             ],
-        ]);
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     private function includePrivateCategorySlugs(): array
@@ -80,7 +81,8 @@ class ClassApiController extends Controller
 
         return response()->json([
             'data' => $this->classData($class),
-        ]);
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     public function storeRegistrant(Request $request, Clas $class): JsonResponse

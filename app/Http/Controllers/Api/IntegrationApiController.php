@@ -39,7 +39,8 @@ class IntegrationApiController extends Controller
                 'start_time' => $session->start_time?->format('H:i:s'),
                 'end_time' => $session->end_time?->format('H:i:s'),
             ])->values(),
-        ]]);
+        ]])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     public function trainerAttendance(Request $request, Clas $class): JsonResponse
@@ -60,7 +61,8 @@ class IntegrationApiController extends Controller
             'checked_in' => $item->check_in_at !== null,
             'check_in_at' => $item->check_in_at?->toIso8601String(),
             'check_out_at' => $item->check_out_at?->toIso8601String(),
-        ])->values()]);
+        ])->values()])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     public function studentAttendanceCount(Request $request, Clas $class, ClassSession $session): JsonResponse

@@ -1,0 +1,259 @@
+PESAN UNTUK PROGRAMMER CI4
+Perbaikan sinkronisasi absensi trainer dan absensi siswa
+
+Halo, mohon bantu update integrasi absensi siswa pada aplikasi CI4.
+
+LATAR BELAKANG
+-------------
+Saat ini pada halaman peserta di aplikasi CI4, tombol absensi siswa masih terkunci meskipun trainer sudah melakukan check-in/absen masuk di Alfa Bank.
+
+Akibatnya, peserta belum bisa membuka kelas atau melakukan absensi karena CI4 belum membaca status kelas dan status absensi trainer secara real-time. Data lama masih tersimpan di cache sehingga perubahan baru terbaca setelah beberapa menit.
+
+PERUBAHAN DI ALFA BANK
+----------------------
+Alfa Bank sudah memperbaiki endpoint berikut:
+
+GET /api/classes/{class_id}/sessions
+
+Commit Alfa Bank:
+
+fb3551c
+
+Endpoint tersebut sekarang mengirim status buka absensi pada setiap sesi, contohnya:
+
+{
+    "id": 123,
+    "session_number": 1,
+    "session_date": "2026-11-03",
+    "status": "ongoing",
+    "is_dummy": false,
+    "attendance_open": true,
+    "title": "Pertemuan 1",
+    "start_time": "08:00:00",
+    "end_time": "10:00:00"
+}
+
+ATURAN FIELD attendance_open
+----------------------------
+1. attendance_open = true
+   Artinya trainer sudah melakukan check-in pada sesi dan tanggal yang sama.
+   CI4 harus membuka tombol absensi siswa.
+
+2. attendance_open = false
+   Artinya trainer belum melakukan check-in untuk sesi tersebut.
+   CI4 harus tetap mengunci tombol absensi siswa.
+
+3. Status tersebut dihitung berdasarkan:
+   - class_id yang sama;
+   - nomor sesi yang sama;
+   - tanggal sesi yang sama;
+   - trainer sudah memiliki check_in_at.
+
+4. Jangan menentukan sesi terbuka hanya berdasarkan:
+
+!isset($sesi->is_dummy)
+
+Gunakan field attendance_open dari API sebagai sumber utama.
+
+PERUBAHAN YANG DIMINTA DI CI4
+-----------------------------
+Pada file:
+
+app/Controllers/Peserta/KelasController.php
+
+Pastikan logika penentuan status absensi menggunakan:
+
+$sesi->is_attendance_open = array_key_exists('attendance_open', (array) $sesi)
+    ? (bool) $sesi->attendance_open
+    : (!empty($sesi->kode_presensi) || !isset($sesi->is_dummy));
+
+Kode fallback tetap dipertahankan untuk kompatibilitas response API lama, tetapi jika field attendance_open tersedia, field tersebut wajib digunakan.
+
+Pada file:
+
+app/Libraries/ApiService.php
+
+Mohon periksa fungsi:
+
+fetchSesiKelas()
+
+Pastikan:
+
+1. Field attendance_open dari response API tidak dihapus.
+2. Field tersebut diteruskan ke object sesi.
+3. Sesi dummy memiliki:
+
+attendance_open = false
+
+4. Sesi yang dikirim dari Alfa Bank memiliki:
+
+is_dummy = false
+
+5. Jangan menggunakan cache daftar kelas maupun cache daftar sesi selama 5 menit untuk status aktif kelas dan status absensi trainer, karena ini menyebabkan delay. Status kelas dan check-in harus dibaca ulang dari API saat dashboard atau halaman detail kelas dibuka.
+
+Jika cache tetap diperlukan untuk data lain, cache status kelas dan absensi harus:
+
+- dihapus ketika halaman dibuka; atau
+- memiliki TTL sangat singkat; atau
+- menggunakan cache key yang berubah berdasarkan waktu; atau
+- tidak menyimpan attendance_open, status kelas, status konfirmasi, atau status pendaftaran.
+
+MASALAH KELAS BARU AKTIF
+------------------------
+Selain absensi trainer, ditemukan gejala lain: peserta sudah terdaftar tetapi kelas baru bisa dibuka setelah menunggu cukup lama. Ini juga menunjukkan cache daftar kelas CI4 masih memakai data lama.
+
+Mohon periksa fungsi:
+
+fetchClasses()
+getClassById()
+
+Jangan gunakan hasil cache 5 menit untuk:
+
+- status kelas active/approved/pending;
+- status konfirmasi pendaftaran;
+- kapasitas atau jumlah peserta;
+- status sesi;
+- status attendance_open.
+
+Jika cache tidak dapat langsung dihapus, gunakan TTL maksimal beberapa detik untuk data ini dan paksa request baru saat:
+
+- dashboard peserta dibuka;
+- detail kelas dibuka;
+- peserta menekan refresh;
+- trainer baru selesai check-in.
+
+Alfa Bank sudah mengirim header:
+
+Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+Pragma: no-cache
+
+Namun header ini tidak menghapus cache internal CI4. Cache internal CI4 tetap harus dihapus atau dinonaktifkan untuk data dinamis di atas.
+
+PERILAKU YANG DIHARAPKAN
+------------------------
+Skenario 1:
+
+- Trainer belum check-in.
+- Peserta membuka detail kelas.
+- Tombol absensi siswa tetap terkunci.
+- Teks yang tampil:
+
+  Belum Dibuka Instruktur
+
+Skenario 2:
+
+- Trainer sudah check-in pada sesi 1.
+- Peserta membuka atau refresh halaman detail kelas.
+- Absensi siswa untuk sesi 1 terbuka.
+- Peserta dapat menekan tombol:
+
+  Klik untuk Absen Hadir (GPS)
+
+Skenario 3:
+
+- Trainer sudah check-in pada sesi 2.
+- Trainer belum check-in pada sesi 1 atau sesi 3.
+- Hanya absensi siswa sesi 2 yang terbuka.
+- Sesi lain tetap terkunci.
+
+Skenario 4:
+
+- Trainer sudah check-in dan peserta melakukan refresh halaman.
+- Status tidak boleh menunggu cache 5 menit.
+- Perubahan status harus terbaca segera atau setelah reload normal.
+
+PEMERIKSAAN RESPONSE API
+-------------------------
+Mohon cek response endpoint dengan API key CI4:
+
+curl -s \
+  -H "X-API-KEY: API_KEY_ALFA_BANK" \
+  -H "Accept: application/json" \
+  "https://DOMAIN_ALFA_BANK/api/classes/CLASS_ID/sessions"
+
+Pastikan response berisi:
+
+data.sessions
+
+dan setiap item sesi memiliki:
+
+session_number
+session_date
+is_dummy
+attendance_open
+
+Contoh pengecekan sederhana:
+
+curl -s \
+  -H "X-API-KEY: API_KEY_ALFA_BANK" \
+  -H "Accept: application/json" \
+  "https://DOMAIN_ALFA_BANK/api/classes/CLASS_ID/sessions" | jq
+
+Catatan:
+- Ganti API_KEY_ALFA_BANK dengan API key yang sudah dikonfigurasi.
+- Ganti DOMAIN_ALFA_BANK dengan domain Alfa Bank.
+- Ganti CLASS_ID dengan ID kelas yang sedang diuji.
+- Jangan menuliskan API key asli di chat, commit, atau file publik.
+
+PEMBERSIHAN CACHE CI4
+---------------------
+Setelah perubahan diterapkan, mohon bersihkan cache CI4 sesuai environment yang digunakan.
+
+Contoh umum:
+
+php spark cache:clear
+
+Jika project menggunakan cache file dan perintah di atas tidak tersedia, bersihkan cache sesuai konfigurasi CI4 tanpa menghapus file .env atau file penting lainnya.
+
+Setelah itu:
+
+1. Logout/login kembali jika diperlukan.
+2. Buka ulang halaman detail kelas.
+3. Lakukan hard refresh browser.
+4. Cek request API pada log atau browser developer tools.
+
+Jika cache CI4 menggunakan key berikut, hapus atau jangan gunakan untuk data dinamis:
+
+alfabank_api_classes_1
+alfabank_api_classes_0
+alfabank_api_sessions_{class_id}
+
+Saat pengujian, pastikan waktu response API benar-benar request baru dan bukan hasil cache aplikasi.
+
+PENGUJIAN WAJIB
+---------------
+Gunakan satu kelas Reguler yang memiliki sesi dan trainer.
+
+1. Sebelum trainer check-in:
+   - GET /api/classes/{class_id}/sessions
+   - Pastikan attendance_open = false.
+   - Tombol absensi siswa terkunci.
+
+2. Trainer melakukan check-in:
+   - Refresh endpoint sessions.
+   - Pastikan sesi trainer yang sesuai memiliki attendance_open = true.
+   - Pastikan tombol absensi siswa terbuka.
+
+3. Trainer check-in pada sesi lain:
+   - Pastikan hanya nomor sesi yang sesuai yang terbuka.
+
+4. Uji peserta melakukan absensi:
+   - Pastikan form GPS dapat dikirim.
+   - Pastikan absensi tersimpan di tabel absensi peserta.
+
+5. Uji kembali sebelum trainer check-in:
+   - Pastikan tombol kembali terkunci.
+
+HASIL YANG DIMINTA
+------------------
+Mohon informasikan:
+
+1. File CI4 yang diubah.
+2. Perubahan pada fungsi fetchSesiKelas().
+3. Perubahan pada logika is_attendance_open.
+4. Apakah cache sesi sudah dibersihkan atau dinonaktifkan.
+5. Hasil pengujian sebelum trainer check-in.
+6. Hasil pengujian setelah trainer check-in.
+7. Contoh response API tanpa membocorkan API key.
+
+Terima kasih.
