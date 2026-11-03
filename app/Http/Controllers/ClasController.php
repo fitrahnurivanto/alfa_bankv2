@@ -450,6 +450,7 @@ class ClasController extends Controller
             'kategori',
             'corporateProposal.installments',
             'classRegistrants',
+            'training',
             'registrants' => function ($query) {
                 $query->orderByDesc('registered_at')->orderByDesc('id');
             },

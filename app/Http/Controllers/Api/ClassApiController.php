@@ -336,7 +336,7 @@ class ClassApiController extends Controller
 
     private function calculatedRevenueForStudents(Clas $class, int $studentCount): float
     {
-        $unitPrice = (float) ($class->price_per_student ?: $class->price);
+        $unitPrice = (float) ($class->price_per_student ?: $class->price ?: $class->training?->price);
 
         return round($studentCount * $unitPrice, 2);
     }

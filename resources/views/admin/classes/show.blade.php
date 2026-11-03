@@ -693,13 +693,17 @@
                         </div>
                     @else
                         <!-- Reguler/Private: Pendapatan kelas -->
+                        @php
+                            $unitPrice = (float) ($clas->price_per_student ?: $clas->price ?: $clas->training?->price ?: 0);
+                            $automaticRevenue = (float) ($clas->income ?: $clas->price ?: ($registeredStudents * $unitPrice));
+                        @endphp
                         <div class="flex justify-between items-center pb-3 border-b bg-blue-50 px-3 py-2 rounded-lg">
                             <span class="text-sm font-medium text-blue-900">Pendapatan Kelas (Otomatis)</span>
-                            <span class="font-semibold text-blue-600">Rp {{ number_format($clas->price, 0, ',', '.') }}</span>
+                            <span class="font-semibold text-blue-600">Rp {{ number_format($automaticRevenue, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-3 border-b">
                             <span class="text-sm text-gray-600">Harga per Siswa</span>
-                            <span class="font-medium text-gray-900">Rp {{ number_format($clas->price_per_student, 0, ',', '.') }}</span>
+                            <span class="font-medium text-gray-900">Rp {{ number_format($unitPrice, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-3 border-b">
                             <span class="text-sm text-gray-600">Jumlah Siswa</span>
@@ -726,8 +730,11 @@
                             })
                             ->sum('amount');
                         
-                        // Hitung revenue berbasis kas yang sudah masuk
-                        $totalRevenue = $clas->paid_amount ?? 0;
+                        // Reguler menerima pendapatan berdasarkan siswa confirmed/aktif.
+                        // Corporate tetap memakai pembayaran yang benar-benar masuk.
+                        $totalRevenue = $isCorporate || $isManualPrivate
+                            ? (float) ($clas->paid_amount ?? 0)
+                            : (float) ($automaticRevenue ?? $clas->income ?? $clas->price ?? 0);
                         
                         // Income Bersih = Revenue - Biaya Operasional (Approved) - Honor Trainer (Approved)
                         $incomeBersih = $totalRevenue - $approvedOperationalCost - $approvedTrainerHonor;
