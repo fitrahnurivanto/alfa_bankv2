@@ -116,6 +116,7 @@
         </div>
     </section>
 
+    @if(isset($clas) && request('corporate_step') === '2')
     <section class="cf-section" id="corporate-decision-section">
         <div class="cf-section-header">
             <i class="fas fa-gavel text-indigo-600"></i>
@@ -186,4 +187,5 @@
             <p class="cf-help">Status Deal/Running dapat dilengkapi dengan skema, tanggal, dan rencana pembayaran. Konfirmasi uang masuk tetap dilakukan melalui Step 4 di detail kelas.</p>
         </div>
     </section>
+    @endif
 </div>

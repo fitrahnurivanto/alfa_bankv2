@@ -983,6 +983,22 @@ class ClasController extends Controller
         }
         
         $clas->update($updateData);
+
+        if (str_contains(strtolower((string) ($clas->kategori?->nama_kategori ?? '')), 'corporate')) {
+            $proposal = $clas->corporateProposal
+                ?: \App\Http\Controllers\Admin\CorporateProposalController::ensureForClass($clas);
+            $proposal->update([
+                'status' => 'deal',
+                'reviewed_by' => $user->id,
+                'reviewed_at' => now(),
+                'deal_date' => $proposal->deal_date ?: now()->toDateString(),
+            ]);
+            $clas->update(['corporate_status' => 'deal']);
+
+            return redirect()
+                ->route('admin.classes.edit', ['clas' => $clas, 'corporate_step' => 2])
+                ->with('success', 'Penawaran Corporate disetujui. Lengkapi Step 2 - Review Penawaran / Deal.');
+        }
         
         // Send notification to all assigned trainers
         $clas->load('trainers');
