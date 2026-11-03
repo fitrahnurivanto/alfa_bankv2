@@ -29,6 +29,12 @@ class IntegrationApiController extends Controller
                 'session_number' => $session->session_number,
                 'session_date' => $session->session_date?->toDateString(),
                 'status' => $session->status,
+                'is_dummy' => false,
+                'attendance_open' => $class->trainerAttendances
+                    ->where('session_number', $session->session_number)
+                    ->contains(fn ($attendance) => $attendance->check_in_at !== null
+                        && (!$session->session_date
+                            || $attendance->attendance_date?->toDateString() === $session->session_date->toDateString())),
                 'title' => $session->title,
                 'start_time' => $session->start_time?->format('H:i:s'),
                 'end_time' => $session->end_time?->format('H:i:s'),
