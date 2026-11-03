@@ -528,7 +528,7 @@ class ClasController extends Controller
         $trainings = \App\Models\Training::active()->orderBy('name')->get();
         
         // Load current trainers for this class
-        $clas->load('trainers');
+        $clas->load(['trainers', 'corporateProposal']);
         
         return view('admin.classes.edit', compact('clas', 'trainers', 'kategoris', 'trainings'));
     }

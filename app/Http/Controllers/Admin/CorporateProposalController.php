@@ -19,11 +19,15 @@ class CorporateProposalController extends Controller
             $proposal = CorporateProposal::create([
                 'client_id'=>$class->client_id, 'created_by'=>$class->user_id ?: Auth::id(),
                 'proposal_number'=>CorporateProposal::generateProposalNumber(), 'proposal_name'=>$class->proposal_name ?: $class->name,
+                'letter_date'=>$class->letter_date, 'letter_number'=>$class->letter_number,
                 'institution_name'=>$class->institution_name ?: $class->instansi ?: ($class->name ?: '-'),
                 'institution_address'=>$class->institution_address ?: $class->alamat, 'pic_name'=>$class->pic_name ?: $class->no_pic ?: '-',
                 'pic_phone'=>$class->pic_phone ?: $class->no_kontak, 'offered_scheme'=>$class->offered_scheme ?: $class->description,
                 'status'=>$class->corporate_status ?: $status, 'deal_date'=>$class->deal_date ?: ($status==='deal' ? $class->start_date : null),
-                'training_date'=>$class->training_date ?: $class->start_date, 'training_fee'=>$class->training_fee ?: $class->price ?: 0,
+                'training_date'=>$class->training_date ?: $class->start_date, 'training_date_end'=>$class->training_date_end,
+                'certification_date_start'=>$class->certification_date_start, 'certification_date_end'=>$class->certification_date_end,
+                'training_scheme'=>$class->training_scheme, 'assessor_name'=>$class->assessor_name,
+                'training_fee'=>$class->training_fee ?: $class->price ?: 0,
                 'payment_start_date'=>$class->payment_start_date, 'installment_count'=>$class->installment_count ?: 1,
                 'paid_amount'=>$class->paid_amount ?: 0,
             ]);
