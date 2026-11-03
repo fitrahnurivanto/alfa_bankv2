@@ -3,7 +3,7 @@
 
 
 @section('content')
-<div class="cmu-class-detail p-6">
+<div class="p-6">
     <div class="max-w-7xl mx-auto">
         @php
             $activeGradeFile = $clas->activeGradeFile;
@@ -13,6 +13,15 @@
             });
             $kategoriName = strtolower($clas->kategori->nama_kategori ?? '');
             $isCorporate = true;
+            $corporateProposal = $clas->corporateProposal;
+            $corporateFlowStatus = $corporateProposal?->status
+                ?? $clas->corporate_status
+                ?? match ($clas->status) {
+                    'approved' => 'running',
+                    'done' => 'completed',
+                    'rejected' => 'cancelled',
+                    default => 'submitted',
+                };
             $syncedParticipantCount = $clas->classRegistrants
                 ->whereIn('status', ['registered', 'paid', 'confirmed', 'approved'])
                 ->count();
@@ -32,7 +41,7 @@
                 ? 'completed'
                 : ($clas->status === 'approved'
                     ? 'running'
-                    : ($isCorporate ? ($clas->corporate_status ?? 'submitted') : $clas->status));
+                    : ($isCorporate ? $corporateFlowStatus : $clas->status));
             $assignedTrainerNames = $clas->trainers->pluck('name')->filter()->implode(', ');
             $displayStatusLabel = [
                 'submitted' => 'Menunggu Konfirmasi',
@@ -195,10 +204,10 @@
                     </div>
                 </div>
 
-                <!-- Informasi Umum -->
+                <!-- Step 1: Informasi Umum -->
                 <div id="info-umum" class="scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Informasi Umum</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">Step 1 - Informasi Umum</h2>
                     </div>
                     <div class="p-6">
                     <div class="grid grid-cols-2 gap-x-8 gap-y-4">
@@ -295,6 +304,7 @@
                                 </p>
                             </div>
                             <div id="detail-penawaran-corporate" class="col-span-2 border-t border-gray-200 pt-4 mt-2 scroll-mt-24">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Step 2 - Detail Penawaran / Deal</h3>
                                 @php
                                     $proposalTypeLower = strtolower($clas->proposal_name ?? '');
                                     $showTrainingDates = str_starts_with($proposalTypeLower, 'pelatihan');
@@ -687,11 +697,11 @@
                         <div>
                             <div class="flex items-center justify-between text-sm mb-2">
                                 <span class="font-semibold text-gray-700">Progress</span>
-                                <span class="font-bold text-lg text-cmu-primary-900">
+                                <span class="font-bold text-lg text-indigo-900">
                                     {{ $progress }}%
                                 </span>
                             </div>
-                            <div class="w-full bg-cmu-gray-100 rounded-full h-3 overflow-hidden">
+                            <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
                                 <div class="h-3 rounded-full transition-all duration-500" style="width: {{ $progress }}%; background: linear-gradient(to right, #8393FE, #4E65FF);"></div>
                             </div>
                         </div>
@@ -702,7 +712,6 @@
             <div id="finansial-kelas" class="flex-1 scroll-mt-24 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-sack-dollar mr-2 text-green-600"></i>Finansial</h2>
                 @php
-                    $corporateProposal = $clas->corporateProposal;
                     $usesCorporateFinancials = $isCorporate && $corporateProposal;
                     $contractValue = $usesCorporateFinancials
                         ? (float) ($corporateProposal->training_fee ?? $clas->price ?? 0)
@@ -876,8 +885,7 @@
 
                 <!-- Step 3: Skema Pembayaran (Corporate) -->
                 @php
-                    $corporateProposal = $clas->corporateProposal;
-                    $showPaymentSteps = in_array($clas->corporate_status, ['deal', 'running', 'completed'], true);
+                    $showPaymentSteps = in_array($corporateFlowStatus, ['deal', 'running', 'completed'], true);
                 @endphp
                 @if($showPaymentSteps)
                     @if(!$corporateProposal)
@@ -1037,8 +1045,8 @@
 </div>
 
             <!-- Expenses -->
-                <div class="cmu-expense-panel bg-white rounded-2xl border border-gray-200 shadow-sm mb-6">
-                    <div class="cmu-expense-header flex items-center justify-between">
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4 gap-3">
                         <h2 class="text-lg font-semibold text-gray-900">
                             <i class="fas fa-receipt text-orange-600 mr-2"></i>Biaya Tambahan / Expenses
                         </h2>
@@ -1051,9 +1059,9 @@
                         @endif
                     </div>
 
-                    <div class="cmu-expense-body">
+                    <div>
                     @if($clas->expenses()->count() > 0)
-                    <div class="cmu-expense-head hidden md:grid pb-2 text-[11px] font-semibold uppercase tracking-wide text-cmu-gray-500">
+                    <div class="hidden md:grid grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_auto_auto_auto] gap-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                         <span>Expense</span>
                         <span>Penerima / Catatan</span>
                         <span>Status</span>
@@ -1062,7 +1070,7 @@
                     </div>
                     <div class="space-y-2">
                         @foreach($clas->expenses()->with('user', 'approvedBy')->latest()->get() as $expense)
-                        <div class="cmu-expense-row grid transition">
+                        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_auto_auto_auto] gap-3 items-center border-b border-gray-100 hover:bg-orange-50 transition px-2 py-3 rounded">
                             @php
                                 $isHonorExpense = in_array($expense->category, ['trainer_honor', 'honor']);
                                 $notesRaw = (string) $expense->notes;
@@ -1168,7 +1176,7 @@
                         </div>
                     </div>
                     @else
-                    <div class="cmu-expense-empty">
+                    <div class="border border-dashed border-gray-300 rounded-lg px-4 py-8 text-center text-gray-500">
                         <i class="fas fa-receipt text-gray-300 text-4xl mb-3"></i>
                         <p class="text-gray-500 mb-4">Belum ada expense tercatat</p>
                         @if(in_array(\Illuminate\Support\Facades\Auth::user()->role, ['admin', 'superadmin', 'marketing', 'akademik']))
