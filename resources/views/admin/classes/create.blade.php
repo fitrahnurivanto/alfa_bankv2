@@ -168,6 +168,7 @@
                     </div>
 
                     <input type="hidden" name="private_student_name" id="private_student_name" value="{{ old('private_student_name', $clas->private_student_name ?? '') }}">
+                    @include('admin.classes.partials.corporate-fields')
                     <!-- Instansi (hanya muncul untuk Corporate Training) -->
                     <div class="md:col-span-2" id="instansi-wrapper" style="display: none;">
                         <label for="instansi" class="block text-sm font-medium text-gray-900 mb-2">
@@ -824,6 +825,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const amountWrapper = document.getElementById('amount-wrapper');
     const amountInput = document.getElementById('amount');
     const privateStudentInput = document.getElementById('private_student_name');
+    const corporateFieldsWrapper = document.getElementById('corporate-fields-wrapper');
     
     function toggleFields() {
         const selectedOption = kategoriSelect.options[kategoriSelect.selectedIndex];
@@ -833,17 +835,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const isPrivate = kategoriText.includes('private');
         const isRegular = kategoriText.includes('reguler') || kategoriText.includes('regular');
         const useTerminFlow = isCorporate || isPrivate;
+        corporateFieldsWrapper.classList.toggle('hidden', !isCorporate);
 
         // Toggle instansi khusus Corporate Training
         if (isCorporate) {
-            instansiWrapper.style.display = 'block';
-            instansiInput.required = true;
-            alamatWrapper.style.display = 'block';
-            alamatInput.required = true;
-            noPicWrapper.style.display = 'block';
-            noPicInput.required = true;
-            noKontakWrapper.style.display = 'block';
-            noKontakInput.required = true;
+            instansiWrapper.style.display = 'none';
+            instansiInput.required = false;
+            alamatWrapper.style.display = 'none';
+            alamatInput.required = false;
+            noPicWrapper.style.display = 'none';
+            noPicInput.required = false;
+            noKontakWrapper.style.display = 'none';
+            noKontakInput.required = false;
         } else {
             instansiWrapper.style.display = 'none';
             instansiInput.required = false;

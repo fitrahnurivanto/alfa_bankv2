@@ -162,6 +162,8 @@
                         @enderror
                     </div>
 
+                    @include('admin.classes.partials.corporate-fields')
+
                     <!-- Instansi (hanya muncul untuk Corporate Training) -->
                     <div class="md:col-span-2" id="instansi-wrapper" style="display: none;">
                         <label for="instansi" class="block text-sm font-medium text-gray-700 mb-2">
@@ -811,6 +813,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const amountInput = document.getElementById('amount');
     const privateStudentWrapper = document.getElementById('private-student-wrapper');
     const privateStudentInput = document.getElementById('private_student_name');
+    const corporateFieldsWrapper = document.getElementById('corporate-fields-wrapper');
     const jenisRegulerWrapper = document.getElementById('jenis-reguler-wrapper');
     const jenisRegulerInput = document.getElementById('jenis_reguler');
     
@@ -822,17 +825,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const isPrivate = kategoriText.includes('private');
         const isRegular = kategoriText.includes('reguler') || kategoriText.includes('regular');
         const useTerminFlow = isCorporate || isPrivate;
+        corporateFieldsWrapper.classList.toggle('hidden', !isCorporate);
 
         // Toggle instansi khusus Corporate Training
         if (isCorporate) {
-            instansiWrapper.style.display = 'block';
-            instansiInput.required = true;
-            alamatWrapper.style.display = 'block';
-            alamatInput.required = true;
-            noPicWrapper.style.display = 'block';
-            noPicInput.required = true;
-            noKontakWrapper.style.display = 'block';
-            noKontakInput.required = true;
+            instansiWrapper.style.display = 'none';
+            instansiInput.required = false;
+            alamatWrapper.style.display = 'none';
+            alamatInput.required = false;
+            noPicWrapper.style.display = 'none';
+            noPicInput.required = false;
+            noKontakWrapper.style.display = 'none';
+            noKontakInput.required = false;
         } else {
             instansiWrapper.style.display = 'none';
             instansiInput.required = false;

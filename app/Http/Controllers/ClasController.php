@@ -169,6 +169,23 @@ class ClasController extends Controller
             'new_trainers' => 'nullable|array',
             'new_trainers.*' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'letter_date' => 'nullable|date',
+            'letter_number' => 'nullable|string|max:255',
+            'institution_name' => 'nullable|string|max:255',
+            'institution_address' => 'nullable|string|max:2000',
+            'pic_name' => 'nullable|string|max:255',
+            'pic_phone' => 'nullable|string|max:50',
+            'offered_scheme' => 'nullable|string|max:2000',
+            'corporate_status' => 'nullable|in:submitted,under_review,deal,cancelled,running,completed',
+            'training_date' => 'nullable|date',
+            'training_date_end' => 'nullable|date|after_or_equal:training_date',
+            'certification_date_start' => 'nullable|date',
+            'certification_date_end' => 'nullable|date|after_or_equal:certification_date_start',
+            'training_scheme' => 'nullable|string|max:2000',
+            'assessor_name' => 'nullable|string|max:255',
+            'corporate_training_price' => 'nullable|numeric|min:0',
+            'corporate_certification_price' => 'nullable|numeric|min:0',
+            'payment_start_date' => 'nullable|date',
             'sertifikasi_bnsp' => 'nullable|boolean',
             'bnsp_tanggal_sertifikasi' => 'nullable|required_if:sertifikasi_bnsp,1|date',
             'bnsp_student_count' => 'nullable|required_if:sertifikasi_bnsp,1|integer|min:1',
@@ -186,6 +203,22 @@ class ClasController extends Controller
         }
 
         $selectedKategori = Kategori::find($validated['kategori_id']);
+        $isCorporateKategori = str_contains(strtolower($selectedKategori->nama_kategori ?? ''), 'corporate');
+        if ($isCorporateKategori) {
+            $validated['instansi'] = $validated['institution_name'] ?? null;
+            $validated['alamat'] = $validated['institution_address'] ?? null;
+            $validated['no_pic'] = $validated['pic_name'] ?? null;
+            $validated['no_kontak'] = $validated['pic_phone'] ?? null;
+            $validated['proposal_name'] = $validated['offered_scheme'] ?? null;
+            $corporatePrice = (float) ($validated['corporate_training_price'] ?? 0)
+                + (float) ($validated['corporate_certification_price'] ?? 0);
+            if ($corporatePrice > 0) {
+                $validated['price'] = $corporatePrice;
+                $validated['training_fee'] = $corporatePrice;
+                $validated['income'] = $corporatePrice;
+            }
+            $validated['corporate_status'] = $validated['corporate_status'] ?? 'submitted';
+        }
         $isPrivateKategori = str_contains(strtolower($selectedKategori->nama_kategori ?? ''), 'private');
         $privateStudentName = trim((string) ($validated['private_student_name'] ?? ''));
         $validated['private_student_name'] = $isPrivateKategori && $privateStudentName !== '' ? $privateStudentName : null;
@@ -564,6 +597,23 @@ class ClasController extends Controller
             'new_trainers' => 'nullable|array',
             'new_trainers.*' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'letter_date' => 'nullable|date',
+            'letter_number' => 'nullable|string|max:255',
+            'institution_name' => 'nullable|string|max:255',
+            'institution_address' => 'nullable|string|max:2000',
+            'pic_name' => 'nullable|string|max:255',
+            'pic_phone' => 'nullable|string|max:50',
+            'offered_scheme' => 'nullable|string|max:2000',
+            'corporate_status' => 'nullable|in:submitted,under_review,deal,cancelled,running,completed',
+            'training_date' => 'nullable|date',
+            'training_date_end' => 'nullable|date|after_or_equal:training_date',
+            'certification_date_start' => 'nullable|date',
+            'certification_date_end' => 'nullable|date|after_or_equal:certification_date_start',
+            'training_scheme' => 'nullable|string|max:2000',
+            'assessor_name' => 'nullable|string|max:255',
+            'corporate_training_price' => 'nullable|numeric|min:0',
+            'corporate_certification_price' => 'nullable|numeric|min:0',
+            'payment_start_date' => 'nullable|date',
             'status' => 'required|in:pending,approved,rejected,done',
             'sertifikasi_bnsp' => 'nullable|boolean',
             'bnsp_tanggal_sertifikasi' => 'nullable|required_if:sertifikasi_bnsp,1|date',
@@ -582,6 +632,22 @@ class ClasController extends Controller
         }
 
         $selectedKategori = Kategori::find($validated['kategori_id']);
+        $isCorporateKategori = str_contains(strtolower($selectedKategori->nama_kategori ?? ''), 'corporate');
+        if ($isCorporateKategori) {
+            $validated['instansi'] = $validated['institution_name'] ?? null;
+            $validated['alamat'] = $validated['institution_address'] ?? null;
+            $validated['no_pic'] = $validated['pic_name'] ?? null;
+            $validated['no_kontak'] = $validated['pic_phone'] ?? null;
+            $validated['proposal_name'] = $validated['offered_scheme'] ?? null;
+            $corporatePrice = (float) ($validated['corporate_training_price'] ?? 0)
+                + (float) ($validated['corporate_certification_price'] ?? 0);
+            if ($corporatePrice > 0) {
+                $validated['price'] = $corporatePrice;
+                $validated['training_fee'] = $corporatePrice;
+                $validated['income'] = $corporatePrice;
+            }
+            $validated['corporate_status'] = $validated['corporate_status'] ?? ($clas->corporate_status ?: 'submitted');
+        }
         $isPrivateKategori = str_contains(strtolower($selectedKategori->nama_kategori ?? ''), 'private');
         $privateStudentName = trim((string) ($validated['private_student_name'] ?? ''));
         $validated['private_student_name'] = $isPrivateKategori && $privateStudentName !== '' ? $privateStudentName : null;
@@ -684,6 +750,30 @@ class ClasController extends Controller
             unset($validated['trainer']);  // Remove old trainer field if exists
             
             $clas->update($validated);
+
+            if ($isCorporateKategori) {
+                $proposal = $clas->corporateProposal ?: \App\Http\Controllers\Admin\CorporateProposalController::ensureForClass($clas);
+                $proposal->update([
+                    'letter_date' => $clas->letter_date,
+                    'letter_number' => $clas->letter_number,
+                    'proposal_name' => $clas->proposal_name ?: $clas->name,
+                    'institution_name' => $clas->institution_name ?: $clas->instansi ?: $clas->name,
+                    'institution_address' => $clas->institution_address ?: $clas->alamat,
+                    'pic_name' => $clas->pic_name ?: $clas->no_pic,
+                    'pic_phone' => $clas->pic_phone ?: $clas->no_kontak,
+                    'offered_scheme' => $clas->offered_scheme,
+                    'status' => $clas->corporate_status ?: $proposal->status,
+                    'training_date' => $clas->training_date,
+                    'training_date_end' => $clas->training_date_end,
+                    'certification_date_start' => $clas->certification_date_start,
+                    'certification_date_end' => $clas->certification_date_end,
+                    'training_scheme' => $clas->training_scheme,
+                    'assessor_name' => $clas->assessor_name,
+                    'training_fee' => $clas->training_fee ?: $clas->price,
+                    'payment_start_date' => $clas->payment_start_date,
+                ]);
+                $proposal->syncRemainingAmount();
+            }
             
             // Detect if significant changes occurred
             $hasSignificantChanges = ($oldStartDate != $clas->start_date) || 
