@@ -407,9 +407,16 @@ class ClasController extends Controller
                 abort(403, 'Unauthorized access.');
         }
         
+        $clas->loadMissing('kategori');
+        if (str_contains(strtolower((string) ($clas->kategori->nama_kategori ?? '')), 'corporate')) {
+            \App\Http\Controllers\Admin\CorporateProposalController::ensureForClass($clas);
+        }
+
         // Load related data including grade file version history
         $clas->load([
             'kategori',
+            'corporateProposal.installments',
+            'classRegistrants',
             'registrants' => function ($query) {
                 $query->orderByDesc('registered_at')->orderByDesc('id');
             },
@@ -421,6 +428,10 @@ class ClasController extends Controller
             'trainerAttendances.trainer',
             'passFailUpdatedBy',
         ]);
+
+        if (str_contains(strtolower((string) ($clas->kategori->nama_kategori ?? '')), 'corporate')) {
+            return view('admin.classes.show-corporate', compact('clas'));
+        }
         
         return view('admin.classes.show', compact('clas'));
     }

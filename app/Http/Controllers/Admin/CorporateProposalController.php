@@ -43,9 +43,9 @@ class CorporateProposalController extends Controller
 
     public function showForClass(Clas $clas)
     {
-        $proposal=$clas->corporateProposal ?: self::ensureForClass($clas);
-        $proposal->load('installments');
-        return view('admin.classes.corporate', compact('clas','proposal'));
+        self::ensureForClass($clas);
+
+        return redirect()->route('admin.classes.show', $clas);
     }
 
     public function updateStatus(Request $request, Clas $clas)

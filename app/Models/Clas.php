@@ -185,6 +185,11 @@ class Clas extends Model
         return $this->hasMany(ClassRegistrant::class, 'class_id');
     }
 
+    public function classRegistrants()
+    {
+        return $this->registrants();
+    }
+
     /**
      * Get expenses for this class
      */
@@ -344,6 +349,5 @@ class Clas extends Model
         };
     }
 }
-
 
 
