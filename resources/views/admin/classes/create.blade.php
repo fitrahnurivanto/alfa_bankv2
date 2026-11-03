@@ -462,7 +462,7 @@
                     </div>
                     </div>
                 </section>
-                <section class="card-figma bg-white rounded-lg overflow-hidden">
+                <section id="trainer-section" class="card-figma bg-white rounded-lg overflow-hidden">
                     <div class="px-5 py-3 border-b border-gray-300"><h2 class="text-xl font-bold text-gray-900">Pengajar &amp; Detail</h2></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-5">
                     <!-- Pilih Trainer dari Database -->
@@ -826,6 +826,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const amountInput = document.getElementById('amount');
     const privateStudentInput = document.getElementById('private_student_name');
     const corporateFieldsWrapper = document.getElementById('corporate-fields-wrapper');
+    const trainerSection = document.getElementById('trainer-section');
     
     function toggleFields() {
         const selectedOption = kategoriSelect.options[kategoriSelect.selectedIndex];
@@ -836,6 +837,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const isRegular = kategoriText.includes('reguler') || kategoriText.includes('regular');
         const useTerminFlow = isCorporate || isPrivate;
         corporateFieldsWrapper.classList.toggle('hidden', !isCorporate);
+        trainerSection.style.display = isCorporate ? 'none' : '';
+        trainerSection.querySelectorAll('input, select, textarea, button').forEach(function (element) {
+            element.disabled = isCorporate;
+        });
 
         // Toggle instansi khusus Corporate Training
         if (isCorporate) {

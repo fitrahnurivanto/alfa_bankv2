@@ -252,7 +252,7 @@ class ClasController extends Controller
             return !empty(trim($name));
         });
         
-        if (empty($trainerIds) && empty($newTrainers)) {
+        if (!$isCorporateKategori && empty($trainerIds) && empty($newTrainers)) {
             return back()->withErrors([
                 'trainer_ids' => 'Minimal pilih 1 trainer yang sudah ada atau masukkan nama trainer baru.'
             ])->withInput();

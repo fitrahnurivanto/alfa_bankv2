@@ -177,6 +177,25 @@
                            value="{{ old('assessor_name', $clas->assessor_name ?? '') }}"
                            class="cf-input">
                 </div>
+                <div class="cf-span2">
+                    <label class="cf-label" for="corporate_trainer_ids">Trainer</label>
+                    <select name="trainer_ids[]" id="corporate_trainer_ids" class="cf-select" multiple>
+                        @php
+                            $selectedCorporateTrainerIds = isset($clas)
+                                ? $clas->trainers->pluck('id')->map(fn ($id) => (string) $id)->all()
+                                : [];
+                            $oldCorporateTrainerIds = old('trainer_ids', $selectedCorporateTrainerIds);
+                        @endphp
+                        @foreach($trainers as $trainer)
+                            <option value="{{ $trainer->id }}"
+                                {{ in_array((string) $trainer->id, array_map('strval', (array) $oldCorporateTrainerIds), true) ? 'selected' : '' }}>
+                                {{ $trainer->name }}{{ $trainer->email ? ' - ' . $trainer->email : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="cf-help">Trainer ditentukan saat proposal masuk tahap Review / Deal.</p>
+                    @error('trainer_ids')<p class="cf-help text-red-600">{{ $message }}</p>@enderror
+                </div>
                 <div>
                     <label class="cf-label" for="payment_start_date">Rencana Tanggal Pembayaran</label>
                     <input type="date" name="payment_start_date" id="payment_start_date"

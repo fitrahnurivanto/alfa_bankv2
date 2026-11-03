@@ -382,7 +382,7 @@
                     </div> --}}
 
                     <!-- Trainer Section -->
-                    <div class="md:col-span-2">
+                    <div id="trainer-section" class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-3">
                             Pilih / Tambah Trainer <span class="text-red-500">*</span>
                         </label>
@@ -814,6 +814,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const privateStudentWrapper = document.getElementById('private-student-wrapper');
     const privateStudentInput = document.getElementById('private_student_name');
     const corporateFieldsWrapper = document.getElementById('corporate-fields-wrapper');
+    const trainerSection = document.getElementById('trainer-section');
     const jenisRegulerWrapper = document.getElementById('jenis-reguler-wrapper');
     const jenisRegulerInput = document.getElementById('jenis_reguler');
     
@@ -826,6 +827,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const isRegular = kategoriText.includes('reguler') || kategoriText.includes('regular');
         const useTerminFlow = isCorporate || isPrivate;
         corporateFieldsWrapper.classList.toggle('hidden', !isCorporate);
+        trainerSection.style.display = isCorporate ? 'none' : '';
+        trainerSection.querySelectorAll('input, select, textarea, button').forEach(function (element) {
+            element.disabled = isCorporate;
+        });
 
         // Toggle instansi khusus Corporate Training
         if (isCorporate) {
