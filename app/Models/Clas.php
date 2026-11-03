@@ -125,6 +125,22 @@ class Clas extends Model
      */
     public function corporateProposal() { return $this->belongsTo(CorporateProposal::class, 'corporate_proposal_id'); }
 
+    public function classTypeLabel(): string
+    {
+        return $this->jenis_kelas
+            ?? ($this->training_scheme ?: ($this->kategori?->nama_kategori ?? 'Corporate'));
+    }
+
+    public function getMethodLabel(): string
+    {
+        return match ($this->method) {
+            'online' => 'Online',
+            'offline' => 'Offline',
+            'mix' => 'Mix (Online & Offline)',
+            default => 'Tidak Diketahui',
+        };
+    }
+
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'kategori_id');
@@ -349,5 +365,3 @@ class Clas extends Model
         };
     }
 }
-
-
