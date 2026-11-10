@@ -201,6 +201,11 @@ class Clas extends Model
         return $this->hasMany(ClassRegistrant::class, 'class_id');
     }
 
+    public function inboundPayments()
+    {
+        return $this->hasMany(InboundPayment::class, 'class_id');
+    }
+
     public function classRegistrants()
     {
         return $this->registrants();

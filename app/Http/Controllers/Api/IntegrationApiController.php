@@ -12,6 +12,7 @@ use App\Models\TrainerAttendance;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class IntegrationApiController extends Controller
 {
@@ -134,47 +135,141 @@ class IntegrationApiController extends Controller
             'nis' => ['nullable', 'string', 'max:50'],
             'external_transaction_id' => ['required', 'string', 'max:150'],
             'payment_type' => ['required', 'in:registration,installment,remedial'],
-            'amount' => ['required', 'numeric', 'min:0.01'],
+            'amount' => ['required_unless:status,reversed', 'nullable', 'numeric', 'min:0.01'],
+            'status' => ['sometimes', 'in:verified,reversed'],
             'paid_at' => ['nullable', 'date'],
             'payment_method' => ['nullable', 'string', 'max:50'],
             'proof_url' => ['nullable', 'string', 'max:2000'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        $registrant = ClassRegistrant::query()
-            ->where('class_id', $validated['class_id'])
-            ->where('registration_id', $validated['registration_id'])
-            ->where('status', 'confirmed')
-            ->when(isset($validated['student_id']), fn ($q) => $q->where('student_id', $validated['student_id']))
-            ->first();
+        $validated['status'] = $validated['status'] ?? 'verified';
 
-        if (!$registrant) {
-            return response()->json(['message' => 'Pendaftaran peserta tidak ditemukan atau belum dikonfirmasi.'], 422);
-        }
+        $result = DB::transaction(function () use ($validated) {
+            $class = Clas::query()->with('kategori')->lockForUpdate()->findOrFail($validated['class_id']);
+            $payment = InboundPayment::query()
+                ->where('external_transaction_id', $validated['external_transaction_id'])
+                ->lockForUpdate()
+                ->first();
+            $isNewPayment = $payment === null;
+            $previousContribution = $payment && $payment->status === 'verified'
+                ? (float) $payment->amount
+                : 0;
 
-        $payment = DB::transaction(function () use ($validated) {
-            $payment = InboundPayment::firstOrCreate(
-                ['external_transaction_id' => $validated['external_transaction_id']],
-                array_merge($validated, ['status' => 'verified'])
-            );
-
-            if ($payment->wasRecentlyCreated) {
-                $class = Clas::query()->lockForUpdate()->findOrFail($validated['class_id']);
-                $class->increment('paid_amount', (float) $payment->amount);
-                $class->increment('income', (float) $payment->amount);
+            if ($payment && (
+                (int) $payment->class_id !== (int) $validated['class_id']
+                || (int) $payment->registration_id !== (int) $validated['registration_id']
+                || $payment->payment_type !== $validated['payment_type']
+                || (isset($validated['student_id']) && (int) $payment->student_id !== (int) $validated['student_id'])
+            )) {
+                throw ValidationException::withMessages([
+                    'external_transaction_id' => 'ID transaksi sudah digunakan untuk pembayaran lain.',
+                ]);
             }
 
-            return $payment;
+            if ($validated['status'] === 'reversed') {
+                if (!$payment) {
+                    throw ValidationException::withMessages([
+                        'external_transaction_id' => 'Pembayaran yang akan dibatalkan tidak ditemukan.',
+                    ]);
+                }
+                if (isset($validated['amount']) && round((float) $validated['amount'], 2) !== round((float) $payment->amount, 2)) {
+                    throw ValidationException::withMessages([
+                        'amount' => 'Nominal pembatalan harus sama dengan nominal transaksi sebelumnya.',
+                    ]);
+                }
+
+                $payment->status = 'reversed';
+                $payment->save();
+            } else {
+                $registrant = ClassRegistrant::query()
+                    ->where('class_id', $validated['class_id'])
+                    ->where(function ($query) use ($validated) {
+                        $query->where('registration_id', $validated['registration_id'])
+                            ->orWhere('external_registration_id', 'CI4-BOOKING-' . $validated['registration_id']);
+                    })
+                    ->when(isset($validated['student_id']), fn ($query) => $query->where(function ($query) use ($validated) {
+                        $query->where('student_id', $validated['student_id'])
+                            ->orWhereNull('student_id');
+                    }))
+                    ->lockForUpdate()
+                    ->first();
+
+                $isCi4PrivateConfirmation = $registrant
+                    && $class->kategori?->slug === 'private'
+                    && $validated['payment_type'] === 'registration'
+                    && $registrant->status === 'pending'
+                    && $registrant->external_registration_id === 'CI4-BOOKING-' . $validated['registration_id'];
+
+                if (!$registrant || ($registrant->status !== 'confirmed' && !$isCi4PrivateConfirmation)) {
+                    throw ValidationException::withMessages([
+                        'registration_id' => 'Pendaftaran peserta tidak ditemukan atau belum dikonfirmasi.',
+                    ]);
+                }
+
+                if ($isCi4PrivateConfirmation) {
+                    $registrant->update([
+                        'student_id' => $validated['student_id'] ?? null,
+                        'registration_id' => $validated['registration_id'],
+                        'nis' => $validated['nis'] ?? null,
+                        'status' => 'confirmed',
+                    ]);
+                }
+
+                $paymentData = $validated;
+                $paymentData['status'] = 'verified';
+
+                if ($payment) {
+                    $payment->fill($paymentData)->save();
+                } else {
+                    $payment = InboundPayment::create($paymentData);
+                }
+            }
+
+            $isCi4ManagedClass = $class->registrants()
+                ->whereNotNull('external_registration_id')
+                ->exists();
+
+            if ($isCi4ManagedClass) {
+                $verifiedTotal = InboundPayment::query()
+                    ->where('class_id', $class->id)
+                    ->where('status', 'verified')
+                    ->sum('amount');
+
+                $class->update([
+                    'paid_amount' => $verifiedTotal,
+                    'income' => $verifiedTotal,
+                ]);
+            } else {
+                $newContribution = $payment->status === 'verified' ? (float) $payment->amount : 0;
+                $difference = $newContribution - $previousContribution;
+
+                $class->update([
+                    'paid_amount' => max(0, (float) $class->paid_amount + $difference),
+                    'income' => max(0, (float) $class->income + $difference),
+                ]);
+            }
+
+            return [
+                'payment' => $payment,
+                'is_new' => $isNewPayment,
+            ];
         });
 
-        $total = InboundPayment::where('class_id', $payment->class_id)->sum('amount');
+        $payment = $result['payment'];
+        $total = InboundPayment::query()
+            ->where('class_id', $payment->class_id)
+            ->where('status', 'verified')
+            ->sum('amount');
+
         return response()->json(['message' => 'Pembayaran berhasil diterima.', 'data' => [
             'id' => $payment->id,
             'external_transaction_id' => $payment->external_transaction_id,
             'class_id' => $payment->class_id,
             'amount' => $payment->amount,
+            'status' => $payment->status,
             'class_verified_paid_total' => $total,
-        ]], 201);
+        ]], $result['is_new'] ? 201 : 200);
     }
 
     public function consumeSso(Request $request): JsonResponse

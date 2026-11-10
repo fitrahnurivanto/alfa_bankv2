@@ -9,6 +9,10 @@
             $filteredGradeFiles = $clas->gradeFiles->when($gradeFileStatusFilter !== 'all', function ($files) use ($gradeFileStatusFilter) {
                 return $files->where('status', $gradeFileStatusFilter);
             });
+            $isCi4ManagedClass = $clas->registrants->contains(function ($registrant) {
+                return !empty($registrant->external_registration_id);
+            });
+            $actualReceivedAmount = (float) ($clas->actual_received_amount ?? 0);
         @endphp
         <!-- Header -->
         <div class="mb-6 space-y-4">
@@ -125,8 +129,8 @@
                     <p class="text-sm font-semibold text-gray-900">{{ $clas->meet ?? 0 }}x â€¢ {{ $clas->duration ?? 0 }} JPL</p>
                 </div>
                 <div class="bg-[#fed0d0] rounded-lg p-4 shadow-[0_2px_4px_rgba(0,0,0,0.18)]">
-                    <p class="text-xs text-gray-500 mb-1">Pendapatan Kelas</p>
-                    <p class="text-sm font-semibold text-gray-900">Rp {{ number_format((float) ($clas->price ?? 0), 0, ',', '.') }}</p>
+                    <p class="text-xs text-gray-500 mb-1">{{ $isCi4ManagedClass ? 'Uang Masuk (Terverifikasi)' : 'Pendapatan Kelas' }}</p>
+                    <p class="text-sm font-semibold text-gray-900">Rp {{ number_format($isCi4ManagedClass ? $actualReceivedAmount : (float) ($clas->price ?? 0), 0, ',', '.') }}</p>
                 </div>
             </div>
 
@@ -195,9 +199,7 @@
                             $isPrivate = str_contains($kategoriName, 'private');
                             $isRegular = str_contains($kategoriName, 'regular');
                             // Kelas private dari CI4 memiliki registrant hasil sinkronisasi API.
-                            $isCi4Private = $isPrivate && $clas->registrants->contains(function ($registrant) {
-                                return !empty($registrant->external_registration_id);
-                            });
+                            $isCi4Private = $isPrivate && $isCi4ManagedClass;
                             $isManualPrivate = $isPrivate && !$isCi4Private;
                             $usesTerminFlow = $isCorporate || $isPrivate;
                         @endphp
@@ -695,10 +697,12 @@
                         <!-- Reguler/Private: Pendapatan kelas -->
                         @php
                             $unitPrice = (float) ($clas->price_per_student ?: $clas->price ?: $clas->training?->price ?: 0);
-                            $automaticRevenue = (float) ($clas->income ?: $clas->price ?: ($registeredStudents * $unitPrice));
+                            $automaticRevenue = $isCi4ManagedClass
+                                ? $actualReceivedAmount
+                                : (float) ($clas->income ?: $clas->price ?: ($registeredStudents * $unitPrice));
                         @endphp
                         <div class="flex justify-between items-center pb-3 border-b bg-blue-50 px-3 py-2 rounded-lg">
-                            <span class="text-sm font-medium text-blue-900">Pendapatan Kelas (Otomatis)</span>
+                            <span class="text-sm font-medium text-blue-900">{{ $isCi4ManagedClass ? 'Uang Masuk (Terverifikasi)' : 'Pendapatan Kelas (Otomatis)' }}</span>
                             <span class="font-semibold text-blue-600">Rp {{ number_format($automaticRevenue, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-3 border-b">
@@ -953,12 +957,12 @@
 
                         <div class="mt-3 pt-3 border-t border-gray-200 space-y-2 text-sm">
                         <div class="flex justify-between items-center">
-                                <span class="text-gray-600">Income Budget</span>
-                            <span class="font-medium text-gray-900">Rp {{ number_format($clas->income, 0, ',', '.') }}</span>
+                                <span class="text-gray-600">{{ $isCi4ManagedClass ? 'Total Uang Masuk' : 'Income Budget' }}</span>
+                            <span class="font-medium text-gray-900">Rp {{ number_format($isCi4ManagedClass ? $actualReceivedAmount : $clas->income, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600">Actual Income (Profit)</span>
-                            <span class="font-semibold text-green-600">Rp {{ number_format($clas->income - $clas->expenses()->where('approval_status', 'approved')->sum('amount'), 0, ',', '.') }}</span>
+                            <span class="font-semibold text-green-600">Rp {{ number_format(($isCi4ManagedClass ? $actualReceivedAmount : (float) $clas->income) - $clas->expenses()->where('approval_status', 'approved')->sum('amount'), 0, ',', '.') }}</span>
                         </div>
                         </div>
                     </div>

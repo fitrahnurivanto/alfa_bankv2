@@ -462,6 +462,10 @@ class ClasController extends Controller
             'trainerAttendances.trainer',
             'passFailUpdatedBy',
         ]);
+        $clas->setAttribute(
+            'actual_received_amount',
+            $clas->inboundPayments()->where('status', 'verified')->sum('amount')
+        );
 
         if (str_contains(strtolower((string) ($clas->kategori->nama_kategori ?? '')), 'corporate')) {
             return view('admin.classes.show-corporate', compact('clas'));

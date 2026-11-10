@@ -323,7 +323,6 @@ class ClassApiController extends Controller
         if (in_array($class->kategori?->slug, self::REGISTRATION_CATEGORY_SLUGS, true)) {
             $revenue = $this->calculatedRevenueForStudents($class, $activeStudents);
             $summary['price'] = $revenue;
-            $summary['income'] = $revenue;
         }
 
         $class->update($summary);
