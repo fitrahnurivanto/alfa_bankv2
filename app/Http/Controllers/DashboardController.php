@@ -327,6 +327,125 @@ $privateRevenue = (clone $classQuery)
 
         $totalHonorPayment = (float) $regularHonorPayment + (float) $trainingHonorPayment + (float) $privateHonorPayment;
 
+        // ALFA-RINCIAN: rincian penyusun angka kartu Rekap Omset dan Rekap Honor (untuk tooltip)
+        $omsetDetails = [];
+        $omxClassRow = function ($c, $note = null, $amount = null) {
+            $ref = $c->start_date ?? $c->created_at;
+            $d = $ref ? \Carbon\Carbon::parse($ref) : null;
+            return [
+                'ts' => $d ? $d->timestamp : 0,
+                'date' => $d ? $d->format('d/m/Y') : '-',
+                'name' => (string) $c->name,
+                'inst' => '',
+                'cat' => (string) (optional($c->kategori)->nama_kategori ?? '') . ($c->jenis_kelas ? ' - ' . $c->jenis_kelas : ''),
+                'note' => $note ?? ('Harga kelas, status ' . $c->status),
+                'late' => false,
+                'amount' => $amount ?? (float) ($c->price ?? 0),
+            ];
+        };
+        $omxCat = function ($c, string $needle): bool {
+            return str_contains(strtolower((string) optional($c->kategori)->nama_kategori), $needle);
+        };
+        $omxSort = fn (array $rows) => collect($rows)->sortByDesc('ts')->values()->all();
+        $omxAllRows = $classes->map(fn ($c) => $omxClassRow($c))->values()->all();
+        $omxRegRows = $classes->filter(fn ($c) => $omxCat($c, 'regul'))->map(fn ($c) => $omxClassRow($c))->values()->all();
+        $omxPrivRows = $classes->filter(fn ($c) => $omxCat($c, 'private'))->map(fn ($c) => $omxClassRow($c))->values()->all();
+
+        $omxCorpRows = [];
+        if (Schema::hasTable('corporate_proposal_installments')) {
+            $omxCorpRows = CorporateProposalInstallment::query()
+                ->whereIn('payment_status', ['paid', 'partial'])
+                ->whereNotNull('paid_at')
+                ->whereHas('proposal.clas', function ($query) {
+                    $query->whereIn('status', ['approved', 'done'])
+                        ->whereHas('kategori', function ($categoryQuery) {
+                            $categoryQuery->whereRaw('LOWER(nama_kategori) LIKE ?', ['%corporate%']);
+                        });
+                })
+                ->when($period !== 'all', function ($query) use ($period, $year) {
+                    $actualYear = ($year !== 'all') ? (int) $year : (int) date('Y');
+                    $query->whereBetween('paid_at', $this->getDateFilter($period, $actualYear));
+                })
+                ->when($period === 'all' && $year !== 'all', function ($query) use ($year) {
+                    $query->whereYear('paid_at', $year);
+                })
+                ->with('proposal.clas')
+                ->orderByDesc('paid_at')
+                ->get()
+                ->map(function ($inst) {
+                    $cl = $inst->proposal?->clas;
+                    if ($cl instanceof \Illuminate\Support\Collection) {
+                        $cl = $cl->first();
+                    }
+                    $paidAt = \Carbon\Carbon::parse($inst->paid_at);
+                    $endRaw = $cl?->training_date_end ?? $cl?->end_date;
+                    $late = $endRaw && \Carbon\Carbon::parse($endRaw)->endOfDay()->lt($paidAt->copy()->startOfMonth());
+                    return [
+                        'ts' => $paidAt->timestamp,
+                        'date' => $paidAt->format('d/m/Y'),
+                        'name' => (string) ($cl?->name ?? $inst->proposal?->proposal_name ?? '-'),
+                        'inst' => '',
+                        'cat' => 'Corporate' . ($cl?->jenis_kelas ? ' - ' . $cl->jenis_kelas : ''),
+                        'note' => 'Termin ' . (int) ($inst->installment_no ?? 0) . ($late ? ' - Pelunasan kegiatan lampau' : ''),
+                        'late' => (bool) $late,
+                        'amount' => (float) $inst->confirmed_amount,
+                    ];
+                })->values()->all();
+        }
+
+        $omxCertClasses = $hasBnspFinancialColumns
+            ? (clone $classQuery)->where('sertifikasi_bnsp', true)->whereIn('status', ['approved', 'done'])->with('kategori')->get()
+            : collect();
+        $omxCertRows = $omxCertClasses->map(function ($c) use ($omxClassRow) {
+            $students = (int) ($c->bnsp_student_count ?? 0);
+            $fee = (float) ($c->bnsp_fee_per_student ?? 0);
+            return $omxClassRow($c, $students . ' siswa x Rp ' . number_format($fee, 0, ',', '.'), $students * $fee);
+        })->values()->all();
+        $omxCertStudentRows = $omxCertClasses->map(function ($c) use ($omxClassRow) {
+            return $omxClassRow($c, 'Peserta program sertifikasi', (float) ((int) ($c->bnsp_student_count ?? 0)));
+        })->values()->all();
+
+        $omxHonorRow = function ($e) {
+            $d = \Carbon\Carbon::parse($e->expense_date);
+            return [
+                'ts' => $d->timestamp,
+                'date' => $d->format('d/m/Y'),
+                'name' => (string) ($e->clas->name ?? '-'),
+                'inst' => '',
+                'cat' => ucfirst(str_replace('_', ' ', (string) $e->category)),
+                'note' => \Illuminate\Support\Str::limit((string) ($e->description ?? ''), 70),
+                'late' => false,
+                'amount' => (float) $e->amount,
+            ];
+        };
+        $omxHonorBy = function (string $needle) use ($honorExpenseBaseQuery, $omxHonorRow) {
+            return (clone $honorExpenseBaseQuery)
+                ->whereHas('clas.kategori', function ($query) use ($needle) {
+                    $query->whereRaw('LOWER(nama_kategori) LIKE ?', ['%' . $needle . '%']);
+                })
+                ->with('clas')
+                ->orderByDesc('expense_date')
+                ->get()
+                ->map($omxHonorRow)
+                ->values()
+                ->all();
+        };
+        $omxHonorReg = $omxHonorBy('regul');
+        $omxHonorCorp = $omxHonorBy('corporate');
+        $omxHonorPriv = $omxHonorBy('private');
+
+        $omsetDetails['Omset Reguler'] = ['unit' => 'money', 'rows' => $omxSort($omxRegRows)];
+        $omsetDetails['Omset Corporate'] = ['unit' => 'money', 'rows' => $omxSort($omxCorpRows)];
+        $omsetDetails['Omset Private'] = ['unit' => 'money', 'rows' => $omxSort($omxPrivRows)];
+        $omsetDetails['Nilai Kelas'] = ['unit' => 'money', 'rows' => $omxSort($omxAllRows)];
+        $omsetDetails['Omset Masuk'] = ['unit' => 'money', 'rows' => $omxSort($omxAllRows)];
+        $omsetDetails['Omset Sertifikasi'] = ['unit' => 'money', 'rows' => $omxSort($omxCertRows)];
+        $omsetDetails['Data Sertifikasi'] = ['unit' => 'siswa', 'rows' => $omxSort($omxCertStudentRows)];
+        $omsetDetails['Honor Reguler'] = ['unit' => 'money', 'rows' => $omxSort($omxHonorReg)];
+        $omsetDetails['Honor Corporate'] = ['unit' => 'money', 'rows' => $omxSort($omxHonorCorp)];
+        $omsetDetails['Honor Private'] = ['unit' => 'money', 'rows' => $omxSort($omxHonorPriv)];
+        $omsetDetails['Total Honor'] = ['unit' => 'money', 'rows' => $omxSort(array_merge($omxHonorReg, $omxHonorCorp, $omxHonorPriv))];
+
         // User and division variables (DIPINDAHKAN KE ATAS)
         $user = $this->currentUser();
         $activeDivision = 'training'; // System is Training only
@@ -709,6 +828,7 @@ foreach ($monthlyClasses as $month => $classesInMonth) {
             'revenueChartYear',
             'classRevenue',
             'classValueRevenue',
+            'omsetDetails',
             'totalPaid',
             'totalClassIncome',
             'totalRemainingPayment',

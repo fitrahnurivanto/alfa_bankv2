@@ -118,12 +118,144 @@
     @endif
 </div>
 
+{{-- ALFA-HEAD --}}
+@php
+    $omsetDetails = $omsetDetails ?? [];
+    $omxFmt = function ($v, string $unit): string {
+        return $unit === 'money' ? 'Rp ' . number_format((float) $v, 0, ',', '.') : number_format((float) $v, 0, ',', '.') . ' ' . $unit;
+    };
+    $omxTable = function (array $rows, string $dateHead, string $unit) use ($omxFmt): string {
+        $h = '<table class="omx-table"><thead><tr><th>' . e($dateHead) . '</th><th>Sumber</th><th class="omx-r">Jumlah</th></tr></thead><tbody>';
+        foreach ($rows as $r) {
+            $sub = ($r['inst'] ?? '') !== '' ? $r['inst'] . ' - ' . ($r['cat'] ?? '') : ($r['cat'] ?? '');
+            $h .= '<tr><td class="omx-nw">' . e($r['date'] ?? '-') . '</td><td><div class="omx-n">' . e($r['name'] ?? '-') . '</div>';
+            $h .= '<div class="omx-s">' . e($sub) . '</div>';
+            if (! empty($r['note'])) {
+                $h .= '<div class="omx-s' . (! empty($r['late']) ? ' omx-late' : '') . '">' . e($r['note']) . '</div>';
+            }
+            $h .= '</td><td class="omx-r omx-nw">' . e($omxFmt($r['amount'] ?? 0, $unit)) . '</td></tr>';
+        }
+        return $h . '</tbody></table>';
+    };
+    $omxPop = function (string $title, string $id) use ($omsetDetails, $omxTable, $omxFmt): string {
+        $d = (array) ($omsetDetails[$title] ?? []);
+        $rows = array_values((array) ($d['rows'] ?? []));
+        $unit = (string) ($d['unit'] ?? 'money');
+        $count = count($rows);
+        $total = array_sum(array_column($rows, 'amount'));
+        $head = '<div class="omx-head"><strong>' . e($title) . '</strong><span>' . $count . ' data - ' . e($omxFmt($total, $unit)) . '</span></div>';
+        $h = '<div class="omx-pop" role="tooltip" style="display:none">' . $head;
+        if ($count > 0) {
+            $h .= $omxTable(array_slice($rows, 0, 8), 'Tanggal', $unit);
+            if ($count > 8) {
+                $h .= '<button type="button" class="omx-all" data-omx-open="' . e($id) . '">Lihat semua (' . $count . ')</button>';
+            }
+        } else {
+            $h .= '<p style="color:#6b7280">Belum ada data pada periode ini.</p>';
+        }
+        $h .= '</div>';
+        if ($count > 8) {
+            $h .= '<dialog id="' . e($id) . '" class="omx-dlg">' . $head . $omxTable($rows, 'Tanggal', $unit) . '<form method="dialog" style="margin-top:12px;text-align:right"><button class="omx-all" style="width:auto">Tutup</button></form></dialog>';
+        }
+        return $h;
+    };
+@endphp
+<style>
+    .omx-card[data-omx]{cursor:pointer}
+    .omx-pop{position:fixed;z-index:60;max-height:70vh;overflow:auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 12px 32px rgba(17,24,39,.18);padding:12px;font-size:12px;color:#111827;text-align:left;font-weight:400}
+    .omx-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:12px}
+    .omx-table{width:100%;border-collapse:collapse}
+    .omx-table th{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#6b7280;text-align:left;padding:4px 6px;border-bottom:1px solid #e5e7eb}
+    .omx-table td{padding:6px;border-bottom:1px solid #f3f4f6;vertical-align:top}
+    .omx-r{text-align:right}
+    .omx-nw{white-space:nowrap}
+    .omx-n{font-weight:600}
+    .omx-s{color:#6b7280;font-size:11px}
+    .omx-late{color:#b45309;font-weight:600}
+    .omx-all{margin-top:8px;width:100%;padding:6px 10px;border:1px solid #fecaca;border-radius:8px;background:#fff1f1;color:#fe0000;font-weight:600;font-size:12px;cursor:pointer}
+    .omx-dlg{border:0;border-radius:14px;padding:16px;width:min(720px,94vw);max-height:86vh;overflow:auto;box-shadow:0 20px 50px rgba(17,24,39,.3)}
+    .omx-dlg::backdrop{background:rgba(17,24,39,.45)}
+</style>
+<script>
+(function () {
+    var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    var timer = null;
+    function popOf(card) { return card ? card.querySelector('.omx-pop') : null; }
+    function place(card, pop) {
+        var r = card.getBoundingClientRect();
+        var w = Math.min(440, window.innerWidth - 16);
+        pop.style.width = w + 'px';
+        pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px';
+        pop.style.top = (r.bottom + 6) + 'px';
+        var h = pop.offsetHeight;
+        if (r.bottom + 6 + h > window.innerHeight - 8 && r.top - h - 6 > 8) { pop.style.top = (r.top - h - 6) + 'px'; }
+    }
+    function hideAll(except) {
+        document.querySelectorAll('.omx-card').forEach(function (c) {
+            if (c === except) { return; }
+            var p = popOf(c);
+            if (p) { p.style.display = 'none'; }
+        });
+    }
+    function show(card) {
+        var p = popOf(card);
+        if (!p) { return; }
+        hideAll(card);
+        p.style.display = 'block';
+        place(card, p);
+    }
+    function cardOf(t) { return t && t.closest ? t.closest('.omx-card[data-omx]') : null; }
+    document.addEventListener('mouseover', function (e) {
+        if (!canHover || (e.target.closest && e.target.closest('dialog'))) { return; }
+        var c = cardOf(e.target);
+        if (c) { clearTimeout(timer); show(c); }
+    });
+    document.addEventListener('mouseout', function (e) {
+        if (!canHover || (e.target.closest && e.target.closest('dialog'))) { return; }
+        if (cardOf(e.target)) { clearTimeout(timer); timer = setTimeout(function () { hideAll(null); }, 250); }
+    });
+    document.addEventListener('focusin', function (e) {
+        var c = cardOf(e.target);
+        if (c && !(e.target.closest && e.target.closest('dialog'))) { show(c); }
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { hideAll(null); } });
+    window.addEventListener('resize', function () { hideAll(null); });
+    window.addEventListener('scroll', function (e) {
+        if (e.target && e.target.closest && e.target.closest('.omx-pop')) { return; }
+        hideAll(null);
+    }, true);
+    document.addEventListener('click', function (e) {
+        var t = e.target;
+        var ob = t.closest ? t.closest('[data-omx-open]') : null;
+        if (ob) {
+            var d = document.getElementById(ob.getAttribute('data-omx-open'));
+            hideAll(null);
+            if (d && d.showModal) { d.showModal(); }
+            return;
+        }
+        if (t.tagName === 'DIALOG') {
+            var r = t.getBoundingClientRect();
+            if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) { t.close(); }
+            return;
+        }
+        if (t.closest && (t.closest('dialog') || t.closest('.omx-pop'))) { return; }
+        var c = cardOf(t);
+        if (c) {
+            var p = popOf(c);
+            if (canHover) { show(c); return; }
+            if (p && p.style.display === 'block') { hideAll(null); } else { show(c); }
+            return;
+        }
+        hideAll(null);
+    });
+})();
+</script>
 <!-- Rekap Omset + Rekap Honor -->
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-5">
     <section class="card-figma rounded-lg p-4 xl:col-span-2">
         <h5 class="text-base font-bold text-gray-900 mb-3">Rekap Omset</h5>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-book-open text-xl text-[#fe0000]"></i>
                 </div>
@@ -131,9 +263,11 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Omset Reguler</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($regularRevenue, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total Omset Masuk kategori reguler</p>
+                
+                    {!! $omxPop('Omset Reguler', 'omx-dlg-0') !!}
                 </div>
             </div>
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-certificate text-xl text-[#fe0000]"></i>
                 </div>
@@ -141,9 +275,11 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Data Sertifikasi</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">{{ number_format($certificationStudentCount, 0, ',', '.') }} siswa</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total peserta program sertifikasi</p>
+                
+                    {!! $omxPop('Data Sertifikasi', 'omx-dlg-1') !!}
                 </div>
             </div>
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-building text-xl text-[#fe0000]"></i>
                 </div>
@@ -151,9 +287,11 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Omset Corporate</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($corporateRevenue, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total Omset Masuk kategori corporate</p>
+                
+                    {!! $omxPop('Omset Corporate', 'omx-dlg-2') !!}
                 </div>
             </div>
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-dollar-sign text-xl text-[#fe0000]"></i>
                 </div>
@@ -161,9 +299,11 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Omset Sertifikasi</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($certificationRevenue, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Dari {{ $certificationClassCount }} kelas sertifikasi</p>
+                
+                    {!! $omxPop('Omset Sertifikasi', 'omx-dlg-3') !!}
                 </div>
             </div>
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-user text-xl text-[#fe0000]"></i>
                 </div>
@@ -171,9 +311,11 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Omset Private</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($privateRevenue, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total Omset Masuk kategori private</p>
+                
+                    {!! $omxPop('Omset Private', 'omx-dlg-4') !!}
                 </div>
             </div>
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-layer-group text-xl text-[#fe0000]"></i>
                 </div>
@@ -181,9 +323,11 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Nilai Kelas</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($classValueRevenue, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total nilai harga kelas periode ini</p>
+                
+                    {!! $omxPop('Nilai Kelas', 'omx-dlg-5') !!}
                 </div>
             </div>
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-money-bill-transfer text-xl text-[#fe0000]"></i>
                 </div>
@@ -191,6 +335,8 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Omset Masuk</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($classRevenue, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total Omset Masuk semua kategori</p>
+                
+                    {!! $omxPop('Omset Masuk', 'omx-dlg-6') !!}
                 </div>
             </div>
         </div>
@@ -233,7 +379,7 @@
     <section class="card-figma rounded-lg p-4">
         <h5 class="text-base font-bold text-gray-900 mb-3">Rekap Honor</h5>
         <div class="grid grid-cols-1 gap-3">
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-book-open text-xl text-[#fe0000]"></i>
                 </div>
@@ -241,9 +387,11 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Honor Reguler</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($regularHonorPayment, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Pembayaran honor kategori reguler</p>
+                
+                    {!! $omxPop('Honor Reguler', 'omx-dlg-7') !!}
                 </div>
             </div>
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-building text-xl text-[#fe0000]"></i>
                 </div>
@@ -251,9 +399,11 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Honor Corporate</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($trainingHonorPayment, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Pembayaran honor kategori corporate</p>
+                
+                    {!! $omxPop('Honor Corporate', 'omx-dlg-8') !!}
                 </div>
             </div>
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-user text-xl text-[#fe0000]"></i>
                 </div>
@@ -261,9 +411,11 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Honor Private</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($privateHonorPayment, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Pembayaran honor kategori private</p>
+                
+                    {!! $omxPop('Honor Private', 'omx-dlg-9') !!}
                 </div>
             </div>
-            <div class="card-figma rounded-lg p-3 flex items-center gap-3 ">
+            <div class="card-figma rounded-lg p-3 flex items-center gap-3 omx-card" tabindex="0" data-omx>
                 <div class="w-12 h-12 shrink-0 rounded-lg bg-[#fed0d0] flex items-center justify-center">
                     <i class="fas fa-dollar-sign text-xl text-[#fe0000]"></i>
                 </div>
@@ -271,6 +423,8 @@
                     <p class="text-[13px] text-gray-800 leading-tight">Total Honor</p>
                     <p class="text-lg font-bold text-gray-900 leading-tight break-words">Rp {{ number_format($totalHonorPayment, 0, ',', '.') }}</p>
                     <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Total honor dari seluruh kategori</p>
+                
+                    {!! $omxPop('Total Honor', 'omx-dlg-10') !!}
                 </div>
             </div>
         </div>

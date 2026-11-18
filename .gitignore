@@ -39,3 +39,6 @@ run_artisan.php
 dummy_data.sql
 INVENTARIS_MIGRATION.sql
 Praktek-Kerja-Lapangan-*.txt
+
+*_dump.txt
+storage/backup_*
